@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from "react-native";
-import Svg, { Ellipse } from "react-native-svg";
+
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import Icon from "react-native-vector-icons/Feather";
 

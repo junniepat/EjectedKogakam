@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View, AsyncStorage
 } from 'react-native';
 
 import MaterialCard5 from "../components/MaterialCard5";
@@ -21,6 +21,9 @@ import { MonoText } from '../components/StyledText';
 import ProfileSegment from "../components/segmentTabs"
 
 export default function SettingsScreen(props) {
+
+  
+
   return (
     <View style={styles.container}>
 <MaterialSearchBar

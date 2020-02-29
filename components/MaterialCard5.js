@@ -1,33 +1,66 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
+
+import axios from 'axios'
+
 function MaterialCard5(props) {
+
+  const [data, setData] = useState({ products: [] });
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/get_all_products', {
+          headers: {
+            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+          }
+        }
+      );
+      setData(result.data.successData);
+    };
+    fetchData();
+  }, []);
+
+
+
   return (
-    <TouchableOpacity  style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView')}}>
-    <View >
-      <Image
-        source={require("../assets/images/slide3.jpg")}
-        resizeMode="cover"
-        style={styles.cardItemImagePlace}
-      ></Image>
-  
-      <View style={styles.titleStyleStack}>
-        <Text style={styles.titleStyle}>Rs 3.00</Text>
-        <Text style={styles.subtitleStyle}>Full Desktop Computer</Text>
-      </View>
-      <View style={styles.locationRow}>
-       
-        <Text style={styles.location}>  
-        <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-    Pakistan</Text>
+    <>
+    {data.products.map(item => (
+      <>
         
+<TouchableOpacity  key={item.id} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
+  itemId: item.id,
+})}}>
+<View>
+  <Image
+    source={require("../assets/images/slide3.jpg")}
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image>
+
+  <View style={styles.titleStyleStack}>
+    <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
+    <Text style={styles.subtitleStyle}>{item.title}</Text>
+  </View>
+  <View style={styles.locationRow}>
+   
+    <Text style={styles.location}>  
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
+{item.location.substring(0,17)}</Text>
     
-        <Text style={styles.loremIpsum}>23 Hrs</Text>
-      </View>
-    </View>
-    </TouchableOpacity>
-  );
+
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
+  </View>
+</View>
+</TouchableOpacity>
+
+</>
+
+      ))}
+
+    </>
+   );
 }
 
 const styles = StyleSheet.create({
@@ -41,6 +74,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingBottom: 5,
     marginBottom: 5,
+
+    width: '100%'
   },
   cardItemImagePlace: {
     height: 75,
@@ -57,7 +92,7 @@ const styles = StyleSheet.create({
     width: 105,
     height: 28,
     color: "#000",
-    fontSize: 13,
+    fontSize: 12,
     textAlign: "left",
     fontFamily: 'Montserrat-Medium',
   },
@@ -83,22 +118,24 @@ const styles = StyleSheet.create({
   location: {
     color: "rgba(0,0,0,1)",
     fontSize: 9,
-    height: 30,
     fontFamily: 'Montserrat-Medium',
+    height: 30
   },
   loremIpsum: {
     color: "rgba(0,0,0,1)",
     fontSize: 9,
-    height: 30,
-    marginLeft: 69,
     fontFamily: 'Montserrat-Medium',
+    marginLeft: 8,
+    height: 30
   },
   locationRow: {
     height: 8,
     flexDirection: "row",
+    justifyContent: 'space-between',
     marginLeft: 10,
     marginRight: 20,
     marginBottom: 5,
+    width: '82%'
   }
 });
 

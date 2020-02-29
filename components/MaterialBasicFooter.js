@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import Svg, { Ellipse } from "react-native-svg";
+
+
 import EntypoIcon from "react-native-vector-icons/Entypo";
 
 function MaterialBasicFooter(props) {

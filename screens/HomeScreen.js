@@ -1,5 +1,5 @@
 import * as WebBrowser from 'expo-web-browser';
-import React from 'react';
+import React , {useState, useEffect} from 'react';
 import {
   Image,
   Platform,
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,Picker
+  View,Picker, AsyncStorage
 } from 'react-native';
 
 import MaterialCard5 from "../components/MaterialCard5";
@@ -18,7 +18,33 @@ import Services from "../components/services"
 import { MonoText } from '../components/StyledText';
 import { Ionicons } from '@expo/vector-icons';
 
+import axios from 'axios'
 export default function HomeScreen(props) {
+  
+  const [data, setData] = useState({ cats: [] });
+  const [dataC, setDataC] = useState({ cat: [] });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/get_mobile_cats', {
+          headers: {
+            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+          }
+        }
+      );  
+      setData(result.data.successData);
+    };
+    fetchData();
+
+    AsyncStorage.getItem("token")
+    .then((result)=>console.warn(result))
+
+  }, []);
+
+
+
+
   return (
     <View style={styles.container}>
 
@@ -60,7 +86,10 @@ export default function HomeScreen(props) {
 
 
 <View style={styles.scrollArea2StackRow}>
-<Services color="#9bb9ff" roundedName="Shop" navigation={props.navigation} >
+{data.cats.map(item => (
+      <>
+         
+<Services key={item.id} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
 <Image
             source={require("../assets/images/shop.png")}
             resizeMode="center"
@@ -68,7 +97,7 @@ export default function HomeScreen(props) {
          />
 </Services>
          
-         <Services color="#f8dd3c"  roundedName="Electronics &amp; Computers"  navigation={props.navigation}  >
+         {/* <Services color="#f8dd3c"  roundedName="Electronics &amp; Computers"  navigation={props.navigation}  >
 <Image
             source={require("../assets/images/monitor.png")}
             resizeMode="center"
@@ -127,7 +156,10 @@ export default function HomeScreen(props) {
             resizeMode="center"
             style={{width: 22, height: 22}} 
          />
-</Services>  
+</Services>   */}
+
+</>
+ ))}
                </View>   
 
 
@@ -136,16 +168,7 @@ export default function HomeScreen(props) {
  <View style={styles.scrollAreaStack}>
          <View 
             style={styles.scrollArea_contentContainerStyle}>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-
-
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
+            <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
         </View>
         </View>
        
@@ -162,7 +185,8 @@ export default function HomeScreen(props) {
       </View> */}
 
 </ScrollView>
-    </View>
+  
+</View>
   );
 }
 
@@ -170,28 +194,7 @@ HomeScreen.navigationOptions = {
   header: null,
 };
 
-function DevelopmentModeNotice() {
-  if (__DEV__) {
-    const learnMoreButton = (
-      <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
-        Learn more
-      </Text>
-    );
 
-    return (
-      <Text style={styles.developmentModeText}>
-        Development mode is enabled: your app will be slower but you can use
-        useful development tools. {learnMoreButton}
-      </Text>
-    );
-  } else {
-    return (
-      <Text style={styles.developmentModeText}>
-        You are not in development mode: your app will run at full speed.
-      </Text>
-    );
-  }
-}
 
 
 

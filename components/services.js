@@ -12,7 +12,7 @@ import {
 import MaterialCard5 from "../components/MaterialCard5";
 import MaterialBasicFooter from "../components/MaterialBasicFooter";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import Svg, { Ellipse } from "react-native-svg";
+
 import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import IoniconsIcon from "react-native-vector-icons/Ionicons";

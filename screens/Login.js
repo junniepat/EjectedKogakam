@@ -1,42 +1,148 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-import MaterialButtonViolet from "../components/MaterialButtonViolet";
-import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
-import MaterialUnderlineTextbox from "../components/MaterialUnderlineTextbox";
+import React, { Component, useEffect, useState } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, AsyncStorage } from "react-native";
+
 import MaterialButtonViolet1 from "../components/MaterialButtonViolet1";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import MaterialButtonWithShadow from "../components/MaterialButtonWithShadow";
 import MaterialButtonPink1 from "../components/MaterialButtonPink1";
 
+
+import * as api from "../services/service";
+import { useAuth } from "../provider";
+
+import { Button } from 'react-native-elements';
+
+
+const UserContext = React.createContext();
+
 function Login(props) {
+
+ 
+ 
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  const [btnText, setbtnText] = useState("Login")
+  const [disableBtn, setDisableBtn] = useState(false)
+
+  const [token, setToken] = useState(null); 
+  const [user, setUser] = useState(null); 
+ 
+  
+ async function onsubmit() {
+  AsyncStorage.setItem('token', 'jjj7777')
+  setDisableBtn(true)
+  setbtnText('...logging you in')
+
+  if (email == null) {
+    console.warn('exploded')
+  }
+
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('password', password);
+
+
+      await api.login(formData)
+      .then(response => 
+        { 
+          console.warn(response)
+          onSuccess(response);
+          setbtnText('Sucx')
+          setDisableBtn(false)
+        })
+     
+     
+    .catch(error => {
+      // setLoading(false)
+      // setError(error.message)
+      setbtnText('Login')
+      setDisableBtn(false)
+      setToken(null)
+    })
+    
+  }
+   
+
+const onSuccess = (data) => {
+  setUser(data.user)
+  setToken(data.session.session_key)
+  console.warn('res', data.user)
+
+  AsyncStorage.setItem("token", JSON.stringify(token)).then(
+    () => AsyncStorage.getItem("token")
+          .then((result)=> {
+            if (result === null) {
+
+            }
+            else {
+              props.navigation.navigate('Home', {
+                token
+              })
+            }
+          })
+ )
+
+
+ AsyncStorage.setItem("user", JSON.stringify(user)).then(
+  () => AsyncStorage.getItem("user")
+        .then((result)=>console.warn(result))
+)
+ 
+}
+
+
+
+ 
+ 
+  
   return (
     <View style={styles.container}>
 
-<Text style={styles.text}>LOGIN</Text>
-
-    
-<MaterialUnderlineTextbox
-        textInput1=""
-        style={styles.materialUnderlineTextbox}
-      ></MaterialUnderlineTextbox>
-
-      <MaterialRightIconTextbox
-        style={styles.materialRightIconTextbox}
-      ></MaterialRightIconTextbox>
-
-     
+<Text style={styles.text}>LOGIN </Text>
 
 
-<MaterialButtonViolet
-       navigation={props.navigation}
-        style={styles.materialButtonViolet}
-      ></MaterialButtonViolet>
+
+
+{/* <ErrorText error={error}/> */}
+
+    <View
+      style={styles.materialUnderlineTextbox}>
+    <TextInput
+        placeholder={"Email Address"}
+        style={styles.inputStyle}
+        onChangeText={text => setEmail(text)}
+        value={email}
+      ></TextInput>
+    </View>
+ 
+
+    <View
+      style={styles.materialUnderlineTextbox}>
+ 
+<TextInput
+        placeholder={"Password"}
+        style={styles.inputStyle}
+        onChangeText={text => setPassword(text)}
+        value={password}
+        secureTextEntry={true}
+      ></TextInput>
+    </View>
+
+
+  <View style={{marginLeft: 9, marginRight: 9}}>
+          <Button
+            title={btnText}
+            style={styles.materialButtonViolet}
+            disabled={disableBtn}
+            onPress={()=> onsubmit()}> 
+          >
+          </Button>
+  </View>
+
+
 
 <View style={styles.blueBack}>
-
-
-
-
 
 <View style={styles.buttonAll}>
 <View style={styles.materialButtonViolet1Stack}>
@@ -76,9 +182,7 @@ function Login(props) {
         If you continue, you are accepting Kogakam
       </Text>
 
-      <View style={styles.cupertinoButtonBlueTextColorRow}>
-      
-        
+ 
       <View style={styles.loremIpsum3StackStack}>
 
 <TouchableOpacity>
@@ -93,7 +197,7 @@ function Login(props) {
 
  
 </View>
-      </View>
+    
       </View>
     </View>
   );
@@ -111,6 +215,21 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     height: '55%'
   },
+  lottie: {
+    width: 100,
+    height: 100
+  },
+  inputStyle: {
+    flex: 1,
+    color: "#000",
+    alignSelf: "stretch",
+    paddingTop: 8,
+    paddingRight: 0,
+    paddingBottom: 8,
+    fontSize: 16,
+    lineHeight: 16,
+    textAlign: "left"
+  },
   buttonAll: {
     flexDirection: 'row', 
     marginTop: 4,
@@ -121,7 +240,31 @@ const styles = StyleSheet.create({
     width: "95%",
     height: 51,
     marginTop: 32,
-    marginLeft: 10
+    marginLeft: 10,
+    marginBottom: 25,
+
+
+    backgroundColor: "#3F51B5",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: 16,
+    paddingLeft: 16,
+    elevation: 2,
+    minWidth: 88,
+    borderRadius: 2,
+    shadowOffset: {
+      height: 1,
+      width: 0
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.35,
+    shadowRadius: 5
+  },
+
+  caption: {
+    color: "#fff",
+    fontSize: 14,
   },
   materialRightIconTextbox: {
     width: "95%",
@@ -132,9 +275,16 @@ const styles = StyleSheet.create({
   },
   materialUnderlineTextbox: {
     width: "95%",
-    height: 43,
+    height: 50,
     marginLeft: 10,
-    marginTop: 30,
+    marginTop: 10,
+
+    borderColor: '#ccc',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 22
   },
   materialButtonViolet1: {
     top: 0,
@@ -194,8 +344,11 @@ const styles = StyleSheet.create({
   text: {
     color: "rgba(0,0,0,1)",
     fontSize: 19,
-    marginTop: 70,
-    alignSelf: 'center'
+    
+    marginTop: 59,
+    textAlign: 'center',
+    marginBottom: 20,
+    fontFamily: 'Montserrat-Medium',
   },
   materialButtonPink1: {
     top: 0,
@@ -216,7 +369,28 @@ const styles = StyleSheet.create({
     height: 57,
     marginTop: 9,
     marginLeft: 10
-  }
+  },
+  loremIpsum3StackStack: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: "70%",
+    height: 49,
+    alignItems: 'center',
+    alignSelf: 'center',
+    alignContent: 'center',
+    textAlign: 'center',
+  },
+  caption: {
+    fontSize: 12,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  and1: {
+    fontSize: 12,
+    color: '#fff',
+    marginLeft: 5,
+    marginRight:5
+  },
 });
 
 export default Login;
