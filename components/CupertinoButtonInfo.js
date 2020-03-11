@@ -6,6 +6,8 @@ function CupertinoButtonInfo(props) {
     <TouchableOpacity style={[styles.container, props.style]}>
       <Text style={styles.caption}>Chat</Text>
     </TouchableOpacity>
+
+
   );
 }
 

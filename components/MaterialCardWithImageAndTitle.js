@@ -1,10 +1,45 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import React , {useState, useEffect} from 'react';
+import { StyleSheet, View, Text, Image, AsyncStorage } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+
+import axios from 'axios'
+
 function MaterialCardWithImageAndTitle(props) {
+  const [data, setData] = useState({ chats: [], unread_count: 0 });
+  const [toks, setToks] = useState('');
+ 
+  useEffect(() => {
+    AsyncStorage.getItem("token")
+    .then((result)=> {
+      setToks(result.replace(/"/g, ""))
+      console.warn("tokenh", toks) 
+    }) 
+
+
+    const fetchData = async () => {
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/get_chats', {
+          headers: {
+            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=',
+            session_token: toks
+          }
+        }
+      );  
+      setData(result.data.successData);
+    };
+    fetchData();
+
+  }, []);
+
+
+
   return (
     <View style={[styles.container, props.style]}>
+
+
+{data.chats.map((item, index) => (
+         <>
       <TouchableOpacity   onPress={()=>{props.navigation.navigate('inboxView')}}>
       <View style={styles.cardBody}>
       <Image
@@ -22,6 +57,11 @@ function MaterialCardWithImageAndTitle(props) {
     
       </View>
       </TouchableOpacity>
+    
+    
+      </>
+       ))}
+
     </View>
   );
 }

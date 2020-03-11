@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React , {useState, useEffect} from 'react';
 import { StyleSheet, View, ScrollView, Text, Image, TouchableOpacity, TextInput} from "react-native";
 
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
@@ -8,7 +8,28 @@ import Icon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 
+import axios from 'axios'
+
 function inboxView(props) {
+  const [data, setData] = useState({ chat_messages: [], user: [], product: [] });
+  
+  useEffect(() => { 
+    
+    const fetchData = async () => { 
+      const result = await axios.get(
+        `get_chat_message/${props.navigation.getParam('itemId')}`
+      );  
+      setData(result.data.successData);
+    }; 
+    fetchData();
+
+    console.warn(data, 'data')
+
+    
+ 
+  }, []);
+
+ 
   return (
 <>
 <View style={styles.container}>
@@ -32,7 +53,8 @@ function inboxView(props) {
         resizeMode="cover"
         style={styles.profileImg}
       ></Image> 
-    <Text style={styles.headerText}>&nbsp; Jon Doe</Text>
+    <Text style={styles.headerText}>&nbsp;
+       jon doe</Text>
 </View>
 
     
@@ -77,11 +99,19 @@ function inboxView(props) {
 <ScrollView>
 
 
-
 <View style={styles.ramanOsmanStackColumn}>
             
 
-<Text style={styles.details}>Monday, 21 Nov</Text>
+
+{data.chat_messages.map((item, index) => (
+  <>
+
+<Text style={styles.details}>
+<Moment date={item.updated_at}
+                    durationFromNow
+            />
+            </Text>
+
 
 
 <View style={styles.productText}>
@@ -101,10 +131,13 @@ function inboxView(props) {
 </View>
 
 
-                  <View style={styles.detailsDescription}>
+
+    <Text>{item.id}</Text>
+
+
+    <View style={styles.detailsDescription}>
                   <Text style={styles.bluemessagedetails}>
-                        mpdiiofdwio iowoi fw fiow ufiw uiw oie ep9o wuw  wu ou iowiu
-                        o ewuewuwuw iwowewo wpoiwoiwppowowi wio i oiw hiwo ow wo{"\n"}
+                      {item.message}
                         </Text>
 
                         <Text style={styles.bluetime}>
@@ -115,6 +148,10 @@ function inboxView(props) {
           10:05 
           </Text>
                     </View>
+ 
+
+
+                  
 
 
                     <View style={styles.detailsDescriptionRit}>
@@ -132,8 +169,16 @@ function inboxView(props) {
           10:05 
           </Text>
                     </View>
-    </View>
+  
+  
+                    </>
+))}
+  </View>
+
+
+
     </ScrollView>
+  
 
 
 <View style={styles.messageBox}>

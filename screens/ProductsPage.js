@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from "react-native";
+import React, { Component, useState, useEffect} from "react";
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
 
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import Icon from "react-native-vector-icons/Feather";
@@ -9,7 +9,24 @@ import { Ionicons } from '@expo/vector-icons';
 
 import MaterialCard5 from "../components/MaterialCard5";
 
+import axios from 'axios'
+
 function ProductsPage(props) {
+
+   
+  const [data, setData] = useState({ products: [] });
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(
+        `https://kogakam.com/api/v1/get_cats_products/${props.navigation.getParam('id')}`
+      );
+      setData(result.data.successData);
+    };
+    fetchData();
+  }, []);
+
+
+
   return (
 <>
 <View style={styles.container}>
@@ -24,10 +41,11 @@ function ProductsPage(props) {
        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <Text style={styles.details}>
             {props.navigation.getParam('name')}
+
           </Text>
 
           <TouchableOpacity style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.button}>Filter    
+            <Text style={styles.button}>    
             <Ionicons name={Platform.OS === 'ios' ? 'ios-funnel' : 'md-funnel'} size={12}  style={{marginRight: 6,marginLeft: 6, paddingLeft: 6,}} /></Text>
           </TouchableOpacity>
        </View>
@@ -37,26 +55,49 @@ function ProductsPage(props) {
  <View style={styles.scrollAreaStack}>
          <View 
             style={styles.scrollArea_contentContainerStyle}>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
 
+
+  
+{data.products.map(item => (
+      <>
+          
+<TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.push('ProductView', 
+{
+  itemId: item.id,
+})}}>
+<View>
+  <Image
+    source={require("../assets/images/slide3.jpg")}
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image>
+
+  <View style={styles.titleStyleStack}>
+    <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
+    <Text style={styles.subtitleStyle}>{item.title}</Text>
+  </View>
+  <View style={styles.locationRow}>
+   
+    <Text style={styles.location}>  
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
+{item.location.substring(0,17)}</Text>
+    
+
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
+  </View>
+</View>
+</TouchableOpacity>
+
+         </>
+))}
+              
                 <View style={styles.adsContainer}>
                   <Text style={styles.adsText}>You can place your ads here</Text>
                   <Text style={styles.adsText1}>Sell your things in your community, its quick and easy. </Text>
                 </View>
 
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-        </View>
+              
+            </View>
         </View>
        
       
@@ -75,6 +116,37 @@ function ProductsPage(props) {
       flex: 1,
       backgroundColor: '#fff',
     },
+     
+    details:{
+      fontSize: 16,
+      fontFamily: 'Montserrat-Medium',
+      textTransform: 'uppercase',
+      marginLeft: 9
+    },
+
+  materialCard5: {
+    top: 30,
+    left: 3,
+    right: 10,
+    width: "49%",
+    height: 185,
+    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+
+
+
+    backgroundColor: "#FFF",
+    flexWrap: "nowrap",
+    borderRadius: 2,
+    borderColor: "#CCC",
+    borderWidth: 1,
+
+    overflow: "hidden",
+    paddingBottom: 5,
+    marginBottom: 5,
+
+  },
+
     adsContainer: {
       backgroundColor: '#4630EB',
       marginTop: 5,
@@ -99,37 +171,7 @@ function ProductsPage(props) {
       fontSize: 10
     },
     
-    button: {
-      width: 70,
-      marginTop: 2,
-      borderStyle: 'solid',
-      borderColor: 'dodgerblue',
-      borderWidth: 1,
-      paddingLeft: 4,
-      color: 'dodgerblue',
-      marginRight: 18,
-      alignSelf: 'flex-end',
-      alignItems: 'flex-end'
-  },
-  materialCard5: {
-    top: 30,
-    left: 3,
-    right: 10,
-    width: "49%",
-    height: 185,
-    alignItems: 'flex-start',
-    alignSelf: 'flex-start',
-  },
-    PersonInfo:{
-        width: "100%",
-        borderWidth: 1,
-        borderStyle: 'dotted',
-        borderColor: '#eee',
-        paddingBottom: 10,
-        paddingTop: 10,
-        backgroundColor: '#fcfcfc'
-    },
-
+ 
    
   scrollAreaStack: {
     width: '100%',
@@ -140,7 +182,7 @@ function ProductsPage(props) {
     width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingLeft: 5,
     paddingRight: 10,
   },
@@ -160,30 +202,8 @@ function ProductsPage(props) {
     
      
    
-      details: {
-        color: "#333",
-        fontSize: 14,
-        fontFamily: 'Montserrat-Medium',
-        lineHeight: 26,
-        marginTop: 5,
-        marginLeft: 9,
-        textTransform: 'uppercase'
-      },
     
-     
-      cupertinoButtonInfoRow: {
-        height: 33,
-        flexDirection: "row",
-        marginTop: 7,
-        marginLeft: 9,
-      },
-      cupertinoButtonInfo: {
-        width: 91,
-        height: 32,
-        marginTop: 1,
-        
-    fontFamily: 'Montserrat-Medium',
-      },
+   
       icon: {
         color: "rgba(21,97,195,1)",
         fontSize: 20,
@@ -202,6 +222,70 @@ function ProductsPage(props) {
         lineHeight: 26,
         marginLeft: 2
       },
+
+
+
+      cardItemImagePlace: {
+        height: 75,
+        flex: 1,
+        backgroundColor: "#333",
+        width: undefined,
+        marginTop: 5,
+        marginLeft: 5,
+        marginRight: 10,
+      },
+      titleStyle: {
+        top: 0,
+        left: 0,
+        width: 105,
+        height: 28,
+        color: "#000",
+        fontSize: 12,
+        textAlign: "left",
+        fontFamily: 'Montserrat-Medium',
+      },
+      subtitleStyle: {
+        top: 20,
+        left: 2,
+        width: '100%',
+        height: 10,
+        color: "#000",
+        position: "absolute",
+        opacity: 0.5,
+        fontSize: 8,
+        fontFamily: 'Montserrat-Medium',
+        lineHeight: 10,
+        textTransform: 'uppercase'
+      },
+      titleStyleStack: {
+        width: 105,
+        height: 38,
+        marginTop: 6,
+        marginLeft: 9
+      },
+      location: {
+        color: "rgba(0,0,0,1)",
+        fontSize: 9,
+        fontFamily: 'Montserrat-Medium',
+        height: 30
+      },
+      loremIpsum: {
+        color: "rgba(0,0,0,1)",
+        fontSize: 9,
+        fontFamily: 'Montserrat-Medium',
+        marginLeft: 8,
+        height: 30
+      },
+      locationRow: {
+        height: 8,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        marginLeft: 10,
+        marginRight: 20,
+        marginBottom: 5,
+        width: '82%'
+      }
+      
 })
   
 export default ProductsPage;

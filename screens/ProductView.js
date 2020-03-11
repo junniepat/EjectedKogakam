@@ -1,20 +1,48 @@
-import React, { Component } from "react";
-import { StyleSheet, View, ScrollView, Text, Image } from "react-native";
+import React,  {useState, useEffect, Fragment}  from "react";
+import { StyleSheet, View, ScrollView, Text, Image, TouchableOpacity } from "react-native";
 
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import Icon from "react-native-vector-icons/Feather";
 
 import MaterialSearchBar1 from "../components/MaterialSearchBar1";
-import Swiper from "react-native-web-swiper";
+
 
 import MaterialCard5 from "../components/MaterialCard5";
 
-import Carousel from "../components/carousel";
 
 import { Ionicons } from '@expo/vector-icons';
 
 
+import axios from 'axios'
+
 function ProductView(props) {
+
+   
+  const [data, setData] = useState({ product: [], related_proucts: [] });
+  const [Adjoindata, setAdjoinData] = useState({ make: [], user: [] });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(
+        `product_detail/${props.navigation.getParam('itemId')}`
+      );
+      setData(result.data.successData);
+    };
+    fetchData();
+
+
+    const fetchAdjoinData = async () => {
+      const result = await axios.get(
+        `product_detail/${props.navigation.getParam('itemId')}` 
+      );
+      console.warn(result.data.successData.product)
+      setAdjoinData(result.data.successData.product);
+    };
+    fetchAdjoinData();
+  }, []);
+
+
+
   return (
 <>
 <View style={styles.container}>
@@ -25,19 +53,20 @@ function ProductView(props) {
 
 
 
+    
+
 <ScrollView>
 <View style={styles.ramanOsmanStackColumn}>
             
             <View >
 
-            <Carousel/>
             
              </View>
             
-        
-
+           
+             <Text style={styles.title}>{Adjoindata.make['title']} </Text> 
               <View style={styles.priceArea}>
-                <Text style={styles.price}>Rs 34.53</Text>
+                <Text style={styles.price}>{data.product['currency']} {data.product['price']}</Text>
                 <Text><Ionicons name={Platform.OS === 'ios' ? 'ios-share' : 'md-share'} size={12} color="#555" style={{marginRight: 6,}} /></Text>
                 
               </View>
@@ -46,15 +75,14 @@ function ProductView(props) {
                   <View style={styles.rect2}>
                     <Text style={styles.details}>Details</Text>
                     <Text style={styles.detailsDescription}>
-                        mpdiiofdwio iowoi fw fiow ufiw uiw oie ep9o wuw  wu ou iowiu
-                        o ewuewuwuw iwowewo wpoiwoiwppowowi wio i oiw hiwo ow wo
+                    {data.product['description']}
+                    {'\n'}
+                    Viewed {data.product.viewed} times
                     </Text>
                   </View>
 
                   <Text style={styles.productDetails}>Product Details</Text>
-                  <Text style={styles.detailsDescription}>
-                        mpdiiofdwio iowoi fw fiow ufiw uiw oie ep9o wuw  wu ou iowiu
-                        o ewuewuwuw iwowewo wpoiwoiwppowowi wio i oiw hiwo ow wo
+                  <Text style={styles.detailsDescription}> ow wo
                     </Text>
     </View>
 
@@ -63,46 +91,85 @@ function ProductView(props) {
       <Text>Map</Text>
     </View>
 
-    <Text style={styles.loremIpsum2}>Fresh Recommendations</Text>
+    <Text style={styles.loremIpsum2}>Related Products</Text>
   
   <View style={styles.scrollAreaStack}>
           <View 
              style={styles.scrollArea_contentContainerStyle}>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
+
+{data.related_proucts.map(item => (
+      <>
+   
  
- 
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-                 <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
-         </View>
+           
+<TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.navigate('ProductView', 
+{
+  itemId: id,
+})}}>
+<View>
+  <Image
+    source={require("../assets/images/slide3.jpg")}
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image>
+
+  <View style={styles.titleStyleStack}>
+    <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
+    <Text style={styles.subtitleStyle}>{item.title}</Text>
+  </View>
+  <View style={styles.locationRow}>
+   
+    <Text style={styles.location}>  
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
+{item.location.substring(0,17)}</Text>
+    
+
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
+  </View>
+</View>
+</TouchableOpacity>
+
+
+</>
+))}
+          
+
+        </View>
          </View>
         
-
-
     </ScrollView>
 
  <View style={styles.PersonInfo}>
  <View style={styles.ramanOsmanStack}>
-                    <Text style={styles.ramanOsman}>Raman Osman</Text>
+
+ 
+
+       <TouchableOpacity onPress={() => {props.navigation.push('userProfile', 
+          {
+            itemId: data.product.user_id,
+          })}}>
+          <Text style={styles.ramanOsman}>   {Adjoindata.user['name']} </Text>
+      </TouchableOpacity>
+
+
+
+
                     <Text style={styles.loremIpsum1}>
-                      Member since Nov 2019
+                      Member since  {Adjoindata.user['created_at']}
                     </Text>
                   </View>
 
                   
                   <View style={styles.cupertinoButtonInfoRow}>
                     <CupertinoButtonInfo
+                      navigation={props.navigation}
                       style={styles.cupertinoButtonInfo}
                     ></CupertinoButtonInfo>
                     <Icon name="phone" style={styles.icon}></Icon>
-                    <Text style={styles.loremIpsum}>(0770) 144-9277</Text>
+                    <Text style={styles.loremIpsum}>{data.product['phone']}</Text>
                   </View>
  </View>
-
+ 
     </View>
 </>
 
@@ -123,6 +190,14 @@ function ProductView(props) {
         paddingTop: 10,
         backgroundColor: '#fcfcfc'
     },
+    title:{
+      color: "rgba(16,108,199,1)",
+      fontSize: 17,
+      fontFamily: 'Montserrat-Medium',
+      lineHeight: 26,
+      marginLeft: 9
+    },
+ 
     map: {
       width: "95%",
       height: 186,
@@ -164,7 +239,6 @@ function ProductView(props) {
         top: 0,
         left: 0,
         color: "rgba(16,108,199,1)",
-        position: "absolute",
         fontSize: 17,
         fontFamily: 'Montserrat-Medium',
         lineHeight: 26,
@@ -205,7 +279,7 @@ function ProductView(props) {
     color: "rgba(0,0,0,1)",
     fontSize: 13,
     marginLeft: 1,
-    marginTop:  25,
+    marginTop:  3,
     fontFamily: 'Montserrat-Medium',
   },
   
@@ -220,6 +294,11 @@ function ProductView(props) {
     justifyContent: 'space-between',
     paddingLeft: 5,
     paddingRight: 10,
+
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
   priceArea: {
     borderColor: '#ccc',
@@ -247,6 +326,23 @@ function ProductView(props) {
     height: 185,
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
+
+
+    
+    backgroundColor: "#FFF",
+    flexWrap: "nowrap",
+    borderRadius: 2,
+    borderColor: "#CCC",
+    borderWidth: 1,
+
+    overflow: "hidden",
+    paddingBottom: 5,
+    marginBottom: 5,
+
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
 
 
@@ -280,6 +376,66 @@ function ProductView(props) {
     fontFamily: 'Montserrat-Medium',
         lineHeight: 26,
         marginLeft: 2
+      },
+
+
+
+
+
+      
+
+      cardItemImagePlace: {
+        height: 75,
+        flex: 1,
+        backgroundColor: "#333",
+        width: undefined,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5
+      },
+      titleStyle: {
+        top: 0,
+        left: 0,
+        width: 105,
+        height: 28,
+        color: "#000",
+        fontSize: 12,
+        textAlign: "left",
+        fontFamily: 'Montserrat-Medium',
+      },
+      subtitleStyle: {
+        top: 20,
+        left: 2,
+        width: '100%',
+        height: 10,
+        color: "#000",
+        position: "absolute",
+        opacity: 0.5,
+        fontSize: 8,
+        fontFamily: 'Montserrat-Medium',
+        lineHeight: 10,
+        textTransform: 'uppercase'
+      },
+      titleStyleStack: {
+        width: 105,
+        height: 38,
+        marginTop: 6,
+        marginLeft: 9
+      },
+      location: {
+        color: "rgba(0,0,0,1)",
+        fontSize: 9,
+        fontFamily: 'Montserrat-Medium',
+        height: 30
+      },
+   
+      locationRow: {
+        height: 8,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        marginLeft: 10,
+        marginRight: 20,
+        marginBottom: 5,
+        width: '82%'
       },
 
 

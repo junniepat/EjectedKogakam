@@ -22,26 +22,46 @@ import axios from 'axios'
 export default function HomeScreen(props) {
   
   const [data, setData] = useState({ cats: [] });
-  const [dataC, setDataC] = useState({ cat: [] });
+  const [user, setUser] = useState(''); 
+
+  const [toks, setToks] = useState(null);
+
+
+  useEffect(() => {
+    AsyncStorage.getItem("token")
+    .then((result)=> {
+      setToks(result)
+      console.warn("tokenh", result)
+    })
+  
+    AsyncStorage.getItem("user")
+    .then((result)=>
+    { 
+      setTimeout(() => {
+        setUser(JSON.parse(result))
+      }, 1000)
+      console.warn("user", user)
+
+    })
+   
+  }, []) 
+
+
+//  AsyncStorage.removeItem("token")
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios.get(
-        'https://kogakam.com/api/v1/get_mobile_cats', {
-          headers: {
-            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
-          }
-        }
+        'get_mobile_cats'
       );  
       setData(result.data.successData);
     };
     fetchData();
 
-    AsyncStorage.getItem("token")
-    .then((result)=>console.warn(result))
+  
 
   }, []);
-
+  
 
 
 
@@ -72,10 +92,21 @@ export default function HomeScreen(props) {
         navigation={props.navigation}
       ></MaterialSearchBar>
 
+    <Text style={styles.userName}>   
+      {user && user.map(item => (
+        <>
+        Hi, {item.name}
+        </>
+      ))} 
+    </Text>
+
 <ScrollView>
 
     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={styles.loremIpsum}>Browse Categories</Text>
+          <Text style={styles.loremIpsum}>Browse Categories 
+          </Text>
+
+
 
       <View style={styles.seeAll}>
           <MaterialButtonWithVioletText
@@ -86,10 +117,10 @@ export default function HomeScreen(props) {
 
 
 <View style={styles.scrollArea2StackRow}>
-{data.cats.map(item => (
+{data.cats.map((item, index) => (
       <>
          
-<Services key={item.id} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
+<Services key={index} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
 <Image
             source={require("../assets/images/shop.png")}
             resizeMode="center"
@@ -163,9 +194,12 @@ export default function HomeScreen(props) {
                </View>   
 
 
-               <Text style={styles.loremIpsum2}>Fresh Recommendations</Text>
+             
   
  <View style={styles.scrollAreaStack}>
+
+     <Text style={styles.loremIpsum2}>Fresh Recommendations</Text>
+
          <View 
             style={styles.scrollArea_contentContainerStyle}>
             <MaterialCard5  navigation={props.navigation} style={styles.materialCard5}></MaterialCard5>
@@ -241,6 +275,11 @@ const styles = StyleSheet.create({
     height: 185,
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
+    
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
 
   scrollArea_contentContainerStyle: {
@@ -249,13 +288,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingLeft: 5,
     paddingRight: 10,
   },
 
 
   scrollAreaStack: {
     width: '100%',
+    backgroundColor: '#f2f2f2',
+    paddingTop: 10,
+    paddingBottom: 10
   },
 
   loremIpsum2: {
@@ -269,6 +310,14 @@ const styles = StyleSheet.create({
     color: "#525c7a",
     fontSize: 13,
     marginTop: 5,
+    marginLeft: 8,
+    fontFamily: 'Montserrat-Medium',
+  },
+  userName: {
+    color: "#525c7a",
+    fontSize: 16, 
+    marginTop: 1,
+    marginBottom: 5,
     marginLeft: 8,
     fontFamily: 'Montserrat-Medium',
   },

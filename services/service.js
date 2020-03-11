@@ -1,11 +1,15 @@
 import axios from 'axios';
 import {AsyncStorage} from "react-native";
-import * as c from '../constants/constants';
+
+
+axios.defaults.headers.common['sesson_token'] = AsyncStorage.getItem('token');
+axios.defaults.headers.common['app_key'] = 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=';
+axios.defaults.baseURL = 'https://kogakam.com/api/v1/';
 
 
 export async function register(data){
     try{
-        let res = await axios.post(c.REGISTER, data, {
+        let res = await axios.post('/register', data, {
             headers: {
               app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
             }
@@ -19,12 +23,34 @@ export async function register(data){
 
 export async function login(data){
     try{
-        let res = await axios.post(c.LOGIN, data, {
+        let res = await axios.post('/login', data, {
             headers: {
               app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
             }
           } );
-         
+        return res.data.successData;
+    }catch (e) {
+        throw handler(e);
+    }
+}
+
+// export async function userProfile(data){
+//     try{
+//         let res = await axios.post('/login', data, {
+//             headers: {
+//               app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+//             }
+//           } );
+//         return res.data.successData;
+//     }catch (e) {
+//         throw handler(e);
+//     }
+// }
+
+
+export async function profile(data){
+    try{
+        let res = await axios.post(c.PROFILE, data, headers );
         return res.data.successData;
     }catch (e) {
         throw handler(e);

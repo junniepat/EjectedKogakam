@@ -7,7 +7,8 @@ import axios from 'axios'
 
 function MaterialCard5(props) {
 
-  const [data, setData] = useState({ products: [] });
+  const [data, setData] = useState({ products: [], main_image: {} });
+  const [image, setImage] = useState('');
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios.get(
@@ -18,30 +19,31 @@ function MaterialCard5(props) {
         }
       );
       setData(result.data.successData);
+     
     };
     fetchData();
   }, []);
 
-
+  console.warn('img', data.products.main_image);
 
   return (
     <>
-    {data.products.map(item => (
+    {data.products.map((item, index) => (
       <>
         
-<TouchableOpacity  key={item.id} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
+<TouchableOpacity  key={index} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
   itemId: item.id,
 })}}>
 <View>
   <Image
-    source={require("../assets/images/slide3.jpg")}
+    source={{uri: `https://kogakam.foreachsol.com/storage/app/products/`}} 
     resizeMode="cover"
     style={styles.cardItemImagePlace}
   ></Image>
 
   <View style={styles.titleStyleStack}>
     <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
-    <Text style={styles.subtitleStyle}>{item.title}</Text>
+    <Text style={styles.subtitleStyle}>{item.title} </Text>
   </View>
   <View style={styles.locationRow}>
    
@@ -82,9 +84,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#333",
     width: undefined,
-    marginTop: 5,
-    marginLeft: 5,
-    marginRight: 10,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5
   },
   titleStyle: {
     top: 0,

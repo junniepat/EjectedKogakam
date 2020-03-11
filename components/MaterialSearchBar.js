@@ -31,6 +31,8 @@ function MaterialSearchBar(props) {
           </TouchableOpacity>
           }
         </View>
+
+     
       </View>
     </View>
   );
@@ -52,6 +54,7 @@ const styles = StyleSheet.create({
   rect1: {
     backgroundColor: "#FFFFFF",
     flexDirection: "row",
+    justifyContent: 'space-between',
     alignItems: "center",
     borderRadius: 2,
     flex: 1,
@@ -59,8 +62,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginLeft: 2,
     marginRight: 2,
-
- 
   },
   leftIconButton: {
     padding: 11,
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   inputStyle: {
     top: 0,
     left: 0,
-    width: '80%',
+    width: '64%',
     height: 30,
     color: "#000",
     position: "absolute",

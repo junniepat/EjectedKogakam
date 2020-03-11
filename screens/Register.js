@@ -1,22 +1,68 @@
 import React, { Component, useState } from "react";
-import { StyleSheet, View, Text, TextInput, Button, ScrollView,
+import { StyleSheet, View, Text, TextInput, ScrollView,
   Animated, KeyboardAvoidingView, TouchableOpacity  } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+
+  
+
+import { Button } from 'react-native-elements';
 import Logic from '../utils/logic'
+import axios from 'axios'
+import LocateScript from '../components/Location'
 
 import MaterialButtonWithVioletText1 from "../components/MaterialButtonWithVioletText1";
 
 const RegisterScreen = (props) => {
 
-  const { control, handleSubmit, errors, register } = useForm();
 
-  const onSubmit = data => {
-    const register = new Logic()
-    register.Register(`/register`, data)
+  const [fullname, setFullname] = useState("")
+  const [email, setEmail] = useState("")
 
+  const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
+  const [address, setAddress] = useState("")
+
+  const [btnText, setbtnText] = useState("Register")
+  const [disableBtn, setDisableBtn] = useState(false)
+
+  const [user, setUser] = useState(null); 
+
+ 
+  const onsubmit = e => {
+    setDisableBtn(true)
+    setbtnText('...Registering')
+    
+      if(email === ''){
+        console.warn('fool')
+      }
+      const formData = new FormData();
+      formData.append('fullname', fullname);
+      formData.append('email', email);
+      formData.append('phone', phone);
+      formData.append('password', password);
+
+      formData.append('address', address);
+  
+      axios.post('https://kogakam.com/api/v1/register', 
+    formData,
+      {
+        headers: {
+          app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+        }
+      }  )
+      .then(res => {
+        setUser(user)
+        
+      })
+      .catch(error => {
+        console.warn(error)
+        setbtnText('Register')
+        setDisableBtn(false)
+        setUser(null)})
+    }
     
 
-  };
+
+
   const onChange = args => {
     return {
       value: args[0].nativeEvent.text,
@@ -32,83 +78,77 @@ const RegisterScreen = (props) => {
 
 
       <ScrollView>
+     <LocateScript/>
      
-      <Controller
-       style={styles.materialUnderlineTextbox1}
-        as={<TextInput />}
-        control={control}
-        placeholder="full name"
-        name="name"
-        onChange={onChange}
-        rules={{ required: true }}
-        defaultValue=""
-      />
-      {errors.fullName && <Text style={styles.errors}>This is required.</Text>}
+      <View
+      style={styles.materialUnderlineTextbox}>
+    <TextInput
+        placeholder={"Full Name"}
+        style={styles.inputStyle}
+        onChangeText={text => setFullname(text)}
+        value={fullname}
+      ></TextInput>
+    </View>
+
+      <View
+      style={styles.materialUnderlineTextbox}>
+    <TextInput
+        placeholder={"Email Address"}
+        style={styles.inputStyle}
+        onChangeText={text => setEmail(text)}
+        value={email}
+      ></TextInput>
+    </View>
+
+    <View
+      style={styles.materialUnderlineTextbox}>
+    <TextInput
+        placeholder={"Phone"}
+        style={styles.inputStyle}
+        onChangeText={text => setPhone(text)}
+        value={phone}
+      ></TextInput>
+    </View>
+ 
+    <View
+      style={styles.materialUnderlineTextbox}>
+    <TextInput
+        placeholder={"Address"}
+        style={styles.inputStyle}
+        onChangeText={text => setAddress(text)}
+        value={address}
+      ></TextInput>
+    </View>
 
 
-      <Controller
-       style={styles.materialUnderlineTextbox1}
-        as={<TextInput />}
-        control={control}
-        placeholder="Email Address"
-        name="email"
-        onChange={onChange}
-        rules={{ required: true }}
-        ref={register({ pattern: /^[A-Za-z]+$/i })} 
-        defaultValue=""
-      />
-      {errors.email && <Text style={styles.errors}>This is required.</Text>}
-
-
-      <Controller
-       style={styles.materialUnderlineTextbox1}
-        as={<TextInput />}
-        control={control}
-        placeholder="Phone"
-        name="phone"
-        keyboard={'numeric'}
-        onChange={onChange}
-        rules={{ required: true }}
-        defaultValue=""
-      />
-      {errors.phone && <Text style={styles.errors}>This is required.</Text>}
-
-
-
-      <Controller
-       style={styles.materialUnderlineTextbox1}
-        as={<TextInput />}
-        control={control}
-        placeholder="Address"
-        name="address"
-        onChange={onChange}
-        rules={{ required: true }}
-        defaultValue=""
-      />
-      {errors.address && <Text style={styles.errors}>This is required.</Text>}
-
-
-
-      <Controller
-       style={styles.materialUnderlineTextbox1}
-        as={<TextInput />}
-        control={control}
-        placeholder="Password"
-        name="password"
+    <View
+      style={styles.materialUnderlineTextbox}>
+ 
+<TextInput
+        placeholder={"Password"}
+        style={styles.inputStyle}
+        onChangeText={text => setPassword(text)}
+        value={password}
         secureTextEntry={true}
-        onChange={onChange}
-        rules={{ required: true }}
-        defaultValue=""
-      />
-      {errors.password && <Text style={styles.errors}>This is required.</Text>}
+      ></TextInput>
+    </View>
 
+  
 
 
     
-<View style={styles.materialButtonViolet2}>
+
+        <View style={{marginLeft: 9, marginRight: 9}}>
+  <Button
+            title={btnText}
+            style={styles.materialButtonViolet}
+            disabled={disableBtn}
+            onPress={()=> onsubmit()}> 
+          >
+
+          </Button>
   
-<Button style={{backgroundColor: 'transparent'}}
-      onPress={handleSubmit(onSubmit)} title="save"/>
+
 </View>
 
 
@@ -123,7 +163,9 @@ const RegisterScreen = (props) => {
         ></MaterialButtonWithVioletText1>
       </View>
 
-      <Text style={styles.loremIpsum2}>
+<View style={styles.blueBack}>
+  
+<Text style={styles.loremIpsum2}>
         We won&#39;t share your personal details with anyone.
 
         {'\n'}
@@ -145,6 +187,7 @@ const RegisterScreen = (props) => {
        
       </View>
    
+</View>
    
       </ScrollView>
     </Animated.View>
@@ -154,17 +197,31 @@ const RegisterScreen = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    marginBottom: 0
+  },
+  blueBack: {
+    backgroundColor: '#4630EB',
+    marginTop: 20,
+    paddingTop: 40,
+    paddingBottom: 120,
+    height: '65%'
   },
   text: {
     color: "rgba(0,0,0,1)",
     fontSize: 19,
     
-    marginTop: 79,
-    marginLeft: 126
+    marginTop: 59,
+    marginLeft: 126,
+    marginBottom: 20,
+    fontFamily: 'Montserrat-Medium',
+  },
+  and1:{
+    color: "#fff",
   },
   caption: {
     fontSize: 12,
+    color: "#fff",
   },
   errors: {
     fontSize: 12,
@@ -172,53 +229,38 @@ const styles = StyleSheet.create({
     marginLeft: 13,
     fontFamily: 'Montserrat-Medium',
   },
-  materialUnderlineTextbox1: {
-    width: "93%",
-    height: 43,
-    marginTop: 13,
-    marginLeft: 14,
+  materialUnderlineTextbox: {
+    width: "95%",
+    height: 50,
+    marginLeft: 10,
+    marginTop: 5,
 
-    backgroundColor: "transparent",
-    flexDirection: "row",
-    alignItems: "center",
-    borderColor: "#D9D5DC",
-    borderBottomWidth: 1
+    borderColor: '#ccc',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 12
   },
-  materialUnderlineTextbox2: {
-    width: "93%",
-    height: 43,
-    marginTop: 17,
-    marginLeft: 13
+  inputStyle: {
+    flex: 1,
+    color: "#000",
+    alignSelf: "stretch",
+    paddingTop: 8,
+    paddingRight: 0,
+    paddingBottom: 8,
+    fontSize: 16,
+    lineHeight: 16,
+    textAlign: "left"
   },
-  materialUnderlineTextbox3: {
-    width: "93%",
-    height: 43,
-    marginTop: 193,
-    marginLeft: 11
-  },
-  materialRightIconTextbox1: {
-    width: "93%",
-    height: 43,
-    marginTop: -215,
-    marginLeft: 14
-  },
-  materialRightIconTextbox2: {
-    width: "93%",
-    height: 43,
-    marginTop: 14,
-    marginLeft: 14
-  },
-  materialUnderlineTextbox4: {
-    width: "93%",
-    height: 43,
-    marginTop: 18,
-    marginLeft: 13
-  },
-  materialButtonViolet2: {
-    width: "94%",
-    height: 56,
-    marginTop: 20,
-    marginLeft: 12,
+  
+  materialButtonViolet: {
+    width: "95%",
+    height: 61,
+    marginTop: 32,
+    marginLeft: 10,
+    marginBottom: 25,
+
 
     backgroundColor: "#3F51B5",
     flexDirection: "row",
@@ -237,6 +279,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 5
   },
+
   loremIpsum: {
     left: 0,
     color: "rgba(0,0,0,1)",
@@ -264,7 +307,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   loremIpsum2: {
-    color: "rgba(0,0,0,1)",
+    color: "#fff",
     fontSize: 11,
     marginTop: 2,
     marginLeft: 14,

@@ -12,7 +12,7 @@ const authReducer = (state = initialState, action) => {
     switch (action.type) {
         case LOGGED_IN:{
             let { user } = action;
-
+            console.warn('ok')
             return {...state, isLoggedIn: true, user};
         }
 

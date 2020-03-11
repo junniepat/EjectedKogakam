@@ -1,7 +1,7 @@
 
 
 import * as WebBrowser from 'expo-web-browser';
-import React from 'react';
+import React , {useState, useEffect, Fragment} from 'react';
 import {
   Image,
   Platform,
@@ -18,44 +18,83 @@ import MaterialButtonWithVioletText from "../components/MaterialButtonWithViolet
 import MaterialSearchBar from "../components/MaterialSearchBar";
 import Services from "../components/services"
 import { MonoText } from '../components/StyledText';
-import ProfileSegment from "../components/segmentTabs"
+
+import LinearGradient from 'react-native-linear-gradient';
+import ProfileSegment from '../components/segmentTabs'
+
 
 export default function SettingsScreen(props) {
 
+  const [user, setUser] = useState([]); 
+
+  const [toks, setToks] = useState('');
+
+
+  useEffect(() => {
+    AsyncStorage.getItem("token")
+    .then((result)=> { 
+      setToks(result.replace(/"/g, ""))
+      console.warn("tokenh", result)
+    })
   
+    AsyncStorage.getItem("user")
+    .then((result)=>
+    { 
+      setUser(JSON.parse(result))
+      setTimeout(() => { 
+        setUser(JSON.parse(result))
+      }, 1000)
+      console.warn("user", user)
+
+    })
+   
+  }, []) 
+
+
 
   return (
+    <>
     <View style={styles.container}>
+    <View style={styles.bgGradient}>
+    
 <MaterialSearchBar
         style={styles.materialSearchBar1}
       ></MaterialSearchBar>
 
+
+<>
+    {user && user.map((item, index) => (
+      <Fragment key={index}>
+          
+  
+        
+          
   <View style={styles.roundedCover}>
             <View style={styles.rounded}>
             <Image
-        source={require("../assets/images/slide3.jpg")}
+        source={{uri: `${item.image}`}}
         resizeMode="cover"
         style={styles.profileIm}
       ></Image>
-  
+    
             </View>
 
             <View style={styles.johnDoeColumn}>
-              <Text style={styles.johnDoe}>John Doe</Text>
-              <Text style={styles.johnGmailCom}>john@gmail.com</Text>
+              <Text style={styles.johnDoe}>{item.name}</Text>
+              <Text style={styles.johnGmailCom}>{item.email}</Text>
             </View>
           
           </View>
 
-
-<View style={styles.Wrapdetails}>
+     
+      <View style={styles.Wrapdetails}>
 
           <View style={{borderBottomColor: '#f2f2f2',paddingBottom:5, marginBottom: 5, borderBottomStyle: 'solid', borderBottomWidth: 1}}>
           
           <View style={styles.loremIpsum3Row}>
-            <Text style={styles.loremIpsum3}>23 - 3 - 2020</Text>
-            <Text style={styles.loremIpsum3}>233</Text>
-            <Text style={styles.loremIpsum3}>233</Text>
+            <Text style={styles.loremIpsum3}>  {item.created_at} </Text>
+            <Text style={styles.loremIpsum3}>{item.products_count}</Text>
+    <Text style={styles.loremIpsum3}>{item.viewed}</Text>
           </View>
 
           <View style={styles.details}>
@@ -67,34 +106,42 @@ export default function SettingsScreen(props) {
         
           </View>
 
-      <View style={styles.loremIpsumRow}>
-        <Text style={styles.loremIpsum3}>233</Text>
-        <Text style={styles.loremIpsum3}>233</Text>
-        <Text style={styles.loremIpsum3}>233</Text>
-      </View>
+          <View style={styles.loremIpsumRow}>
+            <Text style={styles.loremIpsum3}>{item.following_count}</Text>
+            <Text style={styles.loremIpsum3}>{item.followers_count}</Text>
+            <Text style={styles.loremIpsum3}>{item.blocked_count}</Text>
+          </View>
 
 
-      <View style={styles.followingRow}>
-        <Text style={styles.memberSince}>Following</Text>
-        <Text style={styles.products}>Followers</Text>
-        <Text style={styles.views}>Blocklist</Text>
-      </View>
-
-  
+          <View style={styles.followingRow}>
+            <Text style={styles.memberSince}>Following</Text>
+            <Text style={styles.products}>Followers</Text>
+            <Text style={styles.views}>Blocklist</Text>
+          </View>
 
       </View>
-
-      <ScrollView
-        style={styles.container}>
-          
-      <View style={styles.ProfileSegment}>
-        <ProfileSegment/>
-      </View>
-      
-      </ScrollView>
 
     
+      </Fragment>
+))}
+</>
+
     </View>
+
+<ScrollView>
+  
+<View style={styles.ProfileSegment}>
+      {user && user.map((item, index) => (
+        <>
+          
+        </>
+      ))}
+       <ProfileSegment/> 
+      </View>
+</ScrollView>
+
+    </View>
+  </>
   );
 }
 
@@ -109,9 +156,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  bgGradient: {
+    backgroundColor: '#f2f2f2',
+  },
   ProfileSegment: {
     paddingLeft: 15,
-    paddingRight: 15
+    paddingRight: 15,
   },
   materialSearchBar1: {
     width: "97%",
@@ -119,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginLeft: 6,
 
-    marginBottom: 10,
+    marginBottom: 5,
 
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
@@ -138,7 +188,7 @@ const styles = StyleSheet.create({
 
   roundedCover: {
     marginLeft: 10, 
-    marginTop: 10,
+    marginTop: 5,
     width: '100%',
     alignSelf: 'flex-start',  
     flexDirection: "row",
@@ -163,30 +213,33 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
    johnDoe: {
+     width: 150,
     color: "rgba(0,0,0,1.5)",
-    fontSize: 15,
+    fontSize: 13,
     textTransform: 'uppercase',
-
+    fontFamily: 'Montserrat-Medium',
   },
   johnGmailCom: {
+    width: 140,
     color: "rgba(0,0,0,1)",
-    fontSize: 11,
-    marginTop: 3
+    fontSize: 10,
+    marginTop: 3,
+    fontFamily: 'Montserrat-Medium',
   },
   johnDoeColumn: {
-    width: 96,
     marginLeft: 15,
     marginBottom: 21,
     marginTop: 12 
   },
   memberSince: {
     color: "rgba(0,0,0,1)",
-    fontSize: 12,
+    fontSize: 11,
     width: '33%',
     marginRight: 8,
     textAlign: 'center',
     alignContent: 'center',
     alignSelf: 'center',
+    fontFamily: 'Montserrat-Medium',
   },
   products: {
     color: "rgba(0,0,0,1)",
@@ -196,16 +249,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignContent: 'center',
     alignSelf: 'center',
+    fontFamily: 'Montserrat-Medium',
   },
   views: {
     color: "rgba(0,0,0,1)",
     fontSize: 11,
     width: '33%',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontFamily: 'Montserrat-Medium',
   },
   Wrapdetails: {
     width: '80%',
-    alignSelf: 'flex-end' 
+    alignSelf: 'flex-end',
+    marginBottom: 5
   },
   details: {
     flexDirection: "row",
@@ -230,6 +286,9 @@ const styles = StyleSheet.create({
   loremIpsumRow: {
     height: 22,
     flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    borderStyle: 'solid'
   },
   path: {
     width: 323,
@@ -246,11 +305,12 @@ const styles = StyleSheet.create({
 
   loremIpsum3: {
     color: "rgba(0,0,0,1)",
-    fontSize: 11,
+    fontSize: 10,
     width: '33%',
     textAlign: 'center',
     alignSelf: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Medium',
   },
  
  

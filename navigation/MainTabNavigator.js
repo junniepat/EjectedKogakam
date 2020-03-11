@@ -16,6 +16,8 @@ import AdsScreen from '../screens/AdsScreen'
 import Timeline from '../screens/Timeline'
 import inboxView from '../screens/inboxView'
 
+import userProfile from '../screens/userProfile'
+
 import {View} from 'react-native' 
 
 const config = Platform.select({
@@ -29,6 +31,7 @@ const HomeStack = createStackNavigator(
     Home: HomeScreen,
     ProductView: ProductView,
     ProductsPage: ProductsPage,
+    userProfile: userProfile
   },
   {
     defaultNavigationOptions:{
@@ -128,6 +131,7 @@ export const AuthStack = createStackNavigator(
     
   },
 {
+  initialRouteName: 'Login',
   defaultNavigationOptions:{
    headerShown:false
   }
@@ -146,7 +150,7 @@ const SettingsStack = createStackNavigator(
 );
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+  tabBarLabel: 'Profile',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-person' : 'md-person'} />
   ),

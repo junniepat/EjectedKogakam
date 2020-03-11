@@ -1,5 +1,5 @@
 import * as WebBrowser from 'expo-web-browser';
-import React from 'react';
+import React , {useState, useEffect} from 'react';
 import {
   Image,
   Platform,
@@ -7,20 +7,65 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View, AsyncStorage
 } from 'react-native';
 
-import MaterialCard5 from "../components/MaterialCard5";
 
-import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
 import MaterialSearchBar from "../components/MaterialSearchBar";
 import Services from "../components/services"
 import { MonoText } from '../components/StyledText';
 import MaterialCardWithImageAndTitle from "../components/MaterialCardWithImageAndTitle";
 
-
+import axios from 'axios'
 
 export default function InboxScreen(props) {
+  const [data, setData] = useState({ chats: [], unread_count: 0 });
+  const [toks, setToks] = useState(null);
+  const [InboxMessage, setInboxMessage] = useState(true)
+  const [Notification, setNotification] = useState(false)
+
+  const [NotificationData, setNotificationData] = useState([])
+  
+
+  const switchMessageTab = () => {
+    setInboxMessage(true)
+    setNotification(false)
+  }
+
+
+  const switchNotificatioTab = () => {
+    setInboxMessage(false)
+    setNotification(true)
+  }
+  
+
+  useEffect(() => { 
+   
+    const fetchData = async () => { 
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/get_chats'
+      );  
+      setData(result.data.successData);
+    }; 
+    fetchData();
+
+    console.warn(data, 'data')
+
+
+    const fetchNotification = async () => { 
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/read_notifications'
+      );  
+      setNotificationData(result.data.successData);
+    };
+    fetchNotification();
+
+    
+ 
+  }, []);
+
+
+
   return (
     <View style={styles.container}>
         
@@ -29,70 +74,109 @@ export default function InboxScreen(props) {
         navigation={props.navigation}
       ></MaterialSearchBar>
 
-      <View style={{flexDirection: 'row', marginTop: 4,
-    flexWrap: 'wrap', justifyContent: 'space-between',}}>
-      <Text style={styles.inbox}>Inbox 
-       </Text>
+      <View style={styles.navBar}>
+        <TouchableOpacity  style={styles.navBarBorder} onPress={()=> switchMessageTab()}>
+          <Text style={styles.navBarItems}>Inbox</Text>
+        </TouchableOpacity>
 
-       <View  style={{flexDirection: 'row',
-    flexWrap: 'wrap', justifyContent: 'space-between',}}>
-       <View style={styles.notification}>
-           <Text style={styles.textnotif}>4</Text>
-           </View>
-
-           <TouchableOpacity style={styles.button}>
-            <Text>+ New</Text>
-          </TouchableOpacity>
-
-
-       </View>
+        <TouchableOpacity  style={styles.navBarBorder} onPress={()=> switchNotificatioTab()}>
+          <Text style={styles.navBarItems}>Notifications</Text>
+        </TouchableOpacity>
       </View>
 
-       <ScrollView>
-       <View style={styles.materialCardWithImageAndTitle1Stack}>
-         
-        <MaterialCardWithImageAndTitle
-        navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
-
-<MaterialCardWithImageAndTitle
-navigation={props.navigation}  
-          style={styles.materialCardWithImageAndTitle1}
-        ></MaterialCardWithImageAndTitle>
+      {Notification && (
+        <>
+             <View style={{flexDirection: 'row', marginTop: 4,
+      flexWrap: 'wrap', justifyContent: 'space-between',}}>
+        <Text style={styles.inbox}>Notification 
+         </Text>
+  
+         <View  style={{flexDirection: 'row',
+      flexWrap: 'wrap', justifyContent: 'space-between',}}>
+         <View style={styles.notification}>
+             <Text style={styles.textnotif}>{data.unread_count}</Text>
+             </View>
+  
+  
+         </View>
         </View>
 
-       </ScrollView>
+
+        <View>
+          {NotificationData && NotificationData.map((item) => (
+            <>
+              <Text> {item.id}</Text>
+
+            </>
+          ))}
+        </View>
+
+
+
+        </>
+      )}
+
+
+      {InboxMessage  && (
+        <>
+             
+      <View style={{flexDirection: 'row', marginTop: 4,
+      flexWrap: 'wrap', justifyContent: 'space-between',}}>
+        <Text style={styles.inbox}>Inbox 
+         </Text>
+  
+         <View  style={{flexDirection: 'row',
+      flexWrap: 'wrap', justifyContent: 'space-between',}}>
+         <View style={styles.notification}>
+             <Text style={styles.textnotif}>{data.unread_count}</Text>
+             </View>
+  
+             <TouchableOpacity style={styles.button}>
+              <Text>+ New</Text>
+            </TouchableOpacity>
+  
+         </View>
+        </View>
+  
+         <ScrollView>
+         <View style={styles.materialCardWithImageAndTitle1Stack}>
+           
+
+         {data.chats.map((item, index) => (
+         <>
+      <TouchableOpacity   onPress={()=>{props.navigation.navigate('inboxView', {
+  itemId: item.id,
+})}}>
+      <View style={styles.cardBody}>
+      <Image
+          source={require("../assets/images/slide3.jpg")}
+          style={styles.cardItemImagePlace}
+        ></Image>
+        <View style={styles.bodyContent}>
+          <View style={styles.cardBody}>
+          <Text style={styles.titleStyle}>{item.sender.name} </Text>
+          <Text style={styles.time}>3 mins ago</Text>
+          </View>
+          <Text style={styles.subtitleStyle}>...a few content spoken of ere</Text>
+          
+        </View>
+    
+      </View>
+      </TouchableOpacity>
+    
+    
+      </>
+       ))}
+
+
+    
+          </View>
+  
+         </ScrollView>
+      
+        </>
+     )}
+
     </View>
 
   )}
@@ -105,6 +189,26 @@ navigation={props.navigation}
     },
     textnotif:{
       color: '#fff',
+    },
+    navBar:{
+      flexDirection: 'row',
+      marginLeft: 7
+    },
+    navBarItems: {
+      color: "dodgerblue",
+      fontSize: 13,
+      lineHeight: 26,
+      marginLeft: 13,
+      marginTop: 5,
+    fontFamily: 'Montserrat-Medium',
+    textTransform: 'uppercase'
+    },
+    navBarBorder:{
+      borderBottomWidth: 'solid',
+        borderBottomColor: 'dodgerblue',
+        borderBottomWidth: 2,
+        color: 'dodgerblue',
+        marginRight: 10,
     },
     materialSearchBar1: {
         width: "97%",
@@ -160,6 +264,49 @@ navigation={props.navigation}
         width: '100%',
         marginTop: 10,
       },
+      
+  cardBody: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+ 
+  },
+  bodyContent: {
+    flex: 1,
+    padding: 16,
+    paddingTop: 14,
+    borderRadius: 2,
+    borderBottomColor: "#f2f2f2",
+    borderBottomWidth: 1,
+  },
+  titleStyle: {
+    color: "rgba(16,108,199,1)",
+    paddingBottom: 2,
+    fontSize: 16,
+    fontFamily: 'Montserrat-Medium',
+  },
+  subtitleStyle: {
+    color: "#333",
+    opacity: 0.5,
+    fontSize: 14,
+    lineHeight: 16,
+    fontFamily: 'Montserrat-Medium',
+  },
+  time: {
+    color: "#333",
+    opacity: 0.5,
+    fontSize: 10,
+    lineHeight: 22,
+    alignSelf: 'flex-end',
+    alignContent: 'flex-end',
+    fontFamily: 'Montserrat-Medium',
+  },
+  cardItemImagePlace: {
+    width: 48,
+    height: 48,
+    backgroundColor: "#ccc",
+    margin: 16,
+    borderRadius: 50
+  }
 })
 
 

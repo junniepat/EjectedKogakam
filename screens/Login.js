@@ -11,11 +11,25 @@ import * as api from "../services/service";
 import { useAuth } from "../provider";
 
 import { Button } from 'react-native-elements';
+import axios from 'axios'
+
+//IMPORT REDUCER, INITIAL STATE AND ACTION TYPES
+import reducer, {initialState, LOGGED_IN, LOGGED_OUT} from "../reducer";
+
+// CONFIG KEYS [Storage Keys]===================================
+export const SESSION_KEY = 'session_key';
+export const USER_KEY = 'user';
+export const keys = [SESSION_KEY, USER_KEY];
+
+// CONTEXT ===================================
+const AuthContext = React.createContext();
 
 
-const UserContext = React.createContext();
 
 function Login(props) {
+
+  const {navigation} = props;
+  const {navigate} = navigation;
 
  
  
@@ -27,10 +41,29 @@ function Login(props) {
 
   const [token, setToken] = useState(null); 
   const [user, setUser] = useState(null); 
- 
+
+
+  // useEffect(() => {
+  //   AsyncStorage.getItem("token")
+  //   .then((result)=>
+   
+  //   {
+     
+  //     if(result !== null){
+  //       props.navigation.navigate('Home', {
+  //         token: result
+  //       })
+  //     }
+  //   })
+   
+
+   
+  // }, [])
+  
+
   
  async function onsubmit() {
-  AsyncStorage.setItem('token', 'jjj7777')
+
   setDisableBtn(true)
   setbtnText('...logging you in')
 
@@ -47,12 +80,38 @@ function Login(props) {
       .then(response => 
         { 
           console.warn(response)
-          onSuccess(response);
+          // onSuccess(response);
           setbtnText('Sucx')
-          setDisableBtn(false)
+          setDisableBtn(false);
+
+
+          setUser(response.user)
+          setToken(response.session.session_key)
+          console.warn('res', response.user)
+          axios.defaults.headers.common['session_token'] = response.session.session_key;
+
+          AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(
+            () => AsyncStorage.getItem("token")
+                  .then((result)=> {
+                    console.warn("token", result)
+                    
+                    setTimeout(() => {
+                      props.navigation.navigate('Settings', {
+                        token: response.session.session_key
+                      })
+                    }, 1500);
+                  
+                  })
+         )
+        
+        
+         AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
+          () => AsyncStorage.getItem("user")
+                .then((result)=>console.warn(result))
+        )
+         
+
         })
-     
-     
     .catch(error => {
       // setLoading(false)
       // setError(error.message)
@@ -62,35 +121,9 @@ function Login(props) {
     })
     
   }
-   
-
-const onSuccess = (data) => {
-  setUser(data.user)
-  setToken(data.session.session_key)
-  console.warn('res', data.user)
-
-  AsyncStorage.setItem("token", JSON.stringify(token)).then(
-    () => AsyncStorage.getItem("token")
-          .then((result)=> {
-            if (result === null) {
-
-            }
-            else {
-              props.navigation.navigate('Home', {
-                token
-              })
-            }
-          })
- )
 
 
- AsyncStorage.setItem("user", JSON.stringify(user)).then(
-  () => AsyncStorage.getItem("user")
-        .then((result)=>console.warn(result))
-)
- 
-}
-
+// AsyncStorage.removeItem("token")
 
 
  
