@@ -1,5 +1,5 @@
 import React , {useState, useEffect} from 'react';
-import { StyleSheet, View, ScrollView, Text, Image, TouchableOpacity, TextInput} from "react-native";
+import { StyleSheet, View, ScrollView, Text, Image, TouchableOpacity, TextInput, KeyboardAvoidingView} from "react-native";
 
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 
@@ -9,10 +9,20 @@ import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommun
 
 
 import axios from 'axios'
+import moment from 'moment';
+import { Ionicons } from '@expo/vector-icons'
+import { Audio } from 'expo-av'
 
 function inboxView(props) {
   const [data, setData] = useState({ chat_messages: [], user: [], product: [] });
+  const [isPlaying, setisPlaying] = useState(false)
   
+  const [message, setmessage] = useState("")
+  const [file, setfile] = useState("")
+  const [audio_file, setaudio] = useState("")
+  const [messageIcon, setMessageIcon] = useState(false)
+  const [micIcon, setMicIcon] = useState(true)
+
   useEffect(() => { 
     
     const fetchData = async () => { 
@@ -24,10 +34,54 @@ function inboxView(props) {
     fetchData();
 
     console.warn(data, 'data')
+  }, []);
+
+
+  const fetchData = async () => { 
+    const result = await axios.get(
+      `get_chat_message/${props.navigation.getParam('itemId')}`
+    );  
+    setData(result.data.successData);
+  }; 
+
+
+  function setmessagefunc(item) {
+    setmessage(item)
+    setMicIcon(false)
+    setMessageIcon(true)
+  }
+  
+  
+ async function onsubmit() {
+  const formData = new FormData(); 
+  formData.append('receiver_id', props.navigation.getParam('receiver_id'));
+  formData.append('product_id',  data.product['id']);
+  formData.append('lat',  data.product['lat']);
+
+  formData.append('lng',  data.product['lng']);
+  formData.append('file', file);
+  formData.append('location',  data.product['location']);
+
+  formData.append('audio_file', audio_file);
+  formData.append('message', message);
+
+  console.warn(formData)
+  await axios.post(
+    `add_message`, formData
+  )
+  .then(response => 
+    { 
+      console.warn(response)
+      fetchData();
+    })
+.catch(error => {
+  // setLoading(false)
+  // setError(error.message)
+})
 
     
- 
-  }, []);
+  }
+
 
  
   return (
@@ -54,7 +108,7 @@ function inboxView(props) {
         style={styles.profileImg}
       ></Image> 
     <Text style={styles.headerText}>&nbsp;
-       jon doe</Text>
+  {data.user['name']}</Text>
 </View>
 
     
@@ -101,19 +155,6 @@ function inboxView(props) {
 
 <View style={styles.ramanOsmanStackColumn}>
             
-
-
-{data.chat_messages.map((item, index) => (
-  <>
-
-<Text style={styles.details}>
-<Moment date={item.updated_at}
-                    durationFromNow
-            />
-            </Text>
-
-
-
 <View style={styles.productText}>
 
 <Image
@@ -123,21 +164,46 @@ function inboxView(props) {
       ></Image>
 
     <View style={{paddingLeft: 10,}}>
-        <Text style={styles.textBold}>
-            2011 Flat Belt is available
-        </Text>
-        <Text style={styles.textMoney}>Rs 110,000</Text>
+        <Text style={styles.textBold}>  {data.product['title']} </Text>
+        <Text style={styles.textMoney}>{data.product['currency']} {data.product['price']}</Text>
     </View>
 </View>
 
 
+{data.chat_messages.map((item, index) => 
+  <>
 
-    <Text>{item.id}</Text>
+{/* <Text style={styles.details}>
+{moment(item.created_at,  "YYYYMMDD").fromNow()}
+            </Text> */}
 
 
-    <View style={styles.detailsDescription}>
+
+{data.current_id === item.sender_id ? (
+  <>
+    
+<View style={styles.detailsDescriptionRit}>
+
+<Text style={styles.messagedetails}>
+{item.message || item.file+'ok'}
+</Text>
+
+<Text style={styles.time}>
+<MaterialCommunityIconsIcon
+name="check"
+style={styles.leftIcon2}
+></MaterialCommunityIconsIcon>
+{moment(item.created_at,"YYYYMMDD").fromNow()}
+</Text>
+</View>
+
+   </>
+) : (
+  <>
+
+<View style={styles.detailsDescription}>
                   <Text style={styles.bluemessagedetails}>
-                      {item.message}
+                      {item.message || item.file+'ok'}
                         </Text>
 
                         <Text style={styles.bluetime}>
@@ -145,34 +211,17 @@ function inboxView(props) {
             name="check"
             style={styles.leftIcon2}
           ></MaterialCommunityIconsIcon>
-          10:05 
-          </Text>
-                    </View>
- 
-
-
-                  
-
-
-                    <View style={styles.detailsDescriptionRit}>
-                        
-                        <Text style={styles.messagedetails}>
-                        mpdiiofdwio iowoi fw fiow ufiw uiw oie ep9o wuw  wu ou iowiu
-                        o ewuewuwuw iwowewo wpoiwoiwppowowi wio i oiw hiwo ow wo{"\n"}
-                        </Text>
-
-                        <Text style={styles.time}>
-                        <MaterialCommunityIconsIcon
-            name="check"
-            style={styles.leftIcon2}
-          ></MaterialCommunityIconsIcon>
-          10:05 
+          {moment(item.created_at,"YYYYMMDD").fromNow()}
           </Text>
                     </View>
   
+
+ </>
+)}
+
   
                     </>
-))}
+)}
   </View>
 
 
@@ -180,25 +229,38 @@ function inboxView(props) {
     </ScrollView>
   
 
+    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+    <View style={styles.messageBox}>
 
-<View style={styles.messageBox}>
+    <View>
+        <Text  style={styles.icon2}>
+        <Icon name="attachment"></Icon>
+        </Text>
+    </View>
 
-<View>
-    <Text  style={styles.icon2}>
-    <Icon name="attachment"></Icon>
-    </Text>
-</View>
+    <View>
+        <TextInput placeholder={"Enter Message"} onChangeText={text => setmessagefunc(text)} style={styles.TextInputb}></TextInput>
+    </View>
 
-<View>
-    <TextInput placeholder={"Enter Message"} style={styles.TextInputb}></TextInput>
-</View>
+    <View>
+    {micIcon && (<>
+      <Text  style={styles.icon2}>
+        <Icon name="mic"></Icon>
+        </Text>
+    </>)}
+    
+    {messageIcon && (<>
+      <TouchableOpacity  onPress={()=> onsubmit()}>
+        <Text style={styles.icon2}>
+          <Icon name="paper-plane"></Icon>
+        </Text>
+      </TouchableOpacity>  
+    </>)}
+      
+    </View>
+    </View>
+    </KeyboardAvoidingView>
 
-<View>
-    <Text  style={styles.icon2}>
-    <Icon name="mic"></Icon>
-    </Text>
-</View>
-</View>
 
     </View>
 </>
@@ -211,12 +273,17 @@ function inboxView(props) {
       flex: 1,
       backgroundColor: '#fff',
     },
+    keyboardMsg: {
+
+    },
     messageBox:{
-        backgroundColor: '#f2f2f2',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        height: 50,
-        padding: 6
+      bottom: 0,
+      width: '100%',
+      backgroundColor: '#f2f2f2',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      height: 50,
+      padding: 6
     },
     TextInputb: {
         alignSelf: 'flex-start',
@@ -226,7 +293,7 @@ function inboxView(props) {
     },
     icon2:{
         paddingTop: 11,
-        fontSize: 19,
+        fontSize: 29,
         height: 50,
         width: 30,
         textAlign: 'center'
@@ -266,11 +333,11 @@ function inboxView(props) {
     textBold: {
         marginTop: 5,
         fontWeight: 'bold',
-        width: '100%',
+        width: 140,
     },
     textMoney: {
         marginTop: 1,
-        width: '75%',
+        width: 140,
     },
     bluemessagedetails: {
         color: '#fff',

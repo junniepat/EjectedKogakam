@@ -1,64 +1,64 @@
 import React, { Component } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
-import Constants from 'expo-constants';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	View,
+	Alert,
+	TouchableOpacity
+} from 'react-native';
 
-export default class LocateScript extends Component {
-  state = {
-    location: null,
-    errorMessage: null,
-  };
+const instructions = Platform.select({
+	ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
+	android:
+		'Double tap R on your keyboard to reload,\n' +
+		'Shake or press menu button for dev menu'
+});
 
-  componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-    } else {
-      this._getLocationAsync();
-    }
-  }
+export default class App extends Component {
+	state = {
+		location: null
+	};
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      this.setState({
-        errorMessage: 'Permission to access location was denied',
-      });
-    }
+	useEffect = () => {
+		navigator.geolocation.getCurrentPosition(
+			position => {
+				const location = JSON.stringify(position);
 
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location });
-  };
+				this.setState({ location });
+			},
+			error => Alert.alert(error.message),
+			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+		);
+	};
 
-  render() {
-    let text = 'Waiting..';
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage;
-    } else if (this.state.location) {
-      text = JSON.stringify(this.state.location);
-    }
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.paragraph}>{text}</Text>
-      </View>
-    );
-  }
+	render() {
+		return (
+			<View style={styles.container}>
+				<TouchableOpacity onPress={this.findCoordinates}>
+					<Text style={styles.welcome}>Find My Coords?</Text>
+					<Text>Location: {this.state.location}</Text>
+				</TouchableOpacity>
+			</View>
+		);
+	}
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#ecf0f1',
-  },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    textAlign: 'center',
-  },
+	container: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#F5FCFF'
+	},
+	welcome: {
+		fontSize: 20,
+		textAlign: 'center',
+		margin: 10
+	},
+	instructions: {
+		textAlign: 'center',
+		color: '#333333',
+		marginBottom: 5
+	}
 });

@@ -16,6 +16,7 @@ import Services from "../components/services"
 import { MonoText } from '../components/StyledText';
 import MaterialCardWithImageAndTitle from "../components/MaterialCardWithImageAndTitle";
 
+import moment from 'moment'
 import axios from 'axios'
 
 export default function InboxScreen(props) {
@@ -146,6 +147,7 @@ export default function InboxScreen(props) {
          <>
       <TouchableOpacity   onPress={()=>{props.navigation.navigate('inboxView', {
   itemId: item.id,
+  receiver_id: item.receiver_id
 })}}>
       <View style={styles.cardBody}>
       <Image
@@ -154,10 +156,10 @@ export default function InboxScreen(props) {
         ></Image>
         <View style={styles.bodyContent}>
           <View style={styles.cardBody}>
-          <Text style={styles.titleStyle}>{item.sender.name} </Text>
-          <Text style={styles.time}>3 mins ago</Text>
+          <Text style={styles.titleStyle}>{item.receiver.name} </Text>
+<Text style={styles.time}>{moment(item.created_at,  "YYYYMMDD").fromNow()}</Text>
           </View>
-          <Text style={styles.subtitleStyle}>...a few content spoken of ere</Text>
+<Text style={styles.subtitleStyle}>{item.last_message.message || item.last_message.file}</Text>
           
         </View>
     

@@ -10,16 +10,8 @@ import MaterialButtonPink1 from "../components/MaterialButtonPink1";
 import * as api from "../services/service";
 import { useAuth } from "../provider";
 
-import { Button } from 'react-native-elements';
+import { Button, SocialIcon } from 'react-native-elements';
 import axios from 'axios'
-
-//IMPORT REDUCER, INITIAL STATE AND ACTION TYPES
-import reducer, {initialState, LOGGED_IN, LOGGED_OUT} from "../reducer";
-
-// CONFIG KEYS [Storage Keys]===================================
-export const SESSION_KEY = 'session_key';
-export const USER_KEY = 'user';
-export const keys = [SESSION_KEY, USER_KEY];
 
 // CONTEXT ===================================
 const AuthContext = React.createContext();
@@ -81,7 +73,7 @@ function Login(props) {
         { 
           console.warn(response)
           // onSuccess(response);
-          setbtnText('Sucx')
+          setbtnText('Success')
           setDisableBtn(false);
 
 
@@ -97,13 +89,18 @@ function Login(props) {
                     
                     setTimeout(() => {
                       props.navigation.navigate('Settings', {
-                        token: response.session.session_key
+                        token: response.session.session_key,
                       })
                     }, 1500);
                   
                   })
          )
-        
+       
+
+         AsyncStorage.setItem("email_status", JSON.stringify(response.user.email_status)).then(
+          () => AsyncStorage.getItem("email_status")
+                .then((result)=>console.warn(result))
+        )
         
          AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
           () => AsyncStorage.getItem("user")
@@ -162,15 +159,17 @@ function Login(props) {
       ></TextInput>
     </View>
 
+<TouchableOpacity>
+  <Text style={styles.forgot}>Forgot Password?</Text>
+</TouchableOpacity>
 
-  <View style={{marginLeft: 9, marginRight: 9}}>
-          <Button
-            title={btnText}
+  <View style={{marginLeft: 4, marginRight: 9}}>
+          <TouchableOpacity
             style={styles.materialButtonViolet}
             disabled={disableBtn}
             onPress={()=> onsubmit()}> 
-          >
-          </Button>
+          <Text style={styles.captionBtn}> {btnText}</Text>
+          </TouchableOpacity>
   </View>
 
 
@@ -178,28 +177,25 @@ function Login(props) {
 <View style={styles.blueBack}>
 
 <View style={styles.buttonAll}>
-<View style={styles.materialButtonViolet1Stack}>
-        <MaterialButtonViolet1
-        navigation={props.navigation}
-          style={styles.materialButtonViolet1}
-        ></MaterialButtonViolet1>
 
-        <FontAwesomeIcon
-          name="facebook-square"
-          style={styles.icon}
-        ></FontAwesomeIcon>
-      </View>
 
  
+      <SocialIcon
+      style={{width: '96%'}}
+  title='Sign In With Facebook'
+  button
+  type='facebook'
+/>
+
+<SocialIcon
+style={{width: '96%'}}
+  title='Sign In With Google'
+  button
+  type='google'
+/>
     
 
-      <View style={styles.materialButtonPink1Stack}>
-        <MaterialButtonPink1
-        navigation={props.navigation}
-          style={styles.materialButtonPink1}
-        ></MaterialButtonPink1>
-        <FontAwesomeIcon name="google" style={styles.icon2}></FontAwesomeIcon>
-      </View>
+     
 </View>
 
       <MaterialButtonWithShadow
@@ -243,10 +239,10 @@ const styles = StyleSheet.create({
   },
   blueBack: {
     backgroundColor: '#4630EB',
-    marginTop: 20,
-    paddingTop: 40,
+    marginTop: 50,
+    paddingTop: 50,
     paddingBottom: 40,
-    height: '55%'
+    height: '85%'
   },
   lottie: {
     width: 100,
@@ -270,11 +266,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   materialButtonViolet: {
-    width: "95%",
+    width: "97%",
     height: 51,
-    marginTop: 32,
+    marginTop: 20,
     marginLeft: 10,
-    marginBottom: 25,
+    marginBottom: 10,
 
 
     backgroundColor: "#3F51B5",
@@ -285,7 +281,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     elevation: 2,
     minWidth: 88,
-    borderRadius: 2,
+    borderRadius: 50,
     shadowOffset: {
       height: 1,
       width: 0
@@ -299,13 +295,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
   },
-  materialRightIconTextbox: {
-    width: "95%",
-    height: 43,
-    marginTop: 30,
 
-    marginLeft: 10
-  },
   materialUnderlineTextbox: {
     width: "95%",
     height: 50,
@@ -350,11 +340,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginLeft: 30
   },
-  cupertinoButtonBlueTextColor: {
-    width: 110,
-    height: 44,
-    marginTop: 3
-},
+ 
   and: {
     color: "#fff",
     fontSize: 11,
@@ -380,7 +366,7 @@ const styles = StyleSheet.create({
     
     marginTop: 59,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
     fontFamily: 'Montserrat-Medium',
   },
   materialButtonPink1: {
@@ -413,16 +399,25 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     textAlign: 'center',
   },
-  caption: {
-    fontSize: 12,
+  captionBtn: {
+    fontSize: 15,
     color: '#fff',
     textAlign: 'center',
+    fontWeight: 'bold'
   },
   and1: {
     fontSize: 12,
     color: '#fff',
     marginLeft: 5,
     marginRight:5
+  },
+  forgot: {
+    fontSize: 15,
+    color: '#555',
+    marginRight:10,
+    fontWeight: '700',
+    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
   },
 });
 

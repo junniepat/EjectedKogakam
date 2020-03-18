@@ -15,11 +15,10 @@ import {
 import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
 import MaterialSearchBar from "../components/MaterialSearchBar";
 
-import Logic from '../utils/logic'
-
 import { Ionicons } from '@expo/vector-icons';
 
 import axios from 'axios'
+import moment from 'moment';
 
 import { Button, Overlay, SocialIcon } from 'react-native-elements';
 
@@ -63,7 +62,7 @@ export default function Profile(props) {
   
 
         await axios.post(
-          `https://kogakam.com/api/v1/follow_user`, formData
+          `follow_user`, formData
         )
         .then(response => 
           { 
@@ -218,7 +217,7 @@ export default function Profile(props) {
         const formData = new FormData();
         formData.append('user_id', props.navigation.getParam('itemId'));
             await axios.post(
-              `https://kogakam.com/api/v1/unblock_user`, formData
+              `unblock_user`, formData
             )
             .then(response => 
               { 
@@ -268,7 +267,7 @@ export default function Profile(props) {
 
         <View style={{borderBottomColor: '#f2f2f2',paddingBottom:5, marginBottom: 5, borderBottomStyle: 'solid', borderBottomWidth: 1}}>
             <View style={styles.loremIpsum3Row}>
-              <Text style={styles.loremIpsum3}>{data.user['created_at']}</Text>
+              <Text style={styles.loremIpsum3}>{moment(data.user['created_at'], "YYYYMMDD").fromNow()} </Text>
               <Text style={styles.loremIpsum3}>{data.user['products_count']}</Text>
               <Text style={styles.loremIpsum3}>{data.user['viewed']}</Text>
             </View>
@@ -370,7 +369,7 @@ export default function Profile(props) {
 
   <View style={{marginLeft: 9, marginRight: 9}}>
         <Button
-          title={'comment'}
+          title={'Comment'}
           style={styles.materialButtonViolet}
           onPress={()=> addComment()}> 
         >
@@ -382,7 +381,7 @@ export default function Profile(props) {
     
     <View style={{flexDirection: 'row', borderBottomStyle: 'solid', borderBottomWidth: 1, borderBottomColor: '#f2f2f2', paddingBottom:5}}>
       <Image
-        source={{uri: `https://kogakam.foreachsol.com/storage/app/user/${item.writer['image']}`}} 
+        source={{uri: `${item.writer['image']}`}} 
         resizeMode="cover"
         style={styles.profileImg}
       ></Image>
@@ -401,49 +400,47 @@ export default function Profile(props) {
 
 <Text style={styles.johnDoe}>Products</Text>
 
-<View style={{top: 4,
-  width: '97%',
-  marginLeft: 2,
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  paddingRight: 10,}}>
-{userData.products.map((item,index) => (
+ 
+<View style={styles.scrollAreaStack}>
+          <View 
+             style={styles.scrollArea_contentContainerStyle}>
 
-  <View style={styles.materialCard}>
-    
-    <>
-      <TouchableOpacity key={index} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
-        itemId: item.id,
-      })}}>
-      <View>
-        <Image
-          source={{uri: `https://kogakam.foreachsol.com/storage/app/products/`}} 
-          resizeMode="cover"
-          style={styles.cardItemImagePlace}
-        ></Image>
-      
-        <View style={styles.titleStyleStack}>
-          <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
-          <Text style={styles.subtitleStyle}>{item.title} </Text>
-        </View>
-        <View style={styles.locationRow}>
-         
-          <Text style={styles.location}>  
-          <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-      {item.location.substring(0,17)}</Text>
-          
-      
-          <Text style={styles.loremIpsum}>23 Hrs</Text>
-        </View>
-      </View>
-      </TouchableOpacity>
-      
-      </>
+{userData.products.map(item => (
+      <>
+<TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.navigate('ProductView', 
+{
+  itemId: id,
+})}}>
+<View>
+  <Image
+    source={require("../assets/images/slide3.jpg")}
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image>
+
+  <View style={styles.titleStyleStack}>
+    <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
+    <Text style={styles.subtitleStyle}>{item.title}</Text>
   </View>
+  <View style={styles.locationRow}>
+   
+    <Text style={styles.location}>  
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
+{item.location.substring(0,17)}</Text>
+    
 
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
+  </View>
+</View>
+</TouchableOpacity>
+
+
+</>
 ))}
- </View>
+                  </View>
+         </View>
+   
+
 </ScrollView>
 
 
@@ -470,6 +467,7 @@ export default function Profile(props) {
     ></TextInput>
   </View>
 
+  
   <View style={{marginLeft: 9, marginRight: 9}}>
         <Button
           title={'Report'}
@@ -530,7 +528,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5
   },
   bgGradient: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#2B60DE',
     paddingBottom: 5,
     marginBottom: 5
   },
@@ -538,7 +536,7 @@ const styles = StyleSheet.create({
     top: 30,
     left: 3,
     right: 10,
-    width: "48%",
+    width: "47%",
     height: 185,
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
@@ -827,7 +825,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
    johnDoe: {
-    color: "rgba(0,0,0,1.5)",
+    color: "#F0FFFF",
     fontSize: 13,
     textTransform: 'uppercase',
     fontFamily: 'Montserrat-Medium',
@@ -855,7 +853,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   johnGmailCom: {
-    color: "rgba(0,0,0,1)",
+    color: "#F0FFFF",
     fontSize: 10,
     marginTop: 3,
     fontFamily: 'Montserrat-Medium',
@@ -875,7 +873,7 @@ const styles = StyleSheet.create({
     marginTop: 12 
   },
   memberSince: {
-    color: "rgba(0,0,0,1)",
+    color: "#F0FFFF",
     fontSize: 11,
     width: '33%',
     marginRight: 8,
@@ -885,7 +883,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
   },
   products: {
-    color: "rgba(0,0,0,1)",
+    color: "#F0FFFF",
     fontSize: 11,
     marginRight: 8,
     width: '33%',
@@ -895,7 +893,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
   },
   views: {
-    color: "rgba(0,0,0,1)",
+    color: "#F0FFFF",
     fontSize: 11,
     width: '33%',
     fontFamily: 'Montserrat-Medium',
@@ -943,7 +941,7 @@ const styles = StyleSheet.create({
 
 
   loremIpsum3: {
-    color: "rgba(0,0,0,1)",
+    color: "#fff",
     fontSize: 11,
     width: '33%',
     textAlign: 'center',
@@ -951,12 +949,53 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Montserrat-Medium',
   },
- 
+  scrollAreaStack: {
+    width: '100%',
+  },
+  scrollArea_contentContainerStyle: {
+    top: 4,
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingLeft: 5,
+    paddingRight: 10,
+
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  materialCard5: {
+    top: 30,
+    left: 3,
+    right: 10,
+    width: "49%",
+    height: 185,
+    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+    
+    backgroundColor: "#FFF",
+    flexWrap: "nowrap",
+    borderRadius: 2,
+    borderColor: "#CCC",
+    borderWidth: 1,
+
+    overflow: "hidden",
+    paddingBottom: 5,
+    marginBottom: 5,
+
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+
   cardItemImagePlace: {
     height: 75,
     flex: 1,
     backgroundColor: "#333",
-    width: undefined,
+    width: '100%',
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5
   },

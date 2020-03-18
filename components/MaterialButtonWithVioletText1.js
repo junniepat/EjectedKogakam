@@ -21,7 +21,10 @@ const styles = StyleSheet.create({
   },
   caption: {
     color: "#3F51B5",
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: 'bold',
+    
+    fontFamily: 'Montserrat-Medium',
   }
 });
 

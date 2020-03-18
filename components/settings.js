@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { StyleSheet, View, Text, Image, TouchableOpacity, TextInput, AsyncStorage } from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity,Alert, Picker, TextInput, AsyncStorage, Switch } from "react-native";
 
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
@@ -34,17 +34,13 @@ function ProfileSettings(props) {
 
   const [image, setImage] = useState(null);
 
+  const [emailStatus, setemailStatus] = useState(false);
+  const [userType, setUserType] = useState('');
+  const [userProfile, setuserProfile] = useState(false);
+
   useEffect(() => {
 
     getPermissionAsync();
-
-    AsyncStorage.getItem("token")
-    .then((result)=> {
-      setToks(result.replace(/"/g, ""))
-      // console.warn("tokenh", toks) 
-    })  
-    
-    
 
     AsyncStorage.getItem("user")
     .then((result)=>
@@ -56,9 +52,59 @@ function ProfileSettings(props) {
       console.warn("user", user)
 
     })
-  }, [])
+
+
+    AsyncStorage.getItem("email_status")
+    .then((result)=>
+    { 
+      console.warn("email_status", result)
+    })
+
+  }, []) 
+
+
+  async function emailStatusSAction(value) {
+    setemailStatus(value)
+   
+
+    const formData = new FormData();
+  formData.append('email_public', value);
 
   
+  await axios.post('change_email_status', formData)
+  .then(res => {
+    console.warn(res, 'email_public')
+    AsyncStorage.setItem("email_public", value).then(
+      () => AsyncStorage.getItem("email_public")
+            .then((result)=>console.warn(result))
+    )
+    setemailStatus(result)
+     
+  })
+  .catch(error => {
+    console.warn(error, 'email_public')}
+    )
+  }
+
+
+  async function UserTypeAction(item) {
+   console.warn(item)
+   setUserType(item)
+
+    const formData = new FormData();
+    formData.append('type', item);
+
+  await axios.post('select_user_type', formData)
+  .then(res => {
+    console.warn(res, 'select_user_type')   
+    
+  })
+  .catch(error => {
+    console.warn(error, 'select_user_type')}
+    )
+  }
+  
+
 
   async function getPermissionAsync() {
     if (Constants.platform.ios) {
@@ -72,43 +118,38 @@ function ProfileSettings(props) {
 
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1
+      quality: 1,    
     });
 
-    console.warn(result, 'result');
+    console.warn(result.uri, 'result');
 
     if (!result.cancelled) {
         setImage(result.uri);
-
-        saveImage()
     }
-  }
+      let uri = result.uri
+      let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+      let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+       
 
-  async function saveImage(){
-    const formData = new FormData();
-    formData.append('profile_image', image);
-
-    await axios.post('https://kogakam.com/api/v1/change_profile_image', formData, {
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "multipart/form-data",
-          app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=',
-          session_token: toks
-        }
-      })
-      .then(res => {
-        console.warn(res, 'imae')})
-    
-      .catch(error => {
-        console.warn(error, 'image')}
-        )
-  }
+      const formData = new FormData();
+      formData.append('profile_image', Imagefile);
   
+      await axios.post('https://kogakam.com/api/v1/change_profile_image', formData)
+        .then(res => {
+          console.warn(res, 'imae')})
+      
+        .catch(error => {
+          console.warn(error, 'image')}
+          )
+  
+    
+  }
 
-  console.warn(image, 'im')
+ 
+
 
  async function onsubmit() {
 
@@ -135,12 +176,7 @@ function ProfileSettings(props) {
 
   console.warn(formData)
 
-  await axios.post('change_profile', formData, {
-    headers: {
-      app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=',
-      session_token: toks
-    }
-  })
+  await axios.post('change_profile', formData)
   .then(res => {
     setbtnText('Login')
     setDisableBtn(false)
@@ -159,27 +195,64 @@ function ProfileSettings(props) {
     <View style={styles.container}>
 
 
+
+
 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Button
           title="Select Profile Picture"
-          onPress={_pickImage}
+          onPress={() => _pickImage()}
         />
         {image &&
-          <Image source={{ uri: image }} style={{ width: 170, height: 170, marginTop: 8 }} />}
+          <Image source={{ uri: image }} style={{ width: 170, height: 170, marginTop: 8 }} />} 
+      
       </View>
 
 
-<Text style={styles.text}>Update Profile </Text>
 
-{/* <ErrorText error={error}/> */}
- 
-<Text>{user['name']}</Text>
+      <Text style={styles.text}>Update Profile </Text>
+
+        <View style={{flexDirection: 'row', justifyContent: 'space-between',
+                      backgroundColor: '#f2f2f2', marginTop: 5, marginBottom: 5, padding: 9, borderRadius: 4}}>
+              <Text style={{fontFamily: 'Montserrat-Medium',}}>Change email status</Text>
+            
+              
+<Switch
+              value={emailStatus}
+              onValueChange={v => {
+                emailStatusSAction(v);
+              }}
+            />
+        </View>
+
+
+        <Text style={{width: '100%',  fontFamily: 'Montserrat-Medium',}}>User Type</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between',
+                      backgroundColor: '#f2f2f2', marginTop: 5, padding: 9, borderRadius: 4}}>
+             
+        <Picker
+  selectedValue={userType}
+  style={{height: 25, width: '100%', fontFamily: 'Montserrat-Medium',}}
+  onValueChange={(itemValue) =>
+    UserTypeAction(itemValue)
+  }>
+  <Picker.Item label="Shop" value="shop" />
+  <Picker.Item label="User" value="user" />
+</Picker>
+</View>
+
+
+
+{userProfile && (
+  <>
+      
 
     <View
       style={styles.materialUnderlineTextbox}>
     <TextInput
         placeholder={'Full name'}
+        selectionColor={'#428AF8"'}
         style={styles.inputStyle}
+        
         onChangeText={text => setName(text)}
         value={name}
       ></TextInput>
@@ -267,8 +340,8 @@ function ProfileSettings(props) {
           </Button>
   </View>
 
-
-
+  </>
+)}
 
     </View>
   );
@@ -347,7 +420,7 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   materialUnderlineTextbox: {
-    width: "95%",
+    width: "98%",
     height: 50,
     marginLeft: 5,
     marginTop: 5,

@@ -7,7 +7,9 @@ import axios from 'axios'
 
 function MaterialCard5(props) {
 
-  const [data, setData] = useState({ products: [], main_image: {} });
+  const [data, setData] = useState({ products: [] });
+  const [dataImg, setDataImg] = useState({ main_image: [] });
+
   const [image, setImage] = useState('');
   useEffect(() => {
     const fetchData = async () => {
@@ -21,10 +23,26 @@ function MaterialCard5(props) {
       setData(result.data.successData);
      
     };
+
+
+
+    const fetchImg = async () => {
+      const result = await axios.get(
+        'https://kogakam.com/api/v1/get_all_products', {
+          headers: {
+            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+          }
+        }
+      );
+      setDataImg([result.data.successData.products]);
+     
+    };
+
+    fetchImg();
     fetchData();
   }, []);
-
-  console.warn('img', data.products.main_image);
+ 
+  console.warn('img', data.products['id']);
 
   return (
     <>
@@ -36,7 +54,7 @@ function MaterialCard5(props) {
 })}}>
 <View>
   <Image
-    source={{uri: `https://kogakam.foreachsol.com/storage/app/products/`}} 
+    source={{uri: `https://kogakam.com/storae/app/products${item.image}`}} 
     resizeMode="cover"
     style={styles.cardItemImagePlace}
   ></Image>

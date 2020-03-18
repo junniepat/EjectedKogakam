@@ -7,7 +7,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
+  Text, TextInput,
   TouchableOpacity,
   View, AsyncStorage
 } from 'react-native';
@@ -22,12 +22,23 @@ import { MonoText } from '../components/StyledText';
 import LinearGradient from 'react-native-linear-gradient';
 import ProfileSegment from '../components/segmentTabs'
 
+import { Button, Overlay } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
+
+import moment from 'moment';
+import axios from 'axios'
 
 export default function SettingsScreen(props) {
 
   const [user, setUser] = useState([]); 
 
+  const [isVisible, setVisible] = useState(false)
   const [toks, setToks] = useState('');
+
+  const [name, setName] = useState("")
+  const [location, setLocation] = useState("")
+  const [description, setDescription] = useState("")
+  const [certificate, setCertificate] = useState("")
 
 
   useEffect(() => {
@@ -50,6 +61,30 @@ export default function SettingsScreen(props) {
    
   }, []) 
 
+  
+  async function addReport() {
+
+    const formData = new FormData();
+    formData.append('shop_name', name);
+    formData.append('location', location);
+    formData.append('description', description);
+    
+
+        await axios.post(
+          `request_badge`, formData
+        )
+        .then(response => 
+          { 
+            console.warn(response)
+            // onSuccess(response);
+          })
+      .catch(error => {
+        console.warn(response)
+        // setLoading(false)
+        // setError(error.message)
+      })
+      
+    }
 
 
   return (
@@ -80,8 +115,18 @@ export default function SettingsScreen(props) {
             </View>
 
             <View style={styles.johnDoeColumn}>
+              <View>
               <Text style={styles.johnDoe}>{item.name}</Text>
-              <Text style={styles.johnGmailCom}>{item.email}</Text>
+              {item.email_public === true ? 'Email Hidden' :  <Text style={styles.johnGmailCom}>{item.email}</Text>}
+             
+              </View>
+
+              
+        <TouchableOpacity onPress={()=> setVisible(true)}> 
+          <Text> 
+            <Ionicons name={Platform.OS === 'ios' ? 'ios-compass' : 'md-compass'} size={18} color="#fff" style={{alignSelf: 'flex-end'}} /></Text>
+        </TouchableOpacity>
+
             </View>
           
           </View>
@@ -89,18 +134,18 @@ export default function SettingsScreen(props) {
      
       <View style={styles.Wrapdetails}>
 
-          <View style={{borderBottomColor: '#f2f2f2',paddingBottom:5, marginBottom: 5, borderBottomStyle: 'solid', borderBottomWidth: 1}}>
+          <View style={{paddingBottom:5, marginBottom: 5,}}>
           
           <View style={styles.loremIpsum3Row}>
-            <Text style={styles.loremIpsum3}>  {item.created_at} </Text>
+            <Text style={styles.loremIpsum3}>  {moment(item.created_at, "YYYYMMDD").fromNow()} </Text>
             <Text style={styles.loremIpsum3}>{item.products_count}</Text>
-    <Text style={styles.loremIpsum3}>{item.viewed}</Text>
+            <Text style={styles.loremIpsum3}>{item.viewed}</Text>
           </View>
 
           <View style={styles.details}>
-            <Text style={styles.memberSince}>Member Since</Text>
-            <Text style={styles.products}>Products</Text>
-            <Text style={styles.views}>Views</Text>
+            <Text style={styles.smText}>Member Since</Text>
+            <Text style={styles.smText}>Products</Text>
+            <Text style={styles.smText}>Views</Text>
           </View>
 
         
@@ -114,9 +159,9 @@ export default function SettingsScreen(props) {
 
 
           <View style={styles.followingRow}>
-            <Text style={styles.memberSince}>Following</Text>
-            <Text style={styles.products}>Followers</Text>
-            <Text style={styles.views}>Blocklist</Text>
+            <Text style={styles.smText}>Following</Text>
+            <Text style={styles.smText}>Followers</Text>
+            <Text style={styles.smText}>Blocklist</Text> 
           </View>
 
       </View>
@@ -130,15 +175,71 @@ export default function SettingsScreen(props) {
 
 <ScrollView>
   
-<View style={styles.ProfileSegment}>
-      {user && user.map((item, index) => (
-        <>
-          
-        </>
-      ))}
-       <ProfileSegment/> 
-      </View>
-</ScrollView>
+  <View style={styles.ProfileSegment}>
+        {user && user.map((item, index) => (
+          <>
+            
+          </>
+        ))}
+         <ProfileSegment/> 
+        </View>
+  </ScrollView>
+  
+
+
+<Overlay  isVisible={isVisible}  onBackdropPress={() => setVisible(false)}>
+    <Text style={styles.report}>Request Badge</Text>
+
+    <View
+    style={styles.materialUnderlineTextbox2}>
+  <TextInput
+      placeholder={"Shop Name"}
+      style={styles.inputStyle2}
+      onChangeText={text => setName(text)}
+      value={name}
+    ></TextInput>
+  </View>
+
+  <View
+    style={styles.materialUnderlineTextbox2}>
+  <TextInput
+      placeholder={"Location"}
+      style={styles.inputStyle2}
+      onChangeText={text => setLocation(text)}
+      value={location}
+    ></TextInput>
+  </View>
+
+  <View
+    style={styles.materialUnderlineTextbox2}>
+  <TextInput
+      placeholder={"Description"}
+      style={styles.inputStyle2}
+      onChangeText={text => setDescription(text)}
+      value={description}
+    ></TextInput>
+  </View>
+
+  <View
+    style={styles.materialUnderlineTextbox2}>
+  <TextInput
+      placeholder={"certificate Img"}
+      style={styles.inputStyle2}
+      onChangeText={text => setCertificate(text)}
+      value={certificate}
+    ></TextInput>
+  </View>
+
+  <View style={{marginLeft: 9, marginRight: 9}}>
+        <Button
+          title={'Request Badge'}
+          style={styles.materialButtonViolet}
+          onPress={()=> addReport()}> 
+        >
+        </Button>
+</View>
+</Overlay>
+
 
     </View>
   </>
@@ -157,11 +258,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   bgGradient: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#0F52BA',
   },
   ProfileSegment: {
     paddingLeft: 15,
     paddingRight: 15,
+  },
+  materialUnderlineTextbox2: {
+    width: "95%",
+    height: 50,
+    marginLeft: 10,
+    marginTop: 10,
+
+    borderColor: '#ccc',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 12
+  },
+  report: {
+    color: "rgba(0,0,0,1)",
+    fontSize: 18,
+    marginTop: 3,
+    marginLeft: 9,
+    
+    fontFamily: 'Montserrat-Medium',
+  },
+  inputStyle2: {
+    flex: 1,
+    color: "#000",
+    alignSelf: "stretch",
+    paddingTop: 2,
+    paddingRight: 0,
+    paddingBottom: 8,
+    fontSize: 16,
+    lineHeight: 1,
+    textAlign: "left"
   },
   materialSearchBar1: {
     width: "97%",
@@ -171,9 +304,6 @@ const styles = StyleSheet.create({
 
     marginBottom: 5,
 
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    borderStyle: 'solid'
   },
   
   profileIm: {
@@ -214,35 +344,38 @@ const styles = StyleSheet.create({
   },
    johnDoe: {
      width: 150,
-    color: "rgba(0,0,0,1.5)",
+    color: "#fff",
     fontSize: 13,
     textTransform: 'uppercase',
     fontFamily: 'Montserrat-Medium',
   },
   johnGmailCom: {
     width: 140,
-    color: "rgba(0,0,0,1)",
+    color: "#fff",
     fontSize: 10,
     marginTop: 3,
     fontFamily: 'Montserrat-Medium',
   },
   johnDoeColumn: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginLeft: 15,
     marginBottom: 21,
     marginTop: 12 
   },
   memberSince: {
-    color: "rgba(0,0,0,1)",
+    color: "#86A8DC",
     fontSize: 11,
     width: '33%',
     marginRight: 8,
     textAlign: 'center',
     alignContent: 'center',
     alignSelf: 'center',
+    alignItems: 'center',
     fontFamily: 'Montserrat-Medium',
   },
   products: {
-    color: "rgba(0,0,0,1)",
+    color: "#86A8DC",
     fontSize: 11,
     marginRight: 8,
     width: '33%',
@@ -252,7 +385,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
   },
   views: {
-    color: "rgba(0,0,0,1)",
+    color: "#86A8DC",
     fontSize: 11,
     width: '33%',
     textAlign: 'center',
@@ -287,8 +420,9 @@ const styles = StyleSheet.create({
     height: 22,
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    borderStyle: 'solid'
+    borderTopColor: '#86A8DC',
+    borderStyle: 'dashed',
+    width: '98%'
   },
   path: {
     width: 323,
@@ -304,8 +438,8 @@ const styles = StyleSheet.create({
 
 
   loremIpsum3: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 10,
+    color: "#fff",
+    fontSize: 15,
     width: '33%',
     textAlign: 'center',
     alignSelf: 'center',
@@ -314,22 +448,16 @@ const styles = StyleSheet.create({
   },
  
  
-  following: {
-    color: "rgba(0,0,0,1)",
+  smText: {
+    color: "#86A8DC",
     fontSize: 11,
-    
-  },
-  followers: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 11,
-    marginLeft: 38,
-    marginTop: 1
-  },
-  blocklist: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 11,
-    
-    marginLeft: 47
+    width: '33%',
+    marginRight: 10,
+    textAlign: 'center',
+    alignContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+    fontFamily: 'Montserrat-Medium',
   },
  
 });

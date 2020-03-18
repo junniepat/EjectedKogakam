@@ -1,13 +1,10 @@
-import React, { Component, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, TextInput, ScrollView,
   Animated, KeyboardAvoidingView, TouchableOpacity  } from "react-native";
 
-  
-
 import { Button } from 'react-native-elements';
-import Logic from '../utils/logic'
 import axios from 'axios'
-import LocateScript from '../components/Location'
+import * as api from "../services/service";
 
 import MaterialButtonWithVioletText1 from "../components/MaterialButtonWithVioletText1";
 
@@ -26,7 +23,25 @@ const RegisterScreen = (props) => {
 
   const [user, setUser] = useState(null); 
 
- 
+ const [latitude, setlatitude] = useState(null)
+ const [longitude, setlongitude] = useState(null)
+
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+			position => {
+        const latitude = JSON.stringify(position.coords.latitude);
+        const longitude = JSON.stringify(position.coords.longitude);
+     
+        setlatitude(latitude);
+        setlongitude(longitude);
+			},
+			error => Alert.alert(error.message),
+			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+		);
+  }, [])
+  
+
   const onsubmit = e => {
     setDisableBtn(true)
     setbtnText('...Registering')
@@ -35,23 +50,66 @@ const RegisterScreen = (props) => {
         console.warn('fool')
       }
       const formData = new FormData();
-      formData.append('fullname', fullname);
+      formData.append('name', fullname);
       formData.append('email', email);
       formData.append('phone', phone);
       formData.append('password', password);
 
       formData.append('address', address);
+      formData.append('lng', longitude);
+      formData.append('lat', latitude);
   
-      axios.post('https://kogakam.com/api/v1/register', 
-    formData,
-      {
-        headers: {
-          app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
-        }
-      }  )
+      axios.post('/register',  formData )
       .then(res => {
         setUser(user)
-        
+        setbtnText(`'Welcome' ${name}`)
+        setDisableBtn(true)
+
+          const formData = new FormData();
+          formData.append('email', email);
+          formData.append('password', password);
+
+
+          api.login(formData)
+          .then(response => 
+            { 
+              console.warn(response)
+              // onSuccess(response);
+              setbtnText('Success')
+              setDisableBtn(false);
+
+
+              setUser(response.user)
+              setToken(response.session.session_key)
+              console.warn('res', response.user)
+              axios.defaults.headers.common['session_token'] = response.session.session_key;
+
+              AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(
+                () => AsyncStorage.getItem("token")
+                      .then((result)=> {
+                        console.warn("token", result)
+                        
+                        setTimeout(() => {
+                          props.navigation.navigate('Settings', {
+                            token: response.session.session_key
+                          })
+                        }, 1500);
+                      
+                      })
+            )
+            AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
+              () => AsyncStorage.getItem("user")
+                    .then((result)=>console.warn(result))
+            )
+          })
+          .catch(error => {
+            // setLoading(false)
+            // setError(error.message)
+            setbtnText('Login')
+            setDisableBtn(false)
+            setToken(null)
+          });
+
       })
       .catch(error => {
         console.warn(error)
@@ -78,7 +136,7 @@ const RegisterScreen = (props) => {
 
 
       <ScrollView>
-     <LocateScript/>
+    
      
       <View
       style={styles.materialUnderlineTextbox}>
@@ -139,14 +197,13 @@ const RegisterScreen = (props) => {
     
 
         <View style={{marginLeft: 9, marginRight: 9}}>
-  <Button
-            title={btnText}
+  <TouchableOpacity
             style={styles.materialButtonViolet}
             disabled={disableBtn}
             onPress={()=> onsubmit()}> 
-          >
-
-          </Button>
+     
+<Text style={styles.captionBtn}>{btnText}</Text>
+          </TouchableOpacity>
   
 
 </View>
@@ -212,9 +269,10 @@ const styles = StyleSheet.create({
     fontSize: 19,
     
     marginTop: 59,
-    marginLeft: 126,
     marginBottom: 20,
     fontFamily: 'Montserrat-Medium',
+    textAlign: 'center',
+    alignItems: 'center'
   },
   and1:{
     color: "#fff",
@@ -222,6 +280,12 @@ const styles = StyleSheet.create({
   caption: {
     fontSize: 12,
     color: "#fff",
+  },
+  captionBtn: {
+    fontSize: 15,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   errors: {
     fontSize: 12,
@@ -270,7 +334,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     elevation: 2,
     minWidth: 88,
-    borderRadius: 2,
+    borderRadius: 50,
     shadowOffset: {
       height: 1,
       width: 0
@@ -296,9 +360,10 @@ const styles = StyleSheet.create({
     position: "absolute"
   },
   loremIpsumStack: {
-    width: '95%',
+    width: '80%',
     height: 36,
     alignContent: 'center',
+    alignItems: 'center',
     alignSelf: 'center',
     textAlign: 'center',
     padding: 10,

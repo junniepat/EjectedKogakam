@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
 
     roundedCover: {
         margin: 9, 
-        width: 100,
+        width: 120,
         alignSelf: 'center',  
         alignItems: 'center',
         alignContent: 'center',
