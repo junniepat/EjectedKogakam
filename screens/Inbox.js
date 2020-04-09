@@ -5,10 +5,10 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
+  
   TouchableOpacity,
-  View, AsyncStorage
-} from 'react-native';
+  View, AsyncStorage, ListView } from 'react-native';
+import { Container, Header, SwipeRow, Icon, Button, Badge, Tab, Tabs, TabHeading,  Left, Thumbnail, Body, Right,  List, ListItem, Text } from 'native-base';
 
 
 import MaterialSearchBar from "../components/MaterialSearchBar";
@@ -75,109 +75,73 @@ export default function InboxScreen(props) {
         navigation={props.navigation}
       ></MaterialSearchBar>
 
-      <View style={styles.navBar}>
-        <TouchableOpacity  style={styles.navBarBorder} onPress={()=> switchMessageTab()}>
-          <Text style={styles.navBarItems}>Inbox</Text>
-        </TouchableOpacity>
+     
 
-        <TouchableOpacity  style={styles.navBarBorder} onPress={()=> switchNotificatioTab()}>
-          <Text style={styles.navBarItems}>Notifications</Text>
-        </TouchableOpacity>
-      </View>
-
-      {Notification && (
-        <>
+<Tabs tabBarUnderlineStyle={{backgroundColor: '#0F52BA'}}>
+          <Tab  heading={ <TabHeading style={{backgroundColor: '#fff'}}>
+            <Text style={{color: '#0F52BA'}}>Inbox</Text>
+            <Badge  style={{marginTop: 12, marginLeft: 19}}>
+              <Text>{data.unread_count}</Text>
+            </Badge></TabHeading>}>
+          <>
+             
              <View style={{flexDirection: 'row', marginTop: 4,
-      flexWrap: 'wrap', justifyContent: 'space-between',}}>
-        <Text style={styles.inbox}>Notification 
-         </Text>
-  
-         <View  style={{flexDirection: 'row',
-      flexWrap: 'wrap', justifyContent: 'space-between',}}>
-         <View style={styles.notification}>
-             <Text style={styles.textnotif}>{data.unread_count}</Text>
-             </View>
-  
-  
-         </View>
-        </View>
+             flexWrap: 'wrap', justifyContent: 'space-between',}}>
+              
+                <View  style={{flexDirection: 'row',
+             flexWrap: 'wrap', justifyContent: 'space-between',}}>
+               
+         
+                    <TouchableOpacity style={styles.button}>
+                     <Text>+ New</Text>
+                   </TouchableOpacity>
 
-
-        <View>
+         
+                </View>
+               </View>
+         
+                <ScrollView>
+                <View style={styles.materialCardWithImageAndTitle1Stack}>
+                  
+                <List>
+                {data.chats.map((item, index) => (
+                <>
+                <ListItem avatar  onPress={()=>{props.navigation.navigate('inboxView', {
+         itemId: item.id,
+         receiver_id: item.receiver_id
+       })}}>
+                     <Left>
+                       <Thumbnail source={{ uri: `${'https://kogakam.com/storage/app/profile_images/' + item.receiver.image}`  }} />
+                     </Left>
+                     <Body>
+                       <Text>{item.receiver.name} </Text>
+                       <Text note>{item.last_message.message || item.last_message.file}</Text>
+                     </Body>
+                     <Right>
+                       <Text note>{moment.utc(item.created_at).local().format('LLL')}</Text>
+                     </Right>
+                   </ListItem>
+                  
+             </>
+              ))}
+              </List>
+       
+           
+                 </View>
+         
+                </ScrollView>
+             
+               </>
+          </Tab>
+          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}><Text style={{color: '#0F52BA'}}>Notifications</Text></TabHeading>}>
           {NotificationData && NotificationData.map((item) => (
             <>
               <Text> {item.id}</Text>
 
             </>
           ))}
-        </View>
-
-
-
-        </>
-      )}
-
-
-      {InboxMessage  && (
-        <>
-             
-      <View style={{flexDirection: 'row', marginTop: 4,
-      flexWrap: 'wrap', justifyContent: 'space-between',}}>
-        <Text style={styles.inbox}>Inbox 
-         </Text>
-  
-         <View  style={{flexDirection: 'row',
-      flexWrap: 'wrap', justifyContent: 'space-between',}}>
-         <View style={styles.notification}>
-             <Text style={styles.textnotif}>{data.unread_count}</Text>
-             </View>
-  
-             <TouchableOpacity style={styles.button}>
-              <Text>+ New</Text>
-            </TouchableOpacity>
-  
-         </View>
-        </View>
-  
-         <ScrollView>
-         <View style={styles.materialCardWithImageAndTitle1Stack}>
-           
-
-         {data.chats.map((item, index) => (
-         <>
-      <TouchableOpacity   onPress={()=>{props.navigation.navigate('inboxView', {
-  itemId: item.id,
-  receiver_id: item.receiver_id
-})}}>
-      <View style={styles.cardBody}>
-      <Image
-          source={require("../assets/images/slide3.jpg")}
-          style={styles.cardItemImagePlace}
-        ></Image>
-        <View style={styles.bodyContent}>
-          <View style={styles.cardBody}>
-          <Text style={styles.titleStyle}>{item.receiver.name} </Text>
-<Text style={styles.time}>{moment(item.created_at,  "YYYYMMDD").fromNow()}</Text>
-          </View>
-<Text style={styles.subtitleStyle}>{item.last_message.message || item.last_message.file}</Text>
-          
-        </View>
-    
-      </View>
-      </TouchableOpacity>
-    
-    
-      </>
-       ))}
-
-
-    
-          </View>
-  
-         </ScrollView>
-      
-        </>
-     )}
+          </Tab>
+        </Tabs>
 
     </View>
 
@@ -189,55 +153,18 @@ export default function InboxScreen(props) {
       backgroundColor: '#fff',
       fontFamily: 'Montserrat-Medium',
     },
-    textnotif:{
-      color: '#fff',
-    },
-    navBar:{
-      flexDirection: 'row',
-      marginLeft: 7
-    },
-    navBarItems: {
-      color: "dodgerblue",
-      fontSize: 13,
-      lineHeight: 26,
-      marginLeft: 13,
-      marginTop: 5,
-    fontFamily: 'Montserrat-Medium',
-    textTransform: 'uppercase'
-    },
-    navBarBorder:{
-      borderBottomWidth: 'solid',
-        borderBottomColor: 'dodgerblue',
-        borderBottomWidth: 2,
-        color: 'dodgerblue',
-        marginRight: 10,
-    },
+  
     materialSearchBar1: {
         width: "97%",
     height: 46,
     marginTop: 32,
     marginLeft: 6,
 
-    marginBottom: 10,
-
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     borderStyle: 'solid'
       },
-    notification: {
-        backgroundColor: 'dodgerblue',
-        color: '#fff',
-        paddingLeft: 8,
-        paddingTop: 2,
-        marginRight: 10,
-        fontSize: 10,
-        width: 25,
-        height: 25,
-        borderRadius: 50,
-        textAlign: 'center',
-        alignContent: 'center',
-        alignSelf: 'flex-end'
-    },
+   
     button: {
         borderStyle: 'solid',
         borderColor: 'dodgerblue',
@@ -246,69 +173,11 @@ export default function InboxScreen(props) {
         padding: 4,
         color: 'dodgerblue',
         marginRight: 10,
+        alignSelf: 'flex-end',
+        marginLeft: 20
     },
-    inbox: {
-        color: "#000",
-        fontSize: 18,
-        lineHeight: 26,
-        marginLeft: 13,
-        marginTop: 5,
-      fontFamily: 'Montserrat-Medium',
-      textTransform: 'uppercase'
-      },
-      materialCardWithImageAndTitle1: {
-        top: 0,
-        left: 0,
-        width: '100%',
-        shadowOpacity: 0.01
-      },
-      materialCardWithImageAndTitle1Stack: {
-        width: '100%',
-        marginTop: 10,
-      },
-      
-  cardBody: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    
  
-  },
-  bodyContent: {
-    flex: 1,
-    padding: 16,
-    paddingTop: 14,
-    borderRadius: 2,
-    borderBottomColor: "#f2f2f2",
-    borderBottomWidth: 1,
-  },
-  titleStyle: {
-    color: "rgba(16,108,199,1)",
-    paddingBottom: 2,
-    fontSize: 16,
-    fontFamily: 'Montserrat-Medium',
-  },
-  subtitleStyle: {
-    color: "#333",
-    opacity: 0.5,
-    fontSize: 14,
-    lineHeight: 16,
-    fontFamily: 'Montserrat-Medium',
-  },
-  time: {
-    color: "#333",
-    opacity: 0.5,
-    fontSize: 10,
-    lineHeight: 22,
-    alignSelf: 'flex-end',
-    alignContent: 'flex-end',
-    fontFamily: 'Montserrat-Medium',
-  },
-  cardItemImagePlace: {
-    width: 48,
-    height: 48,
-    backgroundColor: "#ccc",
-    margin: 16,
-    borderRadius: 50
-  }
 })
 
 

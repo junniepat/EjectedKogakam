@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LoginScreen from '../screens/Login' 
+import ForgotPassword from '../screens/ForgotPassword'
 import RegisterScreen from '../screens/Register'
 import ProductView from   '../screens/ProductView'
 import InboxScreen from '../screens/Inbox';
@@ -15,7 +16,11 @@ import ProductsPage from   '../screens/ProductsPage'
 import AdsScreen from '../screens/AdsScreen'
 import Timeline from '../screens/Timeline'
 import inboxView from '../screens/inboxView'
+import SeeAll from '../screens/SeeAll'
+import userType from '../screens/userType'
+import LinksItems from '../screens/Linksitems'
 
+import AddProducts from '../screens/AddProducts'
 import userProfile from '../screens/userProfile'
 
 import {View} from 'react-native' 
@@ -29,9 +34,11 @@ const config = Platform.select({
 const HomeStack = createStackNavigator(
   {
     Home: HomeScreen,
+    SeeAll: SeeAll, 
     ProductView: ProductView,
     ProductsPage: ProductsPage,
-    userProfile: userProfile
+    userProfile: userProfile,
+    
   },
   {
     defaultNavigationOptions:{
@@ -59,9 +66,15 @@ HomeStack.path = '';
 const LinksStack = createStackNavigator(
   {
     Links: LinksScreen,
-    Timeline: Timeline
+    Timeline: Timeline,
+    LinksItems: LinksItems,
+    AddProducts: AddProducts
   },
-  config
+  {
+    defaultNavigationOptions:{
+     headerShown:false
+    }
+  },
 );
 
 LinksStack.navigationOptions = {
@@ -125,10 +138,10 @@ AdsStack.path = '';
 
 export const AuthStack = createStackNavigator(
   {
+    userType: userType,
     Login: LoginScreen,
     Register: RegisterScreen,
-   
-    
+    ForgotPassword: ForgotPassword
   },
 {
   initialRouteName: 'Login',

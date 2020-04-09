@@ -6,7 +6,7 @@ import * as Font from 'expo-font';
 import React, { useState } from 'react';
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
+import { MenuProvider } from 'react-native-popup-menu';
 import axios from 'axios'
 
 
@@ -40,10 +40,12 @@ export default function App(props) {
     );
   } else {
     return (
+      <MenuProvider>
       <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
         <AppNavigator />
       </View>
+      </MenuProvider>
     );
   }
 }

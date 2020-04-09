@@ -12,7 +12,6 @@ import {
 
 import MaterialCard5 from "../components/MaterialCard5";
 
-import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
 import MaterialSearchBar from "../components/MaterialSearchBar";
 import Services from "../components/services"
 import { MonoText } from '../components/StyledText';
@@ -25,6 +24,7 @@ export default function HomeScreen(props) {
   const [user, setUser] = useState(''); 
 
   const [toks, setToks] = useState(null);
+
 
 
   useEffect(() => {
@@ -92,13 +92,6 @@ export default function HomeScreen(props) {
         navigation={props.navigation}
       ></MaterialSearchBar>
 
-    <Text style={styles.userName}>   
-      {user && user.map(item => (
-        <>
-        Hi, {item.name}
-        </>
-      ))} 
-    </Text>
 
 <ScrollView>
 
@@ -109,9 +102,9 @@ export default function HomeScreen(props) {
 
 
       <View style={styles.seeAll}>
-          <MaterialButtonWithVioletText
-            style={styles.materialButtonWithVioletText}
-          ></MaterialButtonWithVioletText>
+      <TouchableOpacity onPress={() => props.navigation.push('SeeAll')}>
+      <Text style={styles.loremIpsum}>SEE ALL</Text>
+    </TouchableOpacity>
       </View>
     </View>
 
@@ -120,12 +113,15 @@ export default function HomeScreen(props) {
 {data.cats.map((item, index) => (
       <>
          
-<Services key={index} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
+<Services key={index} id={item.id} style={{width: '100%'}} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
+
+
 <Image
-            source={require("../assets/images/shop.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
+   source={{uri: 'https://www.kogakam.com/storage/app/cat_images/'  + `${item.cat.image}` }} 
+   resizeMode="cover"
+   style={{width: 31, height: 31}} 
+ ></Image> 
+
 </Services>
          
          {/* <Services color="#f8dd3c"  roundedName="Electronics &amp; Computers"  navigation={props.navigation}  >
@@ -209,14 +205,6 @@ export default function HomeScreen(props) {
       
      
 
-      {/* <View style={styles.tabBarInfoContainer}>
-        <View
-          style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <MonoText style={styles.codeHighlightText}>
-            navigation/MainTabNavigator.js
-          </MonoText>
-        </View>
-      </View> */}
 
 </ScrollView>
   
@@ -248,12 +236,10 @@ const styles = StyleSheet.create({
   scrollArea2StackRow: {
     width: undefined,
     flexDirection: "row",
+    justifyContent: 'space-between',
     marginTop: 4,
     marginBottom: 6,
     flexWrap: "wrap",
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center'
   },
   materialSearchBar1: {
     width: "97%",
@@ -311,6 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 5,
     marginLeft: 8,
+    marginRight: 15,
     fontFamily: 'Montserrat-Medium',
   },
   userName: {
@@ -365,26 +352,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
   },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 30,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 30,
-  },
+
   tabBarInfoText: {
     fontSize: 17,
     color: 'rgba(96,100,109, 1)',
@@ -398,7 +366,8 @@ const styles = StyleSheet.create({
     width: 170,
     borderBottomColor: '#233159',
     borderBottomWidth: 1,
-    borderStyle: 'solid'
+    borderStyle: 'solid',
+    fontFamily: 'Montserrat-Medium',
   }
 
 });

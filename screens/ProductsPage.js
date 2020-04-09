@@ -1,14 +1,13 @@
 import React, { Component, useState, useEffect} from "react";
 import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
 
-import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import Icon from "react-native-vector-icons/Feather";
 
 import MaterialSearchBar1 from "../components/MaterialSearchBar1";
 import { Ionicons } from '@expo/vector-icons';
 
 import MaterialCard5 from "../components/MaterialCard5";
-
+import moment from 'moment';
 import axios from 'axios'
 
 function ProductsPage(props) {
@@ -57,7 +56,6 @@ function ProductsPage(props) {
             style={styles.scrollArea_contentContainerStyle}>
 
 
-  
 {data.products.map(item => (
       <>
           
@@ -66,11 +64,15 @@ function ProductsPage(props) {
   itemId: item.id,
 })}}>
 <View>
-  <Image
-    source={require("../assets/images/slide3.jpg")}
-    resizeMode="cover"
-    style={styles.cardItemImagePlace}
-  ></Image>
+  
+
+<Image
+      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
+      resizeMode="cover"
+      style={styles.cardItemImagePlace}
+    ></Image>
+
+  
 
   <View style={styles.titleStyleStack}>
     <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
@@ -83,7 +85,7 @@ function ProductsPage(props) {
 {item.location.substring(0,17)}</Text>
     
 
-    <Text style={styles.loremIpsum}>23 Hrs</Text>
+<Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
   </View>
 </View>
 </TouchableOpacity>
@@ -114,11 +116,12 @@ function ProductsPage(props) {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: '#f2f2f2',
     },
      
     details:{
-      fontSize: 16,
+      fontSize: 19,
+      fontWeight: '700',
       fontFamily: 'Montserrat-Medium',
       textTransform: 'uppercase',
       marginLeft: 9

@@ -14,13 +14,18 @@ import {
 
 import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
 import MaterialSearchBar from "../components/MaterialSearchBar";
-
+import { Container, Header, Content, Tab, Tabs, TabHeading, Textarea, Form, Left, Right, Radio, ListItem  } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-
 import axios from 'axios'
 import moment from 'moment';
-
-import { Button, Overlay, SocialIcon } from 'react-native-elements';
+import RadioButton from '../components/radio-button';
+import { Button, Overlay } from 'react-native-elements';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
 export default function Profile(props) {
   const [toks, setToks] = useState(null);
@@ -38,6 +43,7 @@ export default function Profile(props) {
         const result = await axios.get(
           `/user_detail/${props.navigation.getParam('itemId')}`
         );  
+        console.warn(result.data.successData)
         setData(result.data.successData);
       }; 
 
@@ -45,6 +51,7 @@ export default function Profile(props) {
         const result = await axios.get(
           `/user_detail/${props.navigation.getParam('itemId')}`
         )
+        console.warn(result.data.successData.user)
           setuserData(result.data.successData.user);
       };
 
@@ -52,6 +59,19 @@ export default function Profile(props) {
       fetchData();  
   }, []);
 
+  const fetchData = async () => {
+    const result = await axios.get(
+      `/user_detail/${props.navigation.getParam('itemId')}`
+    );  
+    setData(result.data.successData);
+  }; 
+
+  const fetchUser = async () => {
+    const result = await axios.get(
+      `/user_detail/${props.navigation.getParam('itemId')}`
+    )
+      setuserData(result.data.successData.user);
+  };
 
 
  
@@ -66,8 +86,8 @@ export default function Profile(props) {
         )
         .then(response => 
           { 
-            console.warn(response)
-            // onSuccess(response);
+            fetchUser(); 
+            fetchData();  
           })
       .catch(error => {
         // setLoading(false)
@@ -90,8 +110,8 @@ export default function Profile(props) {
         )
         .then(response => 
           { 
-            console.warn(response)
-            // onSuccess(response);
+            fetchUser(); 
+            fetchData();  
           })
       .catch(error => {
         // setLoading(false)
@@ -114,8 +134,8 @@ export default function Profile(props) {
           )
           .then(response => 
             { 
-              console.warn(response)
-              // onSuccess(response);
+              fetchUser(); 
+              fetchData();  
             })
         .catch(error => {
           console.warn(response)
@@ -138,8 +158,9 @@ export default function Profile(props) {
             )
             .then(response => 
               { 
-                console.warn(response)
-                // onSuccess(response);
+                  fetchUser(); 
+                  fetchData();    
+                  setComment('')    
               })
           .catch(error => {
             console.warn(response)
@@ -159,8 +180,8 @@ export default function Profile(props) {
       )
       .then(response => 
         { 
-          console.warn(response)
-          // onSuccess(response);
+            fetchUser(); 
+            fetchData();  
         })
     .catch(error => {
       console.warn(response)
@@ -179,8 +200,8 @@ export default function Profile(props) {
         )
         .then(response => 
           { 
-            console.warn(response)
-            // onSuccess(response);
+              fetchUser(); 
+              fetchData();  
           })
       .catch(error => {
         console.warn(response)
@@ -199,8 +220,8 @@ export default function Profile(props) {
           )
           .then(response => 
             { 
-              console.warn(response)
-              // onSuccess(response);
+              fetchUser(); 
+              fetchData();  
             })
         .catch(error => {
           console.warn(response)
@@ -221,8 +242,8 @@ export default function Profile(props) {
             )
             .then(response => 
               { 
-                console.warn(response)
-                // onSuccess(response);
+                fetchUser(); 
+                fetchData();  
               })
           .catch(error => {
             console.warn(response)
@@ -232,6 +253,10 @@ export default function Profile(props) {
           
         }
 
+        const checkRadio = (value) => {
+          setReason(value)
+        }
+      
 
   return (
    
@@ -240,86 +265,32 @@ export default function Profile(props) {
     <ScrollView style={styles.container}>
         
 <View style={styles.bgGradient}>
-      
-<MaterialSearchBar
-      style={styles.materialSearchBar1}
-    ></MaterialSearchBar>
 
-<View style={styles.roundedCover}>
-          <View style={styles.rounded}>
-          <Image
-      source={{uri: `${data.user['image']}`}} 
-      resizeMode="cover"
-      style={styles.profileIm}
-    ></Image>
+<View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 30, paddingLeft: 20, paddingRight: 20}}>
+  <View>
+    <TouchableOpacity  onPress={() => props.navigation.goBack()}>
+      <Text>
+  <Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#fff" style={{marginRight: 6,}} />
+     </Text>
+    </TouchableOpacity>
+  </View>
 
-          </View>
+  <View>
+  <Menu>
+      <MenuTrigger>
+        <Text>  <Ionicons name={Platform.OS === 'ios' ? 'ios-list' : 'md-list'} size={20} color="#fff" style={{marginRight: 6, alignSelf: 'flex-end', }} />
+      </Text></MenuTrigger>
+      <MenuOptions>
+        <MenuOption style={{padding: 13}} onSelect={() =>  block()} text='Block' />
+        <MenuOption style={{padding: 13}} onSelect={() => setVisible(true)} text='Report User' />
+      </MenuOptions>
+    </Menu>
+  </View>
 
-          <View style={styles.johnDoeColumn}>
-            <Text style={styles.johnDoe}>{data.user['name']}</Text>
-            <Text style={styles.johnGmailCom}>{data.user['email']}</Text>
-          </View>
-        
-        </View>
-
-
-<View style={styles.Wrapdetails}>
-
-        <View style={{borderBottomColor: '#f2f2f2',paddingBottom:5, marginBottom: 5, borderBottomStyle: 'solid', borderBottomWidth: 1}}>
-            <View style={styles.loremIpsum3Row}>
-              <Text style={styles.loremIpsum3}>{moment(data.user['created_at'], "YYYYMMDD").fromNow()} </Text>
-              <Text style={styles.loremIpsum3}>{data.user['products_count']}</Text>
-              <Text style={styles.loremIpsum3}>{data.user['viewed']}</Text>
-            </View>
-
-            <View style={styles.details}>
-              <Text style={styles.memberSince}>Member Since</Text>
-              <Text style={styles.products}>Products</Text>
-              <Text style={styles.views}>Views</Text>
-            </View>        
-        </View>
-
-        <View style={styles.loremIpsumRow}>
-          <Text style={styles.loremIpsum3}>{data.user['following_count']}</Text>
-          <Text style={styles.loremIpsum3}>{data.user['followers_count']}</Text>
-          <Text style={styles.loremIpsum3}>{data.user['blocked_count']}</Text>
-        </View>
-
-
-        <View style={styles.followingRow}>
-          <Text style={styles.memberSince}>Following</Text>
-          <Text style={styles.products}>Followers</Text>
-          <Text style={styles.views}>Blocklist</Text>
-        </View>
-
-
-    </View>
 </View>
-
-
-    
-    <View style={{flexDirection: 'row', marginLeft: 5,}}>
-
-       <TouchableOpacity
-          onPress={()=> upvote()} style={styles.roundedBtn}>
-          <Text style={styles.roundedText}>
-          <Ionicons name={Platform.OS === 'ios' ? 'ios-thumbs-up' : 'md-thumbs-up'} size={18} color="#555" style={{marginRight: 6,}} />
          
-          </Text>
-          <Text style={styles.loremIpsum3}>  {data.user['upvote_count']}</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={()=> downvote()}  style={styles.roundedBtn}>
-          <Text style={styles.roundedText}>
-          <Ionicons name={Platform.OS === 'ios' ? 'ios-thumbs-down' : 'md-thumbs-down'} size={18} color="#555" style={{marginRight: 6,}} />
-     
-          </Text>
-          <Text style={styles.loremIpsum3}>{data.user['downvote_count']}</Text>
-        </TouchableOpacity>
-    
-
-        {data.user['is_blocked'] == 0 ? ( 
+       {/* {data.user['is_blocked'] === false ? ( 
             <TouchableOpacity
             onPress={()=> block()}  style={styles.roundedBtn1}>
             <Text style={styles.roundedText1}>Block</Text>
@@ -330,41 +301,104 @@ export default function Profile(props) {
           onPress={()=> unblock()} style={styles.roundedBtnred}>
           <Text style={styles.roundedTextwhite}>Unblock</Text>
         </TouchableOpacity>
-        )}
+        )} */}
       
-   
 
-        {data.user['is_blocked'] == 0 ? ( 
+
+<View style={{flexDirection: 'row'}}>
+  <View style={{ width: '50%', padding: 5 }}>
+    <View style={styles.rounded}>
+    <Image
+        source={{uri: `${data.user['image']}`}} 
+        resizeMode="cover"
+        style={styles.profileIm}
+    ></Image>
+
+    </View>
+   
+    <Text style={styles.johnDoe}>{data.user['name']}</Text>
+    <Text style={styles.johnGmailCom}> {moment.utc(data.user['created_at']).local().format('LL')} </Text>
+  </View>
+
+  <View style={{width: '50%', paddingTop: 20, marginRight: 5}}>
+        
+  <View style={styles.loremIpsumRow}>
+          <Text style={styles.loremIpsum3}>{data.user['following_count']}</Text>
+          <Text style={styles.followers_count}>{data.user['followers_count']}</Text>
+        </View>
+
+
+        <View style={styles.followingRow}>
+          <Text style={styles.memberSince}>Following</Text>
+          <Text style={styles.products}>Followers</Text>
+        </View>
+
+        {data.user['is_following_count'] === false ? ( 
           <TouchableOpacity
             style={styles.followBtn} onPress={()=> follow()}> 
             <Text style={styles.roundedText2}>
-            <Ionicons name={Platform.OS === 'ios' ? 'ios-person-add' : 'md-person-add'} size={15} color="#555" />
-          
+           FOLLOW
             </Text>
           </TouchableOpacity>) : (
              <TouchableOpacity
              style={styles.followBtn} onPress={()=> unfollow()}> 
              <Text style={styles.roundedText2}>
-             <Ionicons name={Platform.OS === 'ios' ? 'ios-person-add' : 'md-person-add'} size={15} color="#555" />
-          
+             UNFOLLOW
              </Text>
            </TouchableOpacity>
           )}
-        </View>
+  </View>
+
+
+</View>
+
+<View style={styles.Wrapdetails}>
+
+
+    </View>
+</View>
 
 
     
+    <View style={{flexDirection: 'row', marginLeft: 5, marginBottom: 10}}>
+
+       <TouchableOpacity
+          onPress={()=> upvote()} style={styles.roundedBtn}>
+          <Text style={styles.roundedText}>
+          <Ionicons name={Platform.OS === 'ios' ? 'ios-thumbs-up' : 'md-thumbs-up'} size={18} color="#555" style={{marginRight: 6,}} />
+         
+          </Text>
+          <Text style={styles.roundedText2}>  {data.user['upvote_count']}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={()=> downvote()}  style={styles.roundedBtn}>
+          <Text style={styles.roundedText}>
+          <Ionicons name={Platform.OS === 'ios' ? 'ios-thumbs-down' : 'md-thumbs-down'} size={18} color="#555" style={{marginRight: 9,}} />
+     
+          </Text>
+          <Text style={styles.roundedText2}>{data.user['downvote_count']}</Text>
+        </TouchableOpacity>
+    
+
+       
+      
+   
+
+        
+        </View>
 
 
-    <View
-    style={styles.materialUnderlineTextbox}>
-  <TextInput
-      placeholder={"Comment"}
-      style={styles.inputStyle}
-      onChangeText={text => setComment(text)}
-      value={comment}
-    ></TextInput>
-  </View>
+        <Tabs tabBarUnderlineStyle={{backgroundColor: '#0F52BA'}}>
+          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
+            <Text style={{color: '#0F52BA'}}>Comment</Text></TabHeading>}>
+            
+ 
+    <Form>
+      <Textarea rowSpan={3} style={{marginRight: 9, marginLeft: 9, marginBottom: 9}} bordered placeholder="Comment" onChangeText={text => setComment(text)}
+      value={comment}/>
+    </Form>
+ 
 
 
   <View style={{marginLeft: 9, marginRight: 9}}>
@@ -388,7 +422,7 @@ export default function Profile(props) {
 
       <View>
         <Text style={styles.johnDoe2}>{item.writer['name']}</Text>
-        <Text style={styles.created_at}>{item.created_at}</Text>
+        <Text style={styles.created_at}>{moment.utc(item.created_at).local().format('LL')} </Text>
       </View>
     </View>
 
@@ -397,6 +431,12 @@ export default function Profile(props) {
   </View>
 ))}
 
+          </Tab>
+
+
+          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
+            <Text style={{color: '#0F52BA'}}>Products</Text></TabHeading>}>
+            
 
 <Text style={styles.johnDoe}>Products</Text>
 
@@ -412,11 +452,17 @@ export default function Profile(props) {
   itemId: id,
 })}}>
 <View>
-  <Image
-    source={require("../assets/images/slide3.jpg")}
-    resizeMode="cover"
-    style={styles.cardItemImagePlace}
-  ></Image>
+ 
+
+    <Image
+      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
+      resizeMode="cover"
+      style={styles.cardItemImagePlace}
+    ></Image>
+
+  
+    
+
 
   <View style={styles.titleStyleStack}>
     <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
@@ -429,7 +475,7 @@ export default function Profile(props) {
 {item.location.substring(0,17)}</Text>
     
 
-    <Text style={styles.loremIpsum}>23 Hrs</Text>
+    <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
   </View>
 </View>
 </TouchableOpacity>
@@ -440,32 +486,120 @@ export default function Profile(props) {
                   </View>
          </View>
    
+          </Tab>
+         
+        </Tabs>
+
+
 
 </ScrollView>
 
 
-<Overlay  isVisible={isVisible}  onBackdropPress={() => setVisible(false)}>
+<Overlay  isVisible={isVisible}  style={{minHeight: "50%"}} onBackdropPress={() => setVisible(false)}>
     <Text style={styles.report}>Report User</Text>
+    
+    <View style={styles.container}>
+    <ListItem
+                >
+                    <Left>
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={{ alignSelf: 'flex-start' }}>Inappropriate Profile Picture</Text>
+                        </View>
+                    </Left>
+                    <Right>
+                        <Radio
+                        value='Inappropriate Profile Picture'
+                        selected={(e) => checkRadio(e.target.value)}
+                        />
+                    </Right>
+                </ListItem>
+                <ListItem
+                   
+                >
+                    <Left>
+                        <View >
+                            <Text style={{ alignSelf: 'flex-start' }}>This user is threatening me</Text>
+                        </View>
+                    </Left>
+                    <Right>
+                        <Radio
+                        value='This user is threatening me'
+                        selected={(e) => checkRadio(e.target.value)}
+                        />
+                    </Right>
+                </ListItem>
 
-    <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"Comment"}
-      style={styles.inputStyle2}
-      onChangeText={text => setComment(text)}
-      value={comment}
-    ></TextInput>
-  </View>
+                <ListItem
+                   
+                >
+                    <Left>
+                        <View >
+                            <Text style={{ alignSelf: 'flex-start' }}>This user is insulting me</Text>
+                        </View>
+                    </Left>
+                    <Right>
+                        <Radio
+                        value='This user is insulting me'
+                        selected={(e) => checkRadio(e.target.value)}
+                     
+                        />
+                    </Right>
+                </ListItem>
 
-  <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"Reason"}
-      style={styles.inputStyle2}
-      onChangeText={text => setReason(text)}
-      value={reason}
-    ></TextInput>
-  </View>
+                <ListItem
+                   
+                >
+                    <Left>
+                        <View >
+                            <Text style={{ alignSelf: 'flex-start' }}>Spam</Text>
+                        </View>
+                    </Left>
+                    <Right>
+                        <Radio
+                        value='Spam'
+                        selected={(e) => checkRadio(e.target.value)}
+                     
+                        />
+                    </Right>
+                </ListItem>
+
+                <ListItem
+                   
+                >
+                    <Left>
+                        <View >
+                            <Text style={{ alignSelf: 'flex-start' }}>Fraud</Text>
+                        </View>
+                    </Left>
+                    <Right>
+                        <Radio
+                          value='Fraud'
+                          selected={(e) => checkRadio(e.target.value)}
+                        />
+                    </Right>
+                </ListItem>
+
+<ListItem
+   
+>
+    <Left>
+        <View >
+            <Text style={{ alignSelf: 'flex-start' }}>Other</Text>
+        </View>
+    </Left>
+    <Right>
+        <Radio
+        value='Other'
+        selected={(e) => checkRadio(e.target.value)}
+        />
+    </Right>
+</ListItem>
+    </View>
+
+
+<Textarea style={{marginLeft: 9, marginRight: 9, marginBottom: 15}} rowSpan={5} bordered placeholder="Reason" onChangeText={text => setReason(text)}
+      value={reason}/>
+
 
   
   <View style={{marginLeft: 9, marginRight: 9}}>
@@ -478,13 +612,6 @@ export default function Profile(props) {
 </View>
 </Overlay>
 
-        <Button
-          title='Report User'
-          button
-          style={{color: '#333', marginRight: 10}}
-          onPress={()=> setVisible(true)}> 
-        />
-        </Button>
 
   </View>
     
@@ -589,7 +716,7 @@ const styles = StyleSheet.create({
     paddingRight:2,
     paddingLeft: 2,
     elevation: 2,
-    minWidth: 58,
+    width: '95%',
     borderRadius: 2,
     shadowOffset: {
       height: 1,
@@ -600,7 +727,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5
   },
   roundedBtn: {
-    width: "20%",
+    width: "47.5%",
     height: 35,
     marginLeft: 5,
 
@@ -686,7 +813,8 @@ const styles = StyleSheet.create({
   },
   roundedText2: {
     fontFamily: 'Montserrat-Medium',
-    color: '#333'
+    color: '#333',
+    marginLeft: 5,
   },
   materialButtonViolet: {
     width: "95%",
@@ -780,8 +908,8 @@ const styles = StyleSheet.create({
   },
   
   profileIm: {
-    height: 61,
-    width: 61,
+    height: 71,
+    width: 71,
     borderRadius: 50,
     backgroundColor: '#333',
     alignSelf: 'flex-start', 
@@ -806,8 +934,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   rounded: {
-    height: 65,
-    width: 65,
+    height: 75,
+    width: 75,
     borderRadius: 50,
     backgroundColor: 'dodgerblue',
     padding: 2,
@@ -829,6 +957,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textTransform: 'uppercase',
     fontFamily: 'Montserrat-Medium',
+    flexWrap: 'wrap'
   },
   johnDoe2: {
     color: "rgba(0,0,0,1.5)",
@@ -874,8 +1003,8 @@ const styles = StyleSheet.create({
   },
   memberSince: {
     color: "#F0FFFF",
-    fontSize: 11,
-    width: '33%',
+    fontSize: 13,
+    width: '50%',
     marginRight: 8,
     textAlign: 'center',
     alignContent: 'center',
@@ -884,9 +1013,9 @@ const styles = StyleSheet.create({
   },
   products: {
     color: "#F0FFFF",
-    fontSize: 11,
+    fontSize: 13,
     marginRight: 8,
-    width: '33%',
+    width: '50%',
     textAlign: 'center',
     alignContent: 'center',
     alignSelf: 'center',
@@ -914,13 +1043,16 @@ const styles = StyleSheet.create({
     height: 24,
     flexDirection: "row",
     width: '90%',
-    marginTop: 1,
+    marginTop: 5,
+    marginBottom: 5
   },
   loremIpsum: {
     color: "rgba(0,0,0,1)",
     fontSize: 11,
     height: 19, 
     width: "33%",
+    flexWrap: 'wrap',
+    alignSelf: 'flex-end'
   },
 
   loremIpsumRow: {
@@ -939,12 +1071,22 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-
+  followers_count: {
+    color: "#fff",
+    fontSize: 21,
+    width: '50%',
+    textAlign: 'center',
+    alignContent: 'center',
+    alignSelf: 'center',
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Medium',
+  },
   loremIpsum3: {
     color: "#fff",
-    fontSize: 11,
-    width: '33%',
+    fontSize: 21,
+    width: '45%',
     textAlign: 'center',
+    alignContent: 'center',
     alignSelf: 'center',
     fontWeight: 'bold',
     fontFamily: 'Montserrat-Medium',
@@ -992,10 +1134,9 @@ const styles = StyleSheet.create({
   },
 
   cardItemImagePlace: {
-    height: 75,
-    flex: 1,
+    height: 115,
     backgroundColor: "#333",
-    width: '100%',
+    width: undefined,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5
   },

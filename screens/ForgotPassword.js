@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ToastAndroid,  TouchableOpacity, TextInput, AsyncStorage } from "react-native";
 
-import {Toast, } from 'native-base';
+import Toast from 'native-base';
 
 
 import * as api from "../services/service";
@@ -15,7 +15,7 @@ const AuthContext = React.createContext();
 
 
 
-function Login(props) {
+function ForgotPassword(props) {
 
   const {navigation} = props;
   const {navigate} = navigation;
@@ -32,7 +32,6 @@ function Login(props) {
   const [user, setUser] = useState(null); 
 
   const [Message, setMessage] = useState('')
-  const [error, setError] = useState('')
 
 
   // useEffect(() => {
@@ -67,57 +66,60 @@ function Login(props) {
   formData.append('email', email);
   formData.append('password', password);
 
-if(!email || !password ) {
-  setError('Your Email and Password cannot be left empty')
-  setbtnText('Login')
-  setDisableBtn(false);
-} 
 
-else {
-  setError('')
-  await api.login(formData)
-  .then(response => 
-    { 
-      setError('')
-      setMessage('Login successful')
-      console.warn(response)
-      // onSuccess(response);
-      setbtnText('Success')
-      setDisableBtn(false);
+      await api.login(formData)
+      .then(response => 
+        { 
+          setMessage('success')
+          console.warn(response)
+          // onSuccess(response);
+          setbtnText('Success')
+          setDisableBtn(false);
 
 
-      setUser(response.user)
-      setToken(response.session.session_key)
-      console.warn('res', response.user)
-      axios.defaults.headers.common['session_token'] = response.session.session_key;
+          setUser(response.user)
+          setToken(response.session.session_key)
+          console.warn('res', response.user)
+          axios.defaults.headers.common['session_token'] = response.session.session_key;
 
-      AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(
-        () => AsyncStorage.getItem("token")
-              .then((result)=> {
-                console.warn("token", result)
-                
-                setTimeout(() => {
-                  props.navigation.navigate('Home', {
-                    token: response.session.session_key,
+          AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(
+            () => AsyncStorage.getItem("token")
+                  .then((result)=> {
+                    console.warn("token", result)
+                    
+                    setTimeout(() => {
+                      props.navigation.navigate('Settings', {
+                        token: response.session.session_key,
+                      })
+                    }, 1500);
+                  
                   })
-                }, 1500);
-              
-              })
-     )
-   
+         )
+       
+
+         AsyncStorage.setItem("email_status", JSON.stringify(response.user.email_status)).then(
+          () => AsyncStorage.getItem("email_status")
+                .then((result)=>console.warn(result))
+        )
+        
+         AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
+          () => AsyncStorage.getItem("user")
+                .then((result)=>console.warn(result))
+        )
+         
+
+        })
+    .catch(error => {
+
+      console.warn(error)
+
+      setMessage(error)
+
+      setbtnText('Login')
+      setDisableBtn(false)
+      setToken(null)
     })
-.catch(error => {
-
-  console.warn(error)
-  setError('Your Email or Password is incorect ')
-
-  setbtnText('Login')
-  setDisableBtn(false)
-  setToken(null)
-})
-
-}
-     
+    
   }
 
 
@@ -130,17 +132,11 @@ else {
   return (
     <View style={styles.container}>
 
-<Text style={styles.text}>LOGIN </Text>
+<Text style={styles.text}>Forgot Password </Text>
 
 
-    {Message !== '' ? <View style={{backgroundColor: 'green', margin: 10, padding: 5, borderRadius: 3}}>
-    <Text style={{color: '#fff'}}>{Message}</Text>
-  </View> : null}
 
- {error !== '' ? <View style={{backgroundColor: 'red', margin: 10, padding: 5, borderRadius: 3}}>
-    <Text style={{color: '#fff'}}>{error}</Text>
-  </View> : null}
-  
+<Text>{Message}</Text>
 
     <View
       style={styles.materialUnderlineTextbox}>
@@ -153,28 +149,13 @@ else {
     </View>
  
 
-    <View
-      style={styles.materialUnderlineTextbox}>
- 
-<TextInput
-        placeholder={"Password"}
-        style={styles.inputStyle}
-        onChangeText={text => setPassword(text)}
-        value={password}
-        secureTextEntry={true}
-      ></TextInput>
-    </View>
 
-<TouchableOpacity  onPress={()=>{props.navigation.navigate('ForgotPassword')}}>
-  <Text style={styles.forgot}>Forgot Password?</Text>
-</TouchableOpacity>
- 
   <View style={{marginLeft: 4, marginRight: 9}}>
           <TouchableOpacity
             style={styles.materialButtonViolet}
             disabled={disableBtn}
             onPress={()=> onsubmit()}> 
-          <Text style={styles.captionBtn}> {btnText}</Text>
+          <Text style={styles.captionBtn}> Reset Password </Text>
           </TouchableOpacity>
   </View>
 
@@ -182,33 +163,10 @@ else {
 
 <View style={styles.blueBack}>
 
-<View style={styles.buttonAll}>
-
-
- 
-      <SocialIcon
-      style={{width: '96%'}}
-  title='Sign In With Facebook'
-  button
-  type='facebook'
-/>
-
-<SocialIcon
-style={{width: '96%'}}
-  title='Sign In With Google'
-  button
-  type='google'
-/>
-    
-
-     
-</View>
-
-      <TouchableOpacity  onPress={()=>{props.navigation.navigate('Register')}}
+<TouchableOpacity style={{marginBottom: 30}} onPress={()=>{props.navigation.navigate('Login')}}
        style={styles.RegisterBtn}>
-        <Text style={styles.captionBtnr}>Register</Text>
+        <Text style={styles.captionBtnr}>Login</Text>
       </TouchableOpacity>
-
 
 
 <Text style={styles.we}>
@@ -265,10 +223,10 @@ const styles = StyleSheet.create({
   },
   blueBack: {
     backgroundColor: '#4630EB',
-    marginTop: 50,
+    marginTop: 230,
     paddingTop: 50,
     paddingBottom: 40,
-    height: '85%'
+    height: '70%'
   },
   lottie: {
     width: 100,
@@ -439,7 +397,7 @@ const styles = StyleSheet.create({
   },
   forgot: {
     fontSize: 15,
-    color: '#0F52BA',
+    color: '#555',
     marginRight:10,
     fontWeight: '700',
     alignItems: 'flex-end',
@@ -447,4 +405,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default ForgotPassword;

@@ -21,14 +21,14 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     elevation: 2,
     minWidth: 88,
-    borderRadius: 2,
+    borderRadius: 6,
+    shadowColor: "#f2f2f2",
     shadowOffset: {
-      height: 1,
-      width: 0
+      width: 0,
+      height: 3,
     },
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
-    shadowRadius: 5
+    shadowOpacity: 0.07,
+    shadowRadius: 4.65,
   },
   caption: {
     color: "#fff",

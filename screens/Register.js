@@ -82,6 +82,9 @@ const RegisterScreen = (props) => {
               setUser(response.user)
               setToken(response.session.session_key)
               console.warn('res', response.user)
+
+              props.navigation.navigate('userType')
+
               axios.defaults.headers.common['session_token'] = response.session.session_key;
 
               AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(

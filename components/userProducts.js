@@ -2,26 +2,27 @@ import React, { Component, useState, useEffect } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
-import moment from 'moment'
+
 import axios from 'axios'
 
-function MaterialCard5(props) {
+function UserProducts(props) {
 
   const [data, setData] = useState({ products: [] });
-  const [dataImg, setDataImg] = useState({ main_image: [] });
+  const [dataImg, setDataImg] = useState({ images: [] });
 
   const [image, setImage] = useState('');
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios.get(
-        'get_all_products', {
+        'get_user', {
           headers: {
             app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
           }
         }
-      );
-      setData(result.data.successData);
-     
+      ); 
+      setData(result.data.successData.user);
+     console.warn( 'imae', result.data.successData.user.products)
+     console.warn(data.products, 'prod')
     };
 
 
@@ -42,30 +43,32 @@ function MaterialCard5(props) {
     fetchData();
   }, []);
  
-  console.warn('img', data.products.main_image);
+  console.warn('img', data.products['id']);
 
   return (
     <>
+      <View style={styles.scrollAreaStack}>
+    <View style={styles.scrollArea_contentContainerStyle}>
     {data.products.map((item, index) => (
       <>
-        
-<TouchableOpacity  key={index} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
+    
+           <View style={styles.materialCard}>
+<TouchableOpacity  key={index} style={styles.materialCard1} onPress={()=>{props.navigation.push('ProductView', {
   itemId: item.id,
 })}}>
 <View>
 
  
-      <Image
-      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
-      resizeMode="cover"
-      style={styles.cardItemImagePlace}
-    ></Image>
-    
+  <Image
+    source={{uri: `${'https://kogakam.com/storage/app/products/'+ item.images[0].path}` }} 
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image> 
 
- 
+
 
   <View style={styles.titleStyleStack}>
-    <Text style={styles.titleStyle}>{item.currency}  {item.price}</Text>
+    <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
     <Text style={styles.subtitleStyle}>{item.title} </Text>
   </View>
   <View style={styles.locationRow}>
@@ -75,14 +78,19 @@ function MaterialCard5(props) {
 {item.location.substring(0,17)}</Text>
     
 
-    <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format("YYYY-MM-DD")}</Text>
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
   </View>
 </View>
 </TouchableOpacity>
+</View>
+
+
 
 </>
 
       ))}
+      </View>
+      </View>
 
     </>
    );
@@ -90,21 +98,68 @@ function MaterialCard5(props) {
 
 const styles = StyleSheet.create({
   container: {
+    top: 30,
+    left: 3,
+    right: 10,
+    width: "49%",
+    height: 185,
+    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+    
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  scrollArea_contentContainerStyle: {
+    top: 4,
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingRight: 10,
+  },
+
+
+  scrollAreaStack: {
+    width: '100%',
+    paddingTop: 10,
+    paddingBottom: 10
+  },
+
+  materialCard: {
+    top: 30,
+    left: 3,
+    right: 10,
+    width: "49%",
+    height: 205,
+    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+    
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+
+  
+  materialCard1: {
     backgroundColor: "#FFF",
-    flexWrap: "nowrap",
-    borderRadius: 2,
+    borderRadius: 4,
     borderColor: "#CCC",
     borderWidth: 1,
 
     overflow: "hidden",
     paddingBottom: 5,
     marginBottom: 5,
-
-    width: '100%'
+    
+    width: '100%',
+    flex: 1
   },
+
   cardItemImagePlace: {
-    height: 75,
-    flex: 1,
+    borderRadius: 2,
+    height: 135,
     backgroundColor: "#333",
     width: undefined,
     borderTopLeftRadius: 5,
@@ -163,4 +218,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default MaterialCard5;
+export default UserProducts;

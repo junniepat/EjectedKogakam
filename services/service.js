@@ -90,9 +90,9 @@ export async function updateProfile(userId, data){
 export function handler(err) {
     let error = err;
 
-    if (err.response && err.response.data.hasOwnProperty("message"))
+    if (err.response && err.response.data.hasOwnProperty("errorMessage"))
         error = err.response.data;
-    else if (!err.hasOwnProperty("message")) error = err.toJSON();
+    else if (!err.hasOwnProperty("errorMessage")) error = err.toJSON();
 
-    return new Error(error.message);
+    return new Error(error.errorMessage);
 }

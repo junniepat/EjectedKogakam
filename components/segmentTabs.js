@@ -12,7 +12,8 @@ import {
 import Timeline from '../screens/Timeline';
 import { Button } from 'react-native-elements';
 
-import ProfileSettings from '../components/settings'
+
+import UserProducts from '../components/userProducts'
 
 import axios from 'axios' 
 
@@ -170,7 +171,7 @@ class ProfileSegment extends Component {
       <View>
        
         <SegmentedControlTab
-          values={['Settings', 'Ads']}
+          values={['Settings', 'Ads', 'Timeline']}
           selectedIndex={customStyleIndex}
           onTabPress={this.handleCustomIndexSelect}
           borderRadius={0}
@@ -196,8 +197,9 @@ class ProfileSegment extends Component {
           <Text style={styles.tabContent}> Tab two</Text>
         )}
 
-        
-
+        {customStyleIndex === 2 && (
+          <UserProducts/>
+        )}
       </View>
       
 </ScrollView>

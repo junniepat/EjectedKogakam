@@ -9,18 +9,6 @@ import {
   Image
 } from "react-native";
 
-import MaterialCard5 from "../components/MaterialCard5";
-import MaterialBasicFooter from "../components/MaterialBasicFooter";
-import EntypoIcon from "react-native-vector-icons/Entypo";
-
-import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
-import IoniconsIcon from "react-native-vector-icons/Ionicons";
-import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import MaterialIconsIcon from "react-native-vector-icons/MaterialIcons";
-import SimpleLineIconsIcon from "react-native-vector-icons/SimpleLineIcons";
-import MaterialSearchBar1 from "../components/MaterialSearchBar1";
-
 export default class Services extends Component {
   constructor(props){
     super(props);
@@ -34,7 +22,8 @@ export default class Services extends Component {
 <TouchableOpacity
      onPress={() => {
       this.props.navigation.push('ProductsPage', {
-        name: this.props.roundedName
+        name: this.props.roundedName,
+        id: this.props.id
       })}}
   >
     <View style={styles.roundedCover}>
@@ -58,15 +47,15 @@ const styles = StyleSheet.create({
 
     roundedCover: {
         margin: 9, 
-        width: 120,
+        width: '100%',
         alignSelf: 'center',  
         alignItems: 'center',
         alignContent: 'center',
         justifyContent:  'center',
       },
       rounded: {
-        height: 50,
-        width: 50,
+        height: 60,
+        width: 60,
         borderRadius: 50,
         alignSelf: 'center', 
         alignItems: 'center',
@@ -83,7 +72,7 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
       roundedName: {
-        width: 85,
+        width: 95,
         textAlign: 'center',
         fontSize: 9,
         fontFamily: 'Montserrat-Medium',

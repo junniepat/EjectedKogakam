@@ -1,5 +1,6 @@
 import React, { Component, useEffect, useState } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity,Alert, Picker, TextInput, AsyncStorage, Switch } from "react-native";
+import { Container, Header, Content, Tab, Tabs } from 'native-base';
 
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
@@ -37,6 +38,43 @@ function ProfileSettings(props) {
   const [emailStatus, setemailStatus] = useState(false);
   const [userType, setUserType] = useState('');
   const [userProfile, setuserProfile] = useState(false);
+
+  const [data, setData] = useState({ user: [] });
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(
+        'get_user'
+      )
+      .then(response => {
+        AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
+          () => AsyncStorage.getItem("user")
+                .then((result)=>console.warn(result))
+        )
+
+        setData(response.data.successData);
+      })  
+      
+    };
+    fetchData();
+
+  }, []);
+
+  const fetchData = async () => {
+  await axios.get(
+      'get_user'
+    )
+    .then(response => {
+      console.warn(response.data.successData)
+      AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
+        () => AsyncStorage.getItem("user")
+              .then((result)=>console.warn('some',result))
+      )
+     
+      setData(response.data.successData);
+    })  
+  };
 
   useEffect(() => {
 
@@ -87,25 +125,6 @@ function ProfileSettings(props) {
   }
 
 
-  async function UserTypeAction(item) {
-   console.warn(item)
-   setUserType(item)
-
-    const formData = new FormData();
-    formData.append('type', item);
-
-  await axios.post('select_user_type', formData)
-  .then(res => {
-    console.warn(res, 'select_user_type')   
-    
-  })
-  .catch(error => {
-    console.warn(error, 'select_user_type')}
-    )
-  }
-  
-
-
   async function getPermissionAsync() {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -124,8 +143,6 @@ function ProfileSettings(props) {
       quality: 1,    
     });
 
-    console.warn(result.uri, 'result');
-
     if (!result.cancelled) {
         setImage(result.uri);
     }
@@ -134,12 +151,18 @@ function ProfileSettings(props) {
       let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
        
 
-      const formData = new FormData();
-      formData.append('profile_image', Imagefile);
+      const formData = new FormData(); 
+      formData.append('profile_image', {type: 'image/jpg', uri, name: `uploaded.${fileType}` });
   
-      await axios.post('https://kogakam.com/api/v1/change_profile_image', formData)
+      await axios.post('https://kogakam.com/api/v1/change_profile_image', formData, 
+        {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+      })
         .then(res => {
-          console.warn(res, 'imae')})
+          fetchData();
+        })
       
         .catch(error => {
           console.warn(error, 'image')}
@@ -194,9 +217,9 @@ function ProfileSettings(props) {
   return (
     <View style={styles.container}>
 
-
-
-
+        <Tabs>
+          <Tab heading="Settings" style={{padding: 15}}>
+            
 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Button
           title="Select Profile Picture"
@@ -225,24 +248,9 @@ function ProfileSettings(props) {
         </View>
 
 
-        <Text style={{width: '100%',  fontFamily: 'Montserrat-Medium',}}>User Type</Text>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between',
-                      backgroundColor: '#f2f2f2', marginTop: 5, padding: 9, borderRadius: 4}}>
-             
-        <Picker
-  selectedValue={userType}
-  style={{height: 25, width: '100%', fontFamily: 'Montserrat-Medium',}}
-  onValueChange={(itemValue) =>
-    UserTypeAction(itemValue)
-  }>
-  <Picker.Item label="Shop" value="shop" />
-  <Picker.Item label="User" value="user" />
-</Picker>
-</View>
 
 
 
-{userProfile && (
   <>
       
 
@@ -250,7 +258,7 @@ function ProfileSettings(props) {
       style={styles.materialUnderlineTextbox}>
     <TextInput
         placeholder={'Full name'}
-        selectionColor={'#428AF8"'}
+        selectionColor={'#428AF8'}
         style={styles.inputStyle}
         
         onChangeText={text => setName(text)}
@@ -341,7 +349,15 @@ function ProfileSettings(props) {
   </View>
 
   </>
-)}
+
+
+          </Tab>
+          <Tab heading="Shop settings">
+    
+          </Tab>
+        
+        </Tabs>
+
 
     </View>
   );

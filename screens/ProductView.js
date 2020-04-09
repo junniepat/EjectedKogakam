@@ -1,25 +1,35 @@
 import React,  {useState, useEffect, Fragment}  from "react";
-import { StyleSheet, View, ScrollView, Text, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, ScrollView,  Image, TouchableOpacity, Dimensions, Animated, Linking, Platform } from "react-native";
+import { List, ListItem, Text, Right, Button, Left, Thumbnail, Body  } from 'native-base';
+import MapView from 'react-native-maps';
 
-import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import Icon from "react-native-vector-icons/Feather";
-
-import MaterialSearchBar1 from "../components/MaterialSearchBar1";
-
-
-import MaterialCard5 from "../components/MaterialCard5";
-
-
+import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Ionicons } from '@expo/vector-icons';
-
-
+import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
+import moment from 'moment'
 
 function ProductView(props) {
 
    
   const [data, setData] = useState({ product: [], related_proucts: [] });
-  const [Adjoindata, setAdjoinData] = useState({ make: [], user: [] });
+  const [Adjoindata, setAdjoinData] = useState({ make: [], user: [], images: [] });
+
+  
+async function dialNumber(item) {
+  
+   let phoneNumber = '';
+  if (Platform.OS === 'android') {
+    phoneNumber =  `tel:${item}`;
+  }
+  else {
+    phoneNumber = `telprompt:${item}`;
+  }
+  Linking.openURL(phoneNumber);
+
+}
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,83 +45,190 @@ function ProductView(props) {
       const result = await axios.get(
         `product_detail/${props.navigation.getParam('itemId')}` 
       );
-      console.warn(result.data.successData.product)
+     
       setAdjoinData(result.data.successData.product);
     };
     fetchAdjoinData();
+
+
   }, []);
+
+  
 
 
 
   return (
 <>
 <View style={styles.container}>
-    <MaterialSearchBar1
-        style={styles.materialSearchBar1}
-        navigation={props.navigation}
-      ></MaterialSearchBar1>
+ 
 
 
+<LinearGradient
+          colors={['rgba(0, 0, 0, .8)', 'rgba(0, 0, 0, .3)', 'rgba(0, 0, 0, .1)']}
+          style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, justifyContent: 'space-between', paddingTop: 10, paddingBottom: 10}}>
+         
+         
+          <TouchableOpacity style={styles.leftIconButton}
+        onPress={() => props.navigation.goBack()}>
+ <Text style={{marginTop: 20}}><Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={27} color="#fff" style={{marginRight: 6,}} /></Text>
+        </TouchableOpacity>
 
-    
+
+        <TouchableOpacity style={styles.leftIconButton}
+        onPress={() => props.navigation.goBack()}>
+ <Text style={{marginTop: 20}}><Ionicons name={Platform.OS === 'ios' ? 'ios-share' : 'md-share'} size={27} color="#fff" style={{marginRight: 6,}} /></Text>
+        </TouchableOpacity>
+
+        </LinearGradient>
+            
 
 <ScrollView>
 <View style={styles.ramanOsmanStackColumn}>
             
-            <View >
+            <View>
 
+ 
+ <ScrollView horizontal scrollEventThrottle={10} 
+     showsHorizontalScrollIndicator={false}
+      pagingEnabled
+ onScroll={
+  Animated.event(
+    [{ nativeEvent: { contentOffset: { x: 10 } } }]
+  )
+}>
+{Adjoindata && Adjoindata.images.map((item, index) => (
+  <>
+<Image
+    source={{uri: `${'https://kogakam.com/storage/app/products/'+ item.path}` }} 
+    resizeMode="cover"
+    style={styles.SliderImage}
+  ></Image>
+  
+ 
+</>
+
+)
+  )}
+
+ 
+
+</ScrollView>        
             
              </View>
             
-           
-             <Text style={styles.title}>{Adjoindata.make['title']} </Text> 
-              <View style={styles.priceArea}>
-                <Text style={styles.price}>{data.product['currency']} {data.product['price']}</Text>
-                <Text><Ionicons name={Platform.OS === 'ios' ? 'ios-share' : 'md-share'} size={12} color="#555" style={{marginRight: 6,}} /></Text>
-                
+             <List>                  
+            <ListItem style={styles.priceArea}>
+              <View style={{width: '100%', flexDirection: 'row',  flexWrap: 'wrap', justifyContent: 'space-between',}}>
+                  <View>
+                    <Text style={styles.price}>{data.product['currency']} {data.product['price']}</Text>
+                    <Text style={{alignSelf: 'flex-start', color: "#0F52BA",
+                      fontSize: 15, alignSelf: 'flex-start',
+                      fontFamily: 'Montserrat-Medium',}}>{Adjoindata.make['title']}</Text>
+                    {/* <Text style={styles.headers}>{data.product['location']}</Text> */}
+                  </View>
+
+                  <View>
+  
+                  <Text style={{fontSize:9, marginTop: 10}}>{moment.utc(data.product['updated_at']).local().format('LL')} </Text>
+                  </View>
               </View>
-              <Text style={{marginLeft: 9, fontSize:9}}>23 mins ago</Text>
+
+
+            <Left>
+           
+            
+            {/* <Text style={{fontSize:12, marginTop: 7, alignSelf: 'flex-start' }}>Viewed {data.product.viewed} times</Text> */}
+
+           </Left>
+           
+            </ListItem>
+            </List>
+
 
                   <View style={styles.rect2}>
-                    <Text style={styles.details}>Details</Text>
+                    <Text style={styles.headers}>Description</Text>
                     <Text style={styles.detailsDescription}>
                     {data.product['description']}
                     {'\n'}
-                    Viewed {data.product.viewed} times
                     </Text>
                   </View>
 
-                  <Text style={styles.productDetails}>Product Details</Text>
-                  <Text style={styles.detailsDescription}> ow wo
-                    </Text>
+          <List style={{ borderColor: '#f2f2f2', borderBottomWidth: 3, borderStyle: 'solid',}}>
+            <ListItem avatar onPress={() => {props.navigation.push('userProfile', 
+            { itemId: data.product.user_id, })}}>
+              <Left>
+                <Thumbnail source={{ uri: `https://kogakam.com/storage/app/profile_images/${Adjoindata.user['image']}` }} />
+              </Left>
+              <Body>
+                <Text style={{color: '#0F52BA', textTransform: 'capitalize'}}> {Adjoindata.user['name']}</Text>
+                <Text note> Member since {moment.utc(data.product['created_at']).local().format('LL')} </Text>
+                <TouchableOpacity>
+                    <Text note style={{color: 'dodgerblue', fontSize: 12, paddingLeft: 4}}>SEE PROFILE</Text>
+                </TouchableOpacity>
+              </Body>
+              <Right>
+              <Text style={{alignSelf: 'flex-end', marginTop: 21}}><Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-dropright' : 'md-arrow-dropright'} size={27} color="#555" style={{marginRight: 6,}} /></Text>
+              </Right>
+             
+            </ListItem>
+          </List>
+
+
     </View>
 
-<Text style={{marginLeft: 9}}>Posted In</Text>
+<Text  style={styles.headers} >Ad posted at</Text>
     <View style={styles.map}>
-      <Text>Map</Text>
+    <MapView 
+     initialRegion={{
+      latitude: data.product.lat,
+      longitude: data.product.lng,
+    }}
+    style={styles.mapStyle} />
     </View>
 
-    <Text style={styles.loremIpsum2}>Related Products</Text>
-  
-  <View style={styles.scrollAreaStack}>
-          <View 
-             style={styles.scrollArea_contentContainerStyle}>
+    
 
+    <List style={{ borderColor: '#f2f2f2', borderBottomWidth: 3,  borderTopWidth: 3, borderStyle: 'solid',}}>
+            <ListItem onPress={() => {props.navigation.push('userProfile', 
+            { itemId: data.product.user_id, })}}>
+              <Left>
+                <Text style={{fontSize: 13,}}>AD ID: {data.product['id']}</Text>
+              </Left>
+  
+              {/* <Right>
+                <TouchableOpacity>
+                  <Text style={{alignSelf: 'flex-end', fontSize: 12,color: '#0F52BA', width: 100, fontWeight: '700'}}>REPORT THIS AD</Text>
+                </TouchableOpacity>
+              </Right> */}
+             
+            </ListItem>
+          </List>
+  
+  
+  <View >
+  <Text style={styles.headers}>Related Ads</Text>
+
+<ScrollView horizontal  scrollEventThrottle={10}
+          pagingEnabled style={{height: 240, paddingBottom: 20}}>
 {data.related_proucts.map(item => (
       <>
    
- 
-           
+   <View style={styles.materialCard}>
 <TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.navigate('ProductView', 
 {
   itemId: id,
 })}}>
 <View>
-  <Image
-    source={require("../assets/images/slide3.jpg")}
-    resizeMode="cover"
-    style={styles.cardItemImagePlace}
-  ></Image>
+
+  
+
+<Image
+      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
+      resizeMode="cover"
+      style={styles.cardItemImagePlace}
+    ></Image>
+   
+  
 
   <View style={styles.titleStyleStack}>
     <Text style={styles.titleStyle}>{item.currency} {item.price}</Text>
@@ -124,50 +241,43 @@ function ProductView(props) {
 {item.location.substring(0,17)}</Text>
     
 
-    <Text style={styles.loremIpsum}>23 Hrs</Text>
+    <Text style={styles.loremIpsum}>{moment.utc(data.product['created_at']).local().format("YYYY-MM-DD")} </Text>
   </View>
 </View>
 </TouchableOpacity>
-
+</View>
 
 </>
 ))}
-          
-
-        </View>
-         </View>
-        
-    </ScrollView>
-
- <View style={styles.PersonInfo}>
- <View style={styles.ramanOsmanStack}>
+          </ScrollView>
 
  
-
-       <TouchableOpacity onPress={() => {props.navigation.push('userProfile', 
-          {
-            itemId: data.product.user_id,
-          })}}>
-          <Text style={styles.ramanOsman}>   {Adjoindata.user['name']} </Text>
-      </TouchableOpacity>
+         </View>
+        
 
 
+    </ScrollView>
+
+  
+
+ <View style={styles.PersonInfo}>
+
+              <Left>
+              <TouchableOpacity style={styles.cupertinoButtonInfo} onPress={() => dialNumber(Adjoindata.user['phone'])}>
+                  <Text style={styles.caption}><Ionicons name={Platform.OS === 'ios' ? 'ios-call' : 'md-call'} size={22} color="#fff" style={{marginRight: 12,}} /> Call</Text>
+                </TouchableOpacity>
+              </Left>
+             
+              <Right>
+                <TouchableOpacity style={styles.cupertinoButtonInfo} onPress={() => {props.navigation.push('inboxView', 
+                 { itemId: Adjoindata.user['id'], productId: data.product['id'] })}}>
+                  <Text style={styles.caption}><Ionicons name={Platform.OS === 'ios' ? 'ios-chatbubbles' : 'md-chatbubbles'} size={22} color="#fff" style={{marginRight: 12,}} /> Chat</Text>
+                </TouchableOpacity>
+              </Right>
+           
+         
 
 
-                    <Text style={styles.loremIpsum1}>
-                      Member since  {Adjoindata.user['created_at']}
-                    </Text>
-                  </View>
-
-                  
-                  <View style={styles.cupertinoButtonInfoRow}>
-                    <CupertinoButtonInfo
-                      navigation={props.navigation}
-                      style={styles.cupertinoButtonInfo}
-                    ></CupertinoButtonInfo>
-                    <Icon name="phone" style={styles.icon}></Icon>
-                    <Text style={styles.loremIpsum}>{data.product['phone']}</Text>
-                  </View>
  </View>
  
     </View>
@@ -181,14 +291,16 @@ function ProductView(props) {
       flex: 1,
       backgroundColor: '#fff',
     },
+    mapStyle: {
+      width: '100%',
+      height: 190,
+    },
     PersonInfo:{
+        height: 50,
         width: "100%",
-        borderWidth: 1,
-        borderStyle: 'dotted',
-        borderColor: '#eee',
-        paddingBottom: 10,
-        paddingTop: 10,
-        backgroundColor: '#fcfcfc'
+        flexDirection: 'row',
+        paddingRight: 5,
+        paddingLeft:5
     },
     title:{
       color: "rgba(16,108,199,1)",
@@ -204,6 +316,7 @@ function ProductView(props) {
       backgroundColor: '#f2f2f2',
       marginLeft: 9,
       marginTop: 10,
+      marginBottom: 20
     },
 
     Profilerect: {
@@ -215,15 +328,10 @@ function ProductView(props) {
     },
     materialSearchBar1: {
       width: "97%",
-      height: 46,
+      height: 26,
       marginTop: 25,
       marginLeft: 6,
   
-      marginBottom: 15,
-  
-      borderBottomColor: '#ccc',
-      borderBottomWidth: 1,
-      borderStyle: 'solid'
       },
       ramanOsmanStackColumn: {
         width: "100%",
@@ -243,22 +351,16 @@ function ProductView(props) {
         fontFamily: 'Montserrat-Medium',
         lineHeight: 26,
       },
-      productDetails: {
-        color: "#333",
-        fontSize: 16,
+      headers: {
+        color: "#0F52BA",
+        fontSize: 15,
         lineHeight: 26,
-        marginLeft: 9,
+        alignSelf: 'flex-start',
+        marginLeft: 11,
         
         fontFamily: 'Montserrat-Medium',
       },
-      details: {
-        color: "#333",
-        fontSize: 16,
-        fontFamily: 'Montserrat-Medium',
-        lineHeight: 26,
-        marginTop: 16,
-        marginLeft: 9
-      },
+     
       detailsDescription: {
         color: "#555",
         fontSize: 11,
@@ -269,12 +371,7 @@ function ProductView(props) {
         marginBottom: 10,
       },
       
-  loremIpsum2: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 13,
-    marginLeft: 10,
-    fontFamily: 'Montserrat-Medium',
-  },
+  
   loremIpsum1: {
     color: "rgba(0,0,0,1)",
     fontSize: 13,
@@ -301,48 +398,56 @@ function ProductView(props) {
     borderBottomRightRadius: 5,
   },
   priceArea: {
-    borderColor: '#ccc',
-    borderWidth: 1,
+    borderColor: '#f2f2f2',
+    borderBottomWidth: 3,
+    borderTopWidth: 1,
     borderStyle: 'solid',
 
     width: '95%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
 
-    padding: 9,
     marginBottom:3,
     marginLeft: 9,
   },
+  rect2: {
+    borderColor: '#f2f2f2',
+    borderBottomWidth: 3,
+    borderStyle: 'solid',
+      },
   price: {
     color: "rgba(21,97,195,1)",
-    fontSize: 13,
+    fontSize: 15,
+    fontWeight: 'bold',
+    alignSelf: 'flex-start'
   },
-  materialCard5: {
-    top: 30,
+  materialCard:{
+    top: 10,
+    marginRight: 10,
+    marginBottom: 10,
     left: 3,
     right: 10,
-    width: "49%",
-    height: 185,
+    width: 190,
+    height: 205,
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
-
-
     
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  materialCard5: {
+    top: 5,
     backgroundColor: "#FFF",
-    flexWrap: "nowrap",
-    borderRadius: 2,
+    borderRadius: 4,
     borderColor: "#CCC",
     borderWidth: 1,
 
     overflow: "hidden",
     paddingBottom: 5,
     marginBottom: 5,
-
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
+    
+    width: '100%',
+    flex: 1
   },
 
 
@@ -353,11 +458,22 @@ function ProductView(props) {
         marginLeft: 9,
       },
       cupertinoButtonInfo: {
-        width: 91,
-        height: 32,
-        marginTop: 1,
-        
-    fontFamily: 'Montserrat-Medium',
+        width: '98%',
+        height: 42,
+        marginTop: 11,
+        paddingTop: 6,
+        paddingBottom: 6, 
+        paddingLeft: 14,
+        backgroundColor: "#2B65EA",
+        fontFamily: 'Montserrat-Medium',
+      },
+      caption: {
+        color: "#fff",
+        fontSize: 18,
+        textTransform: 'uppercase',
+        alignSelf: 'flex-start',
+        fontFamily: 'Montserrat-Medium',
+        alignContent: 'flex-start'
       },
       icon: {
         color: "rgba(21,97,195,1)",
@@ -369,28 +485,45 @@ function ProductView(props) {
         
     fontFamily: 'Montserrat-Medium',
       },
+
+
       loremIpsum: {
-        color: "rgba(16,108,199,1)",
-        fontSize: 13,
-        
-    fontFamily: 'Montserrat-Medium',
+        color: "#555",
+        fontSize: 7,
+        marginTop: -4,
+        fontWeight: 'bold',
+        width: 45,
+        fontFamily: 'Montserrat-Medium',
         lineHeight: 26,
-        marginLeft: 2
+       
       },
 
 
-
-
-
-      
-
       cardItemImagePlace: {
-        height: 75,
-        flex: 1,
+        borderRadius: 2,
+        height: 110,
         backgroundColor: "#333",
         width: undefined,
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5
+      },
+
+      SliderImage: {
+        marginTop: -20,
+        marginRight: 10,
+        marginBottom: 10,
+
+        left: 3,
+        right: 10,
+        width: 420,
+        height: 235,
+        alignItems: 'flex-start',
+        alignSelf: 'flex-start',
+        
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
       },
       titleStyle: {
         top: 0,
@@ -430,33 +563,16 @@ function ProductView(props) {
    
       locationRow: {
         height: 8,
+        flexWrap: "wrap",
         flexDirection: "row",
         justifyContent: 'space-between',
         marginLeft: 10,
         marginRight: 20,
         marginBottom: 5,
-        width: '82%'
+        width: '92%'
       },
 
 
-      slideContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        marginTop: 50,
-        height: 100,
-        width: 100,
-        backgroundColor: 'red'
-    },
-    slide1: {
-        backgroundColor: "rgba(20,20,200,0.3)"
-    },
-    slide2: {
-        backgroundColor: "rgba(20,200,20,0.3)"
-    },
-    slide3: {
-        backgroundColor: "rgba(200,20,20,0.3)"
-    },
 })
   
 export default ProductView;

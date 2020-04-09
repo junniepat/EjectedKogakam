@@ -2,49 +2,51 @@ import React, { Component, useState, useEffect } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
-import moment from 'moment'
+
 import axios from 'axios'
 
 function MaterialCard5(props) {
 
-  const [data, setData] = useState({ products: [] });
-  const [dataImg, setDataImg] = useState({ main_image: [] });
-
-  const [image, setImage] = useState('');
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get(
-        'get_all_products', {
-          headers: {
-            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+    const [data, setData] = useState({ products: [] });
+    const [dataImg, setDataImg] = useState({ images: [] });
+  
+    const [image, setImage] = useState('');
+    useEffect(() => {
+      const fetchData = async () => {
+        const result = await axios.get(
+          'get_user', {
+            headers: {
+              app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+            }
           }
-        }
-      );
-      setData(result.data.successData);
-     
-    };
-
-
-
-    const fetchImg = async () => {
-      const result = await axios.get(
-        'https://kogakam.com/api/v1/get_all_products', {
-          headers: {
-            app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+        ); 
+        setData(result.data.successData.user);
+       console.warn( 'imae', result.data.successData.user.products)
+       console.warn(data.products, 'prod')
+      };
+  
+  
+  
+      const fetchImg = async () => {
+        const result = await axios.get(
+          'https://kogakam.com/api/v1/get_all_products', {
+            headers: {
+              app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+            }
           }
-        }
-      );
-      setDataImg([result.data.successData.products]);
-     
-    };
+        );
+        setDataImg([result.data.successData.products]);
+       
+      };
+  
+      fetchImg();
+      fetchData();
+    }, []);
+   
+    console.warn('img', data.products['id']);
+  
+    return (
 
-    fetchImg();
-    fetchData();
-  }, []);
- 
-  console.warn('img', data.products.main_image);
-
-  return (
     <>
     {data.products.map((item, index) => (
       <>
@@ -53,16 +55,15 @@ function MaterialCard5(props) {
   itemId: item.id,
 })}}>
 <View>
+  <Image
+    source={{uri: `https://kogakam.com/storage/app/products${item.main_image}`}} 
+    resizeMode="cover"
+    style={styles.cardItemImagePlace}
+  ></Image>
+
 
  
-      <Image
-      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
-      resizeMode="cover"
-      style={styles.cardItemImagePlace}
-    ></Image>
-    
-
- 
+  
 
   <View style={styles.titleStyleStack}>
     <Text style={styles.titleStyle}>{item.currency}  {item.price}</Text>
@@ -75,7 +76,7 @@ function MaterialCard5(props) {
 {item.location.substring(0,17)}</Text>
     
 
-    <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format("YYYY-MM-DD")}</Text>
+    <Text style={styles.loremIpsum}>23 Hrs</Text>
   </View>
 </View>
 </TouchableOpacity>
