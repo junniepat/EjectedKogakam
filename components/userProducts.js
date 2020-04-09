@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from "react";
-import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -49,6 +49,7 @@ function UserProducts(props) {
     <>
       <View style={styles.scrollAreaStack}>
     <View style={styles.scrollArea_contentContainerStyle}>
+    <ActivityIndicator size="large"/>
     {data.products.map((item, index) => (
       <>
     

@@ -7,7 +7,7 @@ import {
   StyleSheet,
   
   TouchableOpacity,
-  View, AsyncStorage, ListView } from 'react-native';
+  View, AsyncStorage, ListView, ActivityIndicator } from 'react-native';
 import { Container, Header, SwipeRow, Icon, Button, Badge, Tab, Tabs, TabHeading,  Left, Thumbnail, Body, Right,  List, ListItem, Text } from 'native-base';
 
 
@@ -26,7 +26,7 @@ export default function InboxScreen(props) {
   const [Notification, setNotification] = useState(false)
 
   const [NotificationData, setNotificationData] = useState([])
-  
+  const [activity, setactivity] = useState(true)
 
   const switchMessageTab = () => {
     setInboxMessage(true)
@@ -49,7 +49,7 @@ export default function InboxScreen(props) {
       setData(result.data.successData);
     }; 
     fetchData();
-
+    setactivity(false)
     console.warn(data, 'data')
 
 
@@ -60,6 +60,7 @@ export default function InboxScreen(props) {
       setNotificationData(result.data.successData);
     };
     fetchNotification();
+    setactivity(false)
 
     
  
@@ -85,6 +86,8 @@ export default function InboxScreen(props) {
             </Badge></TabHeading>}>
           <>
              
+          {activity && <ActivityIndicator size='large'/>}
+
              <View style={{flexDirection: 'row', marginTop: 4,
              flexWrap: 'wrap', justifyContent: 'space-between',}}>
               
@@ -134,6 +137,7 @@ export default function InboxScreen(props) {
                </>
           </Tab>
           <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}><Text style={{color: '#0F52BA'}}>Notifications</Text></TabHeading>}>
+          {activity && <ActivityIndicator size='large'/>}
           {NotificationData && NotificationData.map((item) => (
             <>
               <Text> {item.id}</Text>

@@ -54,28 +54,6 @@ export default function AddProducts(props) {
       // are actually granted, but I'm skipping that for brevity
     };
 
-
-
-
-     let openImagePickerAsync = async () => {
-      let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
-  
-      if (permissionResult.granted === false) {
-        alert("Permission to access camera roll is required!");
-        return;
-      }
-
-      const permission = await Permissions.getAsync(Permissions.CAMERA_ROLL);
-      if (permission.status !== 'granted') {
-          const newPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-          if (newPermission.status === 'granted') {
-            //its granted.
-          }
-  }
-    
-    }
- 
-  
      
       const submitForm = e => {
 
@@ -117,10 +95,10 @@ export default function AddProducts(props) {
       }  
 
  
-
+      
   const  ImagePickeed = (callback) => {
     callback.then((photos) => {
-      setNumber(photos)
+      console.warn('potos', photos)
     }).catch((e) => console.warn(e))
   };
 
@@ -130,15 +108,17 @@ export default function AddProducts(props) {
     </View>
   );
 
-  updateHandler = (count, onSubmit) => {
+const  updateHandler = (count, onSubmit) => {
     console.warn(count)
+    console.warn(onSubmit)
     props.navigation.setParams({
       headerTitle: "{{count}} selected",
       headerRight: onSubmit,
     });
-  };
+  }
+
   const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
-    const noCameraPermissionComponent = <Text style={styles.emptyStay}>No access to camera</Text>;
+  const noCameraPermissionComponent = <Text style={styles.emptyStay}>No access to camera</Text>;
 
     return (
       <Container>
@@ -213,6 +193,8 @@ export default function AddProducts(props) {
           <Text style={{fontFamily: 'Montserrat-Medium',}}>Choose Product Photos: {number}</Text>
            <ImageBrowser
               max={4}
+              loadCount={20} 
+        
           onChange={updateHandler}
           callback={ImagePickeed}
           renderSelectedComponent={renderSelectedComponent}

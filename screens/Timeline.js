@@ -189,17 +189,20 @@
 import React , {useState, useEffect} from 'react';
 import { Container, Content, Button, Header, List, ListItem, Text, Icon, Left, Body, Right, Switch, View, Title  } from 'native-base';
 import axios from 'axios'
-import {TouchableOpacity, StyleSheet, Image} from 'react-native'
+import {TouchableOpacity, StyleSheet, Image, ActivityIndicator} from 'react-native'
 import { Ionicons,  } from '@expo/vector-icons'
 
 export default function Timeline(props) {
     const [data, setData] = useState({ cats: [] });
+    const [activity, setactivity] = useState(true)
+    
     useEffect(() => {
         const fetchData = async () => {
           const result = await axios.get(
             'get_all_cats'
           );  
           setData(result.data.successData);
+          setactivity(false)
         };
         fetchData();
     
@@ -223,6 +226,7 @@ export default function Timeline(props) {
       </View>
      
         <Content>
+        {activity && <ActivityIndicator size='large'/>}
         <View style={{flexDirection: 'row', width: '96%', paddingLeft: 17, paddingRight:8, justifyContent: 'space-between', flexWrap: 'wrap' }}>
         {data.cats.map((item, index) => (
       <>

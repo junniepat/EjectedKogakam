@@ -6,6 +6,7 @@ import {TouchableOpacity, StyleSheet, ActivityIndicator} from 'react-native'
 import { Ionicons,  } from '@expo/vector-icons'
 
 export default function LinksItems(props) {
+  const [activity, setactivity] = useState(true)
     const [data, setData] = useState({ subcats: [] });
     useEffect(() => {
         const fetchData = async () => {
@@ -13,6 +14,7 @@ export default function LinksItems(props) {
             `get_sub_cats/${props.navigation.getParam('itemId')}`
           );  
           setData(result.data.successData);
+          setactivity(false)
         };
         fetchData();
     
@@ -40,10 +42,9 @@ export default function LinksItems(props) {
         <Text style={{color: "#121212", fontFamily: 'Montserrat-Medium', marginTop: 9,  marginBottom:10, marginLeft: 24,  fontSize: 15,}}>{props.navigation.getParam('name')} sub categories</Text>
         <View style={{width: '96%', paddingLeft: 17, paddingRight:8, }}>
         
+        {activity && <ActivityIndicator size='large'/>}
         
         <List>
-       
-      
   {data.subcats.map((item, index) => (
           <>
     

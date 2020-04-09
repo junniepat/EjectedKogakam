@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,Picker, AsyncStorage
+  View,Picker, AsyncStorage, ActivityIndicator
 } from 'react-native';
 
 import MaterialCard5 from "../components/MaterialCard5";
@@ -22,7 +22,7 @@ export default function HomeScreen(props) {
   
   const [data, setData] = useState({ cats: [] });
   const [user, setUser] = useState(''); 
-
+  const [activity, setactivity] = useState(true)
   const [toks, setToks] = useState(null);
 
 
@@ -55,6 +55,7 @@ export default function HomeScreen(props) {
         'get_mobile_cats'
       );  
       setData(result.data.successData);
+      setactivity(false)
     };
     fetchData();
 
@@ -108,8 +109,10 @@ export default function HomeScreen(props) {
       </View>
     </View>
 
+    {activity && <ActivityIndicator size='large'/>}
 
 <View style={styles.scrollArea2StackRow}>
+
 {data.cats.map((item, index) => (
       <>
          
