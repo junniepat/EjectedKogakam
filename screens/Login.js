@@ -133,11 +133,11 @@ else {
 <Text style={styles.text}>LOGIN </Text>
 
 
-    {Message !== '' ? <View style={{backgroundColor: 'green', margin: 10, padding: 5, borderRadius: 3}}>
-    <Text style={{color: '#fff'}}>{Message}</Text>
+    {Message !== '' ? <View style={{backgroundColor: '#9bffad', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: 'green'}}>{Message}</Text>
   </View> : null}
 
- {error !== '' ? <View style={{backgroundColor: 'red', margin: 10, padding: 5, borderRadius: 3}}>
+ {error !== '' ? <View style={{backgroundColor: 'ff475c', margin: 10, padding: 5, borderRadius: 3}}>
     <Text style={{color: '#fff'}}>{error}</Text>
   </View> : null}
   

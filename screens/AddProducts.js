@@ -1,4 +1,4 @@
-import React , {useState, useEffect} from 'react';
+import React , {useState, useEffect, ImageBackground} from 'react';
 import { Container, Content, List, ListItem, Text, Form,Item, Label, 
     Input, Icon,  Picker, View, Title, Textarea  } from 'native-base';
     import {Button} from 'react-native-elements'
@@ -6,7 +6,10 @@ import axios from 'axios'
 import {TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView,  Image} from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-import { ImageBrowser } from 'expo-multiple-media-imagepicker'
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
+
+import { ImageBrowser } from 'expo-image-picker-multiple';
 
 export default function AddProducts(props) {
 
@@ -21,12 +24,14 @@ export default function AddProducts(props) {
     const [currency, setCurrency] = useState("")
     const [phone, setPhone] = useState("")
     const [error, setError] = useState("")
-    
+
+    const [photos, setPhoto] = useState([])
     const [image, setImages] = useState([])
     const [disableBtn, setDisableBtn] = useState(false)
-   
+   const [number, setNumber] = useState('')
    
      useEffect(() => {
+          
        navigator.geolocation.getCurrentPosition(
          position => {
            const latitude = JSON.stringify(position.coords.latitude);
@@ -38,7 +43,19 @@ export default function AddProducts(props) {
          error => Alert.alert(error.message),
          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
        );
+
+       askPermissionsAsync();
      }, [])
+
+    const askPermissionsAsync = async () => {
+      await Permissions.askAsync(Permissions.CAMERA);
+      await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      // you would probably do something to verify that permissions
+      // are actually granted, but I'm skipping that for brevity
+    };
+
+
+
 
      let openImagePickerAsync = async () => {
       let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
@@ -47,9 +64,15 @@ export default function AddProducts(props) {
         alert("Permission to access camera roll is required!");
         return;
       }
-  
-      let pickerResult = await ImagePicker.launchImageLibraryAsync();
-      console.log(pickerResult);
+
+      const permission = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+      if (permission.status !== 'granted') {
+          const newPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+          if (newPermission.status === 'granted') {
+            //its granted.
+          }
+  }
+    
     }
  
   
@@ -93,16 +116,30 @@ export default function AddProducts(props) {
         // }
       }  
 
-     const imageBrowserCallback = (callback) => {
-        callback.then((photos) => {
-          console.log(photos)
+ 
 
-          setimageBrowserOpen(false)
-          setPhoto(photos)
+  const  ImagePickeed = (callback) => {
+    callback.then((photos) => {
+      setNumber(photos)
+    }).catch((e) => console.warn(e))
+  };
 
-        }).catch((e) => console.log(e))
-      }
-      
+  const renderSelectedComponent = (number) => (
+    <View style={{backgroundColor: 'blue', width: 20,borderRadius: 5, height:30, padding:4, textAlign: 'center'}}>
+      <Text style={{color: '#fff'}}>{number}</Text>
+    </View>
+  );
+
+  updateHandler = (count, onSubmit) => {
+    console.warn(count)
+    props.navigation.setParams({
+      headerTitle: "{{count}} selected",
+      headerRight: onSubmit,
+    });
+  };
+  const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
+    const noCameraPermissionComponent = <Text style={styles.emptyStay}>No access to camera</Text>;
+
     return (
       <Container>
          <View style={{height: 50,  marginTop: 25, lineHeight: 50, flexDirection: 'row', borderBottomColor: '#f2f2f2', borderBottomWidth: 1, borderStyle: 'solid'}}
@@ -172,26 +209,22 @@ export default function AddProducts(props) {
              value={phone} />
            </Item>
 
+
+          <Text style={{fontFamily: 'Montserrat-Medium',}}>Choose Product Photos: {number}</Text>
            <ImageBrowser
-        max={101} // Maximum number of pickable image. default is None
-        headerCloseText={'Close'} // Close button text on header. default is 'Close'.
-        headerDoneText={'Done'} // Done button text on header. default is 'Done'.
-        headerButtonColor={'#E31676'} // Button color on header.
-        headerSelectText={'selected'} // Word when picking.  default is 'n selected'.
-        mediaSubtype={'screenshot'} // Only iOS, Filter by MediaSubtype. default is display all.
-        badgeColor={'#E31676'} // Badge color when picking.
-        emptyText={'Nothing selected'} // Empty Text
-        callback={() => imageBrowserCallback()} // Callback functinon on press Done or Cancel Button. Argument is Asset Infomartion of the picked images wrapping by the Promise.
+              max={4}
+          onChange={updateHandler}
+          callback={ImagePickeed}
+          renderSelectedComponent={renderSelectedComponent}
+          emptyStayComponent={emptyStayComponent}
+          noCameraPermissionComponent={noCameraPermissionComponent}
           />
 
            <Button
-           outline
-           titleStyle={{ color: '#fff'}}
+           outline titleStyle={{ color: '#fff'}}
            buttonStyle={{backgroundColor: '#0F52BA'}}
            raised={true}
-             title="Create"
-             type="submit"
-             loading={false}
+             title="Create"  type="submit"  loading={false}
              disabled={disableBtn}
              onPress={()=> submitForm()} 
            />
@@ -305,6 +338,7 @@ export default function AddProducts(props) {
     
   });
   
+
 
 
 

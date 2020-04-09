@@ -22,9 +22,11 @@
     "expo-constants": "~8.0.0",
     "expo-font": "~8.0.0",
     "expo-image-picker": "^8.0.2",
+    "expo-image-picker-multiple": "^1.1.5",
     "expo-linear-gradient": "^8.1.0",
     "expo-multiple-imagepicker": "^1.0.6",
     "expo-multiple-media-imagepicker": "^1.2.1",
+    "expo-permissions": "~8.0.0",
     "expo-web-browser": "~8.0.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.28",
@@ -51,8 +53,7 @@
     "react-native-webview": "^8.0.6",
     "react-navigation": "~4.0.10",
     "react-navigation-stack": "~1.10.3",
-    "react-navigation-tabs": "~2.6.2",
-    "expo-permissions": "~8.0.0"
+    "react-navigation-tabs": "~2.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
