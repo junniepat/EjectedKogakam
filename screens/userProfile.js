@@ -9,41 +9,39 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View, AsyncStorage, TextInput
+  View, AsyncStorage, Alert
 } from 'react-native';
 
-import MaterialButtonWithVioletText from "../components/MaterialButtonWithVioletText";
-import MaterialSearchBar from "../components/MaterialSearchBar";
-import { Container, Header, Content, Tab, Tabs, TabHeading, Textarea, Form, Left, Right, Radio, ListItem  } from 'native-base';
+
+import { Container, Header, Content, Tab, Tabs, TabHeading, Textarea, Form, Radio, ListItem , Left, Right} from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios'
 import moment from 'moment';
-import RadioButton from '../components/radio-button';
-import { Button, Overlay } from 'react-native-elements';
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from 'react-native-popup-menu';
+import { Icon, Layout, MenuItem, OverflowMenu, TopNavigation, TopNavigationAction,
+  Modal, Button, Card} from '@ui-kitten/components';
+
+
+import ReportUser from '../components/ReportUser'
 
 export default function Profile(props) {
   const [toks, setToks] = useState(null);
   const [comment, setComment] = useState("")
   const [reason, setReason] = useState("")
-  const [isVisible, setVisible] = useState(false)
+  const [visible, setVisible] = React.useState(false);
   const [data, setData] = useState({ user: [] });
   const [userData, setuserData] = useState({ comments: [], blocked: [], followers:[], products:[], following: []  });
 
+  const [disabledBtn, setdisabledbtn ] = useState(false)
+  const [checked, setChecked ] = useState()
   const [, forceUpdate] = useState();
-
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
   
   useEffect(() => {
       const fetchData = async () => {
         const result = await axios.get(
           `/user_detail/${props.navigation.getParam('itemId')}`
         );  
-        console.warn(result.data.successData)
+       
         setData(result.data.successData);
       }; 
 
@@ -51,7 +49,6 @@ export default function Profile(props) {
         const result = await axios.get(
           `/user_detail/${props.navigation.getParam('itemId')}`
         )
-        console.warn(result.data.successData.user)
           setuserData(result.data.successData.user);
       };
 
@@ -121,33 +118,10 @@ export default function Profile(props) {
     }
 
 
-    async function addReport() {
 
-      const formData = new FormData();
-      formData.append('reported_user', props.navigation.getParam('itemId'));
-      formData.append('comment', comment);
-      formData.append('reason', reason);
-      
-  
-          await axios.post(
-            `https://kogakam.com/api/v1/report_user`, formData
-          )
-          .then(response => 
-            { 
-              fetchUser(); 
-              fetchData();  
-            })
-        .catch(error => {
-          console.warn(response)
-          // setLoading(false)
-          // setError(error.message)
-        })
-        
-      }
-  
 
       async function addComment() {
-
+        setdisabledbtn(true); 
         const formData = new FormData();
         formData.append('user_id', props.navigation.getParam('itemId'));
         formData.append('comment', comment);
@@ -160,10 +134,14 @@ export default function Profile(props) {
               { 
                   fetchUser(); 
                   fetchData();    
-                  setComment('')    
+                  setComment('')   
+                  
+                    setdisabledbtn(false); 
+               
               })
           .catch(error => {
-            console.warn(response)
+            Alert.alert('Unable to add comment')
+            setdisabledbtn(false); 
             // setLoading(false)
             // setError(error.message)
           })
@@ -184,7 +162,7 @@ export default function Profile(props) {
             fetchData();  
         })
     .catch(error => {
-      console.warn(response)
+      Alert.alert('Unable to upvote')
       // setLoading(false)
       // setError(error.message)
     })
@@ -204,7 +182,7 @@ export default function Profile(props) {
               fetchData();  
           })
       .catch(error => {
-        console.warn(response)
+        Alert.alert('Unable to downvote')
         // setLoading(false)
         // setError(error.message)
       })
@@ -220,13 +198,12 @@ export default function Profile(props) {
           )
           .then(response => 
             { 
+              Alert.alert("User successfully Blocked")
               fetchUser(); 
               fetchData();  
             })
         .catch(error => {
-          console.warn(response)
-          // setLoading(false)
-          // setError(error.message)
+          Alert.alert("Failed to Block user")
         })
 
        
@@ -246,7 +223,7 @@ export default function Profile(props) {
                 fetchData();  
               })
           .catch(error => {
-            console.warn(response)
+            Alert.alert('Unable to unblock at this time')
             // setLoading(false)
             // setError(error.message)
           })
@@ -257,6 +234,50 @@ export default function Profile(props) {
           setReason(value)
         }
       
+        const [menuVisible, setMenuVisible] = React.useState(false);
+
+        const toggleMenu = () => {
+          setMenuVisible(!menuVisible);
+        };
+      
+        const renderMenuAction = () => (
+          <TopNavigationAction icon={MenuIcon} onPress={toggleMenu}/>
+        );
+
+       
+      
+const BackIcon = (props) => (
+  <Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#fff" style={{marginRight: 6,}} />
+);
+
+
+const MenuIcon = (props) => (
+  <Ionicons name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} size={20} color="#fff" style={{marginRight: 6,}} />
+);
+
+const InfoIcon = (props) => (
+  <Ionicons name={Platform.OS === 'ios' ? 'ios-close-circle-outline' : 'md-close-circle-outline'} size={20} color="#555" style={{marginRight: 6,}} />
+);
+
+const LogoutIcon = (props) => (
+  <Ionicons name={Platform.OS === 'ios' ? 'ios-alert' : 'md-alert'} size={20} color="#555" style={{marginRight: 6,}} />
+);
+        const renderRightActions = () => (
+          <React.Fragment>
+            <TopNavigationAction />
+            <OverflowMenu
+              anchor={renderMenuAction}
+              visible={menuVisible}
+              onBackdropPress={toggleMenu}>
+              <MenuItem accessoryLeft={InfoIcon} title='Block' onPress={() =>  block()} text='Block'/>
+              <MenuItem accessoryLeft={LogoutIcon} title='Report' onPress={() => setVisible(true)} text='Report'/>
+            </OverflowMenu>
+          </React.Fragment>
+        );
+
+        const renderBackAction = () => (
+          <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
+        );
 
   return (
    
@@ -266,30 +287,17 @@ export default function Profile(props) {
         
 <View style={styles.bgGradient}>
 
-<View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 30, paddingLeft: 20, paddingRight: 20}}>
-  <View>
-    <TouchableOpacity  onPress={() => props.navigation.goBack()}>
-      <Text>
-  <Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#fff" style={{marginRight: 6,}} />
-     </Text>
-    </TouchableOpacity>
-  </View>
-
-  <View>
-  <Menu>
-      <MenuTrigger>
-        <Text>  <Ionicons name={Platform.OS === 'ios' ? 'ios-list' : 'md-list'} size={20} color="#fff" style={{marginRight: 6, alignSelf: 'flex-end', }} />
-      </Text></MenuTrigger>
-      <MenuOptions>
-        <MenuOption style={{padding: 13}} onSelect={() =>  block()} text='Block' />
-        <MenuOption style={{padding: 13}} onSelect={() => setVisible(true)} text='Report User' />
-      </MenuOptions>
-    </Menu>
-  </View>
+<View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 15, paddingLeft: 20, paddingRight: 20}}>
 
 </View>
          
-
+<TopNavigation
+style={{backgroundColor: 'transparent'}}
+        alignment='center'
+        title=''
+        accessoryLeft={renderBackAction}
+        accessoryRight={renderRightActions}
+      />
        {/* {data.user['is_blocked'] === false ? ( 
             <TouchableOpacity
             onPress={()=> block()}  style={styles.roundedBtn1}>
@@ -352,10 +360,7 @@ export default function Profile(props) {
 
 </View>
 
-<View style={styles.Wrapdetails}>
 
-
-    </View>
 </View>
 
 
@@ -390,51 +395,9 @@ export default function Profile(props) {
 
 
         <Tabs tabBarUnderlineStyle={{backgroundColor: '#0F52BA'}}>
-          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
-            <Text style={{color: '#0F52BA'}}>Comment</Text></TabHeading>}>
-            
- 
-    <Form>
-      <Textarea rowSpan={3} style={{marginRight: 9, marginLeft: 9, marginBottom: 9}} bordered placeholder="Comment" onChangeText={text => setComment(text)}
-      value={comment}/>
-    </Form>
- 
+          
 
-
-  <View style={{marginLeft: 9, marginRight: 9}}>
-        <Button
-          title={'Comment'}
-          style={styles.materialButtonViolet}
-          onPress={()=> addComment()}> 
-        >
-        </Button>
-</View>
-
-{userData.comments.map(item => (
-  <View style={styles.comment}>
-    
-    <View style={{flexDirection: 'row', borderBottomStyle: 'solid', borderBottomWidth: 1, borderBottomColor: '#f2f2f2', paddingBottom:5}}>
-      <Image
-        source={{uri: `${item.writer['image']}`}} 
-        resizeMode="cover"
-        style={styles.profileImg}
-      ></Image>
-
-      <View>
-        <Text style={styles.johnDoe2}>{item.writer['name']}</Text>
-        <Text style={styles.created_at}>{moment.utc(item.created_at).local().format('LL')} </Text>
-      </View>
-    </View>
-
-    <Text style={styles.justText}>{item.comment}</Text>
-
-  </View>
-))}
-
-          </Tab>
-
-
-          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
+        <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
             <Text style={{color: '#0F52BA'}}>Products</Text></TabHeading>}>
             
 
@@ -445,11 +408,11 @@ export default function Profile(props) {
           <View 
              style={styles.scrollArea_contentContainerStyle}>
 
-{userData.products.map(item => (
-      <>
-<TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.navigate('ProductView', 
+{userData.products.map((item, index) => (
+    
+<TouchableOpacity  key={index} style={styles.materialCard5}  onPress={()=>{props.navigation.navigate('ProductView', 
 {
-  itemId: id,
+  itemId: item.id,
 })}}>
 <View>
  
@@ -472,7 +435,7 @@ export default function Profile(props) {
    
     <Text style={styles.location}>  
     <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-{item.location.substring(0,17)}</Text>
+{item.location}</Text>
     
 
     <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
@@ -480,14 +443,54 @@ export default function Profile(props) {
 </View>
 </TouchableOpacity>
 
-
-</>
 ))}
                   </View>
          </View>
    
           </Tab>
          
+          
+          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
+            <Text style={{color: '#0F52BA'}}>Comment</Text></TabHeading>}>
+            
+ 
+    <Form>
+      <Textarea rowSpan={3} style={{marginRight: 9, marginLeft: 9, marginBottom: 9}} bordered placeholder="Comment" onChangeText={text => setComment(text)}
+      value={comment}/>
+    </Form>
+ 
+
+
+  <View style={{marginLeft: 9, marginRight: 9}}>
+        <Button disabled={disabledBtn}
+          onPress={()=> addComment()}> 
+        Comment
+        </Button>
+</View>
+
+{userData.comments.map((item, index) => (
+  <View style={styles.comment} key={index}>
+    
+    <View style={{flexDirection: 'row', borderBottomStyle: 'solid', borderBottomWidth: 1, borderBottomColor: '#f2f2f2', paddingBottom:5}}>
+      <Image
+        source={{uri: `${item.writer['image']}`}} 
+        resizeMode="cover"
+        style={styles.profileImg}
+      ></Image>
+
+      <View>
+        <Text style={styles.johnDoe2}>{item.writer['name']}</Text>
+        <Text style={styles.created_at}>{moment.utc(item.created_at).local().format('LL')} </Text>
+      </View>
+    </View>
+
+    <Text style={styles.justText}>{item.comment}</Text>
+
+  </View>
+))}
+
+          </Tab>
+
         </Tabs>
 
 
@@ -495,122 +498,14 @@ export default function Profile(props) {
 </ScrollView>
 
 
-<Overlay  isVisible={isVisible}  style={{minHeight: "50%"}} onBackdropPress={() => setVisible(false)}>
-    <Text style={styles.report}>Report User</Text>
-    
-    <View style={styles.container}>
-    <ListItem
-                >
-                    <Left>
-                        <View style={{ flexDirection: 'column' }}>
-                            <Text style={{ alignSelf: 'flex-start' }}>Inappropriate Profile Picture</Text>
-                        </View>
-                    </Left>
-                    <Right>
-                        <Radio
-                        value='Inappropriate Profile Picture'
-                        selected={(e) => checkRadio(e.target.value)}
-                        />
-                    </Right>
-                </ListItem>
-                <ListItem
-                   
-                >
-                    <Left>
-                        <View >
-                            <Text style={{ alignSelf: 'flex-start' }}>This user is threatening me</Text>
-                        </View>
-                    </Left>
-                    <Right>
-                        <Radio
-                        value='This user is threatening me'
-                        selected={(e) => checkRadio(e.target.value)}
-                        />
-                    </Right>
-                </ListItem>
 
-                <ListItem
-                   
-                >
-                    <Left>
-                        <View >
-                            <Text style={{ alignSelf: 'flex-start' }}>This user is insulting me</Text>
-                        </View>
-                    </Left>
-                    <Right>
-                        <Radio
-                        value='This user is insulting me'
-                        selected={(e) => checkRadio(e.target.value)}
-                     
-                        />
-                    </Right>
-                </ListItem>
+<Modal
+        visible={visible}
+        style={{width: '80%'}}
+        onBackdropPress={() => setVisible(false)}>
+        <ReportUser userID={props.navigation.getParam('itemId')}/>
+      </Modal>
 
-                <ListItem
-                   
-                >
-                    <Left>
-                        <View >
-                            <Text style={{ alignSelf: 'flex-start' }}>Spam</Text>
-                        </View>
-                    </Left>
-                    <Right>
-                        <Radio
-                        value='Spam'
-                        selected={(e) => checkRadio(e.target.value)}
-                     
-                        />
-                    </Right>
-                </ListItem>
-
-                <ListItem
-                   
-                >
-                    <Left>
-                        <View >
-                            <Text style={{ alignSelf: 'flex-start' }}>Fraud</Text>
-                        </View>
-                    </Left>
-                    <Right>
-                        <Radio
-                          value='Fraud'
-                          selected={(e) => checkRadio(e.target.value)}
-                        />
-                    </Right>
-                </ListItem>
-
-<ListItem
-   
->
-    <Left>
-        <View >
-            <Text style={{ alignSelf: 'flex-start' }}>Other</Text>
-        </View>
-    </Left>
-    <Right>
-        <Radio
-        value='Other'
-        selected={(e) => checkRadio(e.target.value)}
-        />
-    </Right>
-</ListItem>
-    </View>
-
-
-<Textarea style={{marginLeft: 9, marginRight: 9, marginBottom: 15}} rowSpan={5} bordered placeholder="Reason" onChangeText={text => setReason(text)}
-      value={reason}/>
-
-
-  
-  <View style={{marginLeft: 9, marginRight: 9}}>
-        <Button
-          title={'Report'}
-          style={styles.materialButtonViolet}
-          onPress={()=> addReport()}> 
-        >
-        </Button>
-</View>
-</Overlay>
 
 
   </View>
@@ -629,6 +524,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+
   materialButtonRed: {
     width: "95%",
     height: 51,
@@ -987,14 +883,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontFamily: 'Montserrat-Medium',
   },
-  report: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 18,
-    marginTop: 3,
-    marginLeft: 9,
-    
-    fontFamily: 'Montserrat-Medium',
-  },
+
   johnDoeColumn: {
     width: 156,
     marginLeft: 15,
@@ -1135,7 +1024,7 @@ const styles = StyleSheet.create({
 
   cardItemImagePlace: {
     height: 115,
-    backgroundColor: "#333",
+    backgroundColor: "#f2f2f2",
     width: undefined,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5

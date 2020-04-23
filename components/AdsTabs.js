@@ -1,5 +1,5 @@
-import React, {Component} from 'react'
-import { Container, Header, Content, Tab, Tabs, TabHeading } from 'native-base'
+import React, {useState, useEffect, Fragment} from 'react'
+import { Container, Header, Content } from 'native-base'
 import {
     Image,
     Platform,
@@ -10,61 +10,59 @@ import {
     View, TextInput
   } from 'react-native';
 import Timeline from '../screens/Timeline';
-import { Button } from 'react-native-elements';
 
+
+import { Button, Icon, List, Avatar, ListItem, Layout, Tab, TabView } from '@ui-kitten/components';
 
 import UserProducts from './userProducts'
 
 import axios from 'axios' 
-
-class AdsTabs extends Component {
-  constructor() {
-    super();
-    this.state = {
-      selectedIndex: 0,
-      //Default selected Tab Index for single select SegmentedControlTab
-      selectedIndices: [0],
-      //Default selected Tab Indexes for multi select SegmentedControlTab
-      customStyleIndex: 0,
-      //Default selected Tab Indexes for cusatom SegmentedControlTab
-    };
-   
-  }
+import { Ionicons } from '@expo/vector-icons';
+import moment from 'moment'
 
 
+export default function AdsTabs(props) {
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
 
-  changeInput = (event) => {
-    this.setState({
-      [event.target.name]: [event.target.value]
-    })
-  }
+  const shouldLoadComponent = (index) => index === selectedIndex;
+  const [data, setData] = useState({ products: [] });
 
-  
-  handleCustomIndexSelect = (index) => {
-    //handle tab selection for custom Tab Selection SegmentedControlTab
-    this.setState(prevState => ({ ...prevState, customStyleIndex: index }));
+ useEffect(() => {
+  const fetchData = async () => {
+    const result = await axios.get(
+      'get_all_products', {
+        headers: {
+          app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag='
+        }
+      }
+    );
+    setData(result.data.successData);
+   console.warn(data.products)
   };
  
-  render() {
-    const { selectedIndex, selectedIndices, customStyleIndex } = this.state;
+     fetchData();
+  
+ }, [])
+
+
+
+
     return (
       <ScrollView>
       <View>
        
+      <TabView
+      selectedIndex={selectedIndex}
+      shouldLoadComponent={shouldLoadComponent}
+      onSelect={index => setSelectedIndex(index)}>
+      <Tab title='My Ads'>
+        <Layout style={styles.tabContainer}>
+        <UserProducts/>
+        </Layout>
+      </Tab>
+    </TabView>
 
-      <Tabs tabBarUnderlineStyle={{backgroundColor: '#0F52BA'}}>
-          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
-            <Text style={{color: '#0F52BA'}}>Timeline</Text>
-           </TabHeading>}>
 
-          <UserProducts/>
-          </Tab>
-          <Tab heading={ <TabHeading style={{backgroundColor: '#fff'}}>
-            <Text style={{color: '#0F52BA'}}>Ads</Text>
-           </TabHeading>}>
-            <Text>Ads</Text>
-          </Tab>
-        </Tabs>
 
 
 
@@ -74,7 +72,7 @@ class AdsTabs extends Component {
 </ScrollView>
     );
   }
-}
+
 
 
 
@@ -131,4 +129,3 @@ const styles = StyleSheet.create({
     }
   });
 
-export default AdsTabs;

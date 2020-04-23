@@ -1,21 +1,21 @@
 import React , {useState, useEffect, ImageBackground} from 'react';
 import { Container, Content, List, ListItem, Text, Form,Item, Label, 
-    Input, Icon,  Picker, View, Title, Textarea  } from 'native-base';
-    import {Button} from 'react-native-elements'
+     Icon,  Picker, View, Title, Textarea  } from 'native-base';
+ 
+    import {Button, Input} from '@ui-kitten/components'
 import axios from 'axios'
-import {TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView,  Image} from 'react-native'
+import {TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, Image} from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 
-import { ImageBrowser } from 'expo-image-picker-multiple';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AddProducts(props) {
 
     const [data, setData] = useState({ cats: [] });
-    const [lat, setlatitude] = useState(null)
-    const [lng, setlongitude] = useState(null)
+
     const [title, setTitle] = useState("")
     const [price, setPrice] = useState("")
     const [description, setDescription] = useState("")
@@ -25,33 +25,76 @@ export default function AddProducts(props) {
     const [phone, setPhone] = useState("")
     const [error, setError] = useState("")
 
-    const [photos, setPhoto] = useState([])
-    const [image, setImages] = useState([])
+ 
+    const [images, setImages] = useState([]);
+    const [image, setImage] = useState(null);
+
+    const [preview1, setpreview1] = useState(null);
+    const [imagesOne, setImageOne] = useState(null);
+
+    const [preview2, setpreview2] = useState(null)
+    const [imagesTwo, setImageTwo] = useState(null)
+
+    const [preview3, setpreview3] = useState(null)
+    const [imagesThree, setImageThree] = useState(null)
+
+    const [address, setAddress] = useState(null)
+    const [state, setState] = useState(null)
+    const [city, setCity] = useState(null)
+    const [country, setCountry] = useState(null)
+   const [latitude, setlatitude] = useState(null)
+   const [longitude, setlongitude] = useState(null)
+
+
     const [disableBtn, setDisableBtn] = useState(false)
    const [number, setNumber] = useState('')
    
-     useEffect(() => {
-          
-       navigator.geolocation.getCurrentPosition(
-         position => {
-           const latitude = JSON.stringify(position.coords.latitude);
-           const longitude = JSON.stringify(position.coords.longitude);
-  
-           setlatitude(latitude);
-           setlongitude(longitude);
-         },
-         error => Alert.alert(error.message),
-         { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-       );
 
-       askPermissionsAsync();
-     }, [])
+   
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+			position => {
+        const latitude = JSON.stringify(position.coords.latitude);
+        const longitude = JSON.stringify(position.coords.longitude);
+
+        
+        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.warn('ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson.results[1].formatted_address));
+        setAddress(responseJson.results[1].formatted_address)
+        setCity(responseJson.results[1].address_components[1].long_name)
+        setState(responseJson.results[1].address_components[3].long_name)
+        setCountry(responseJson.results[1].address_components[4].long_name)
+        
+        })
+
+        setlatitude(latitude);
+        setlongitude(longitude);
+			},
+			error => Alert.alert(error.message),
+			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+    
+    askPermissionsAsync();
+  }, [])
+  
+
+
 
     const askPermissionsAsync = async () => {
       await Permissions.askAsync(Permissions.CAMERA);
       await Permissions.askAsync(Permissions.CAMERA_ROLL);
       // you would probably do something to verify that permissions
       // are actually granted, but I'm skipping that for brevity
+
+
+      if (Constants.platform.ios) {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+      }
     };
 
      
@@ -72,14 +115,26 @@ export default function AddProducts(props) {
 
           formData.append('currency', currency);
           formData.append('phone', phone);
-          formData.append('lat', lat);
-          formData.append('lng', lng);
-          formData.append('location', lat);
+        
+          formData.append('city', city);
+          formData.append('location', state);
+          formData.append('state', state);
+          formData.append('country', country);
+    
+          formData.append('address', address);
+          formData.append('lng', longitude);
+          formData.append('lat', latitude);
+
           formData.append('cat_id',  props.navigation.getParam('catId'));
           formData.append('sub_cat_id',  props.navigation.getParam('subCatid'));
-          formData.append('images', image);
+          formData.append('images', images);
 
-          axios.post('/add_product',  formData )
+          console.warn(formData)
+          axios.post('/add_product',  formData, {
+            headers: {
+              'content-type': 'multipart/form-data'
+            }
+          } )
           .then(res => {
             console.warn(res)
             setDisableBtn(true)
@@ -95,34 +150,97 @@ export default function AddProducts(props) {
       }  
 
  
+
+    
+     const  _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          aspect: [4, 3],
+          quality: 1,    
+        });
+    
+        if (!result.cancelled) {
+            setImage(result.uri);
+        }
+          let uri = result.uri
+          let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+          let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          
+          setImages(images.concat({type: 'image/jpg', uri}))
+ 
+      }
+
+
+      const selectImageOne = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          aspect: [4, 3],
+          quality: 1,    
+        });
+        if (!result.cancelled) {
+          setpreview1(result.uri);
+      }
+
+      console.warn(result.uri)
       
-  const  ImagePickeed = (callback) => {
-    callback.then((photos) => {
-      console.warn('potos', photos)
-    }).catch((e) => console.warn(e))
-  };
+          let uri = result.uri
+          let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+          let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+           
+          // 
+          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+      
+      }
+     
 
-  const renderSelectedComponent = (number) => (
-    <View style={{backgroundColor: 'blue', width: 20,borderRadius: 5, height:30, padding:4, textAlign: 'center'}}>
-      <Text style={{color: '#fff'}}>{number}</Text>
-    </View>
-  );
+      const selectImageTwo = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          aspect: [4, 3],
+          quality: 1,    
+        });
+    
+        if (!result.cancelled) {
+            setpreview2(result.uri);
+        }
+          let uri = result.uri
+          let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+          let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          
+          // setImageTwo( {type: 'image/jpg', uri, name: `uploaded.${fileType}` });
+          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+      }
 
-const  updateHandler = (count, onSubmit) => {
-    console.warn(count)
-    console.warn(onSubmit)
-    props.navigation.setParams({
-      headerTitle: "{{count}} selected",
-      headerRight: onSubmit,
-    });
-  }
 
-  const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
-  const noCameraPermissionComponent = <Text style={styles.emptyStay}>No access to camera</Text>;
+     const selectImageThree  = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          aspect: [4, 3],
+          quality: 1,    
+        });
+    
+        if (!result.cancelled) {
+            setpreview3(result.uri);
+        }
+          let uri = result.uri
+          let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+          let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          
+          // setImageThree( {type: 'image/jpg', uri, name: `uploaded.${fileType}` });
+          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+      
+      }
 
+
+      console.warn('images', images)
+    
     return (
-      <Container>
-         <View style={{height: 50,  marginTop: 25, lineHeight: 50, flexDirection: 'row', borderBottomColor: '#f2f2f2', borderBottomWidth: 1, borderStyle: 'solid'}}
+      <Container style={styles.container}>
+         <View style={{height: 50,  marginTop: 25,  lineHeight: 50, flexDirection: 'row', borderBottomColor: '#f2f2f2', borderBottomWidth: 1, borderStyle: 'solid'}}
       >
           <TouchableOpacity style={{ padding: 11, marginLeft: 5,}} onPress={() => props.navigation.goBack()}>
           <Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#555" style={{marginRight: 6,}} />
@@ -132,84 +250,105 @@ const  updateHandler = (count, onSubmit) => {
 
         <KeyboardAvoidingView  behavior={Platform.Os == "ios" ? "padding" : "height"}
       style={styles.container}>
-        <Content style={{backgroundColor: '#fff', marginLeft: 10, marginRight: 10, padding:10}}>
+        <Content style={{marginLeft: 10, marginRight: 10, padding:10}}>
        
-        <ScrollView>
+        <ScrollView style={{  marginBottom: 40,}}>
           
        <Text style={{fontSize: 15, fontFamily: 'Montserrat-Medium', marginTop: 4}}>Add Product to {props.navigation.getParam('subCatTitle')}</Text>
 
 
 <Text>{error}</Text>
        <Form>
-           <Item regular  style={styles.textbox}>
-             <Label>Title </Label>
-             <Input 
+          
+
+           <Input 
+             label='Title'
              onChangeText={text => setTitle(text)}
              value={title} />
-           </Item>
 
-           <Item regular style={styles.textbox}>
-             <Label>Price</Label>
+      
              <Input 
+             label='price'
              onChangeText={text => setPrice(text)}
              value={price} />
-           </Item>
+      
 
 
             <Textarea onChangeText={text => setDescription(text)}
             value={description} rowSpan={5} bordered placeholder="Description" />
 
-            <Item regular style={styles.textbox}>
-             <Label>Manufacturer</Label>
-             <Input 
+     
+           <Input 
+             label='Manufacturer'
              onChangeText={text => setManufacturer(text)}
-             value={manufacturer}/>
-           </Item>
+             value={manufacturer} />
 
-
-          
-
-           <Item regular style={styles.textbox}>
-             <Label>Condation</Label>
-             <Input 
+<Input 
+             label='Condition'
              onChangeText={text => setCondation(text)}
-             value={condation}/>
-           </Item>
+             value={condation} />
 
-           <Item regular style={styles.textbox}>
-             <Label>Currency</Label>
-             <Input onChangeText={text => setCurrency(text)}
-              value={currency}/>
-           </Item>
+        
+<Input 
+             label='Currency'
+             onChangeText={text => setCurrency(text)}
+             value={currency} />
 
-           <Item regular style={styles.textbox}>
-             <Label>Phone</Label>
-             <Input 
+<Input 
+             label='Phone'
              onChangeText={text => setPhone(text)}
              value={phone} />
-           </Item>
 
 
-          <Text style={{fontFamily: 'Montserrat-Medium',}}>Choose Product Photos: {number}</Text>
-           <ImageBrowser
-              max={4}
-              loadCount={20} 
-        
-          onChange={updateHandler}
-          callback={ImagePickeed}
-          renderSelectedComponent={renderSelectedComponent}
-          emptyStayComponent={emptyStayComponent}
-          noCameraPermissionComponent={noCameraPermissionComponent}
-          />
+      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+        <View>
+            <Button style={styles.button} appearance='ghost' status='primary'   onPress={() => _pickImage()}>
+              Image 1
+            </Button>
+            {image &&
+            <Image source={{ uri: image }} style={{borderRadius: 7, width: 120, height: 120, marginTop: 8 }} />}
+        </View>
+
+
+        <View>
+          <Button style={styles.button} appearance='ghost' status='primary'   onPress={() => selectImageOne()}>
+            Image 2
+          </Button>
+          {preview1 &&
+            <Image source={{ uri: preview1 }} style={{borderRadius: 7, width: 120, height: 120, marginTop: 8 }} />}
+        </View>
+
+
+      <View>
+        <Button style={styles.button} appearance='ghost' status='primary'   onPress={() => selectImageTwo()}>
+          Image 3
+        </Button>
+        {preview2 &&
+          <Image source={{ uri: preview2 }} style={{borderRadius: 7, width: 120, height: 120, marginTop: 8 }} />}
+      </View>
+
+
+      <View>
+        <Button style={styles.button} appearance='ghost' status='primary'   onPress={() => selectImageThree()}>
+          Image 4
+        </Button>
+        {preview3 &&
+          <Image source={{ uri: preview3 }} style={{borderRadius: 7, width: 120, height: 120, marginTop: 8 }} />}
+      </View>
+
+      </View>
+
 
            <Button
            outline titleStyle={{ color: '#fff'}}
-           buttonStyle={{backgroundColor: '#0F52BA'}}
+           buttonStyle={{backgroundColor: '#0F52BA', }}
            raised={true}
              title="Create"  type="submit"  loading={false}
              disabled={disableBtn}
              onPress={()=> submitForm()} 
-           />
+           >
+             Add Product
+             </Button>
          </Form>
        
         </ScrollView>
@@ -223,6 +362,7 @@ const  updateHandler = (count, onSubmit) => {
     container: {
       flex: 1,
       backgroundColor: "#f2f2f2",
+     
     },
     textbox: {
       marginTop: 5,

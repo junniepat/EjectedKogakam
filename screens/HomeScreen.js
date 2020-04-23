@@ -1,11 +1,11 @@
 import * as WebBrowser from 'expo-web-browser';
-import React , {useState, useEffect} from 'react';
+import React , {useState, useEffect, Fragment} from 'react';
 import {
   Image,
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
+  Text, RefreshControl,
   TouchableOpacity,
   View,Picker, AsyncStorage, ActivityIndicator
 } from 'react-native';
@@ -18,51 +18,60 @@ import { MonoText } from '../components/StyledText';
 import { Ionicons } from '@expo/vector-icons';
 
 import axios from 'axios'
+
+function wait(timeout) {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+
+  clearInterval(); 
+}
+
 export default function HomeScreen(props) {
   
   const [data, setData] = useState({ cats: [] });
-  const [user, setUser] = useState(''); 
+ 
   const [activity, setactivity] = useState(true)
   const [toks, setToks] = useState(null);
-
-
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [profile, setUser] = useState({user: []}); 
 
   useEffect(() => {
-    AsyncStorage.getItem("token")
-    .then((result)=> {
-      setToks(result)
-      console.warn("tokenh", result)
-    })
-  
-    AsyncStorage.getItem("user")
-    .then((result)=>
-    { 
-      setTimeout(() => {
-        setUser(JSON.parse(result))
-      }, 1000)
-      console.warn("user", user)
+    fetchData();
+    fetchUser();
+  }, []);
 
-    })
-   
-  }, []) 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+    wait(2000).then(() => setRefreshing(false));
+  }, [refreshing]);
+
+
+  
+    const fetchUser = async () => {
+   const result = await axios.get(
+     `get_user`
+   );  
+   console.warn(result.data.successData)
+   setUser(result.data.successData);
+ }; 
+
+ 
+
+
+  const fetchData = async () => {
+    const result = await axios.get(
+      'get_mobile_cats'
+    );  
+    setData(result.data.successData);
+    setRefreshing(false);
+    setactivity(false)
+  };
+
 
 
 //  AsyncStorage.removeItem("token")
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get(
-        'get_mobile_cats'
-      );  
-      setData(result.data.successData);
-      setactivity(false)
-    };
-    fetchData();
-
-  
-
-  }, []);
-  
 
 
 
@@ -83,7 +92,7 @@ export default function HomeScreen(props) {
     <View>
       <Text>
         <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-        &nbsp; Location
+        &nbsp; {profile.user && profile.user['state']}
       </Text>
     </View>
 </View>
@@ -94,7 +103,9 @@ export default function HomeScreen(props) {
       ></MaterialSearchBar>
 
 
-<ScrollView>
+<ScrollView  refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
 
     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={styles.loremIpsum}>Browse Categories 
@@ -114,7 +125,7 @@ export default function HomeScreen(props) {
 <View style={styles.scrollArea2StackRow}>
 
 {data.cats.map((item, index) => (
-      <>
+      <Fragment key={index}>
          
 <Services key={index} id={item.id} style={{width: '100%'}} color={item.color} roundedName={item.cat.title} id={item.id}  navigation={props.navigation} >
 
@@ -127,68 +138,9 @@ export default function HomeScreen(props) {
 
 </Services>
          
-         {/* <Services color="#f8dd3c"  roundedName="Electronics &amp; Computers"  navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/monitor.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
+     
 
-
-            <Services color="#23e5d8"  roundedName="Vehicles" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/car.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
-
-            <Services color="#d2b982"  roundedName="Fashion &amp; Beauty " navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/shirt.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}}  
-         />
-</Services>
-            <Services color="#8df1ee"  roundedName="Services" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/key.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
-            <Services color="#cddcff"  roundedName="Kids" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/babycart.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
-
-            <Services color="#ff645c"  roundedName="Animals" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/paw.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
-            <Services color="#ffe894"  roundedName="Accessories" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/Guitar.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>
-            <Services color="#ff645c"  roundedName="Jobs" navigation={props.navigation}  >
-<Image
-            source={require("../assets/images/job.png")}
-            resizeMode="center"
-            style={{width: 22, height: 22}} 
-         />
-</Services>   */}
-
-</>
+</Fragment>
  ))}
                </View>   
 

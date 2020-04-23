@@ -16,6 +16,7 @@ import ProductsPage from   '../screens/ProductsPage'
 import AdsScreen from '../screens/AdsScreen'
 import Timeline from '../screens/Timeline'
 import inboxView from '../screens/inboxView'
+import inboxViewTwo from '../screens/inboxViewTwo';
 import SeeAll from '../screens/SeeAll'
 import userType from '../screens/userType'
 import LinksItems from '../screens/Linksitems'
@@ -93,7 +94,8 @@ LinksStack.path = '';
 const InboxStack = createStackNavigator(
   {
     Inbox: InboxScreen,
-    inboxView: inboxView
+    inboxView: inboxView,
+    inboxViewTwo: inboxViewTwo
   },
   {
     defaultNavigationOptions:{

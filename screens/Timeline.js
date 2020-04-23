@@ -1,196 +1,14 @@
-// import React, { Component } from "react";
-// import {
-//   StyleSheet,
-//   View,
-//   ScrollView,
-//   Text,
-//   TouchableOpacity,
-//   StatusBar,
-//   Image
-// } from "react-native";
-
-
-// function Timeline(props) {
-//   return (
-//     <View style={styles.container}>
-//         <Text style={styles.chooseACategory}>What are you offering</Text>
-
-
-//         <ScrollView>
-//       <View style={styles.scrollAreaStack}>
-          
-      
-     
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-//             <Image
-//             source={require("../assets/images/shop.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Shop</Text>
-//         </TouchableOpacity>
-//         </View>
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-            
-//             <Image
-//             source={require("../assets/images/monitor.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon} 
-//          />
-//           <Text style={styles.mobilePhones2}>Electronics &amp; Computers</Text>
-       
-//         </TouchableOpacity>
-//         </View>
-
-
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-//             <Image
-//             source={require("../assets/images/car.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Vehicles</Text>
-         
-//         </TouchableOpacity>
-// </View>        
-
-
-
-
-// <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}>
-//             <Image
-//             source={require("../assets/images/shirt.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}   
-//          />
-//           <Text style={styles.mobilePhones2}>Fashion &amp; Beauty</Text>
-       
-//         </TouchableOpacity></View>
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-//             <Image
-//             source={require("../assets/images/key.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Services</Text>
-          
-//         </TouchableOpacity>
-//         </View>
-
-
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-           
-//             <Image
-//             source={require("../assets/images/babycart.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Kids</Text>
-          
-
-//         </TouchableOpacity>
-//         </View>
-
-        
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-           
-//             <Image
-//             source={require("../assets/images/paw.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Animals</Text>
-        
-//         </TouchableOpacity>
-//         </View>
-
-
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-            
-//             <Image
-//             source={require("../assets/images/Guitar.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Accessories</Text>
-         
-
-//         </TouchableOpacity>
-//         </View>
-
-
-
-//         <View style={styles.button2}>
-//         <TouchableOpacity
-//           onPress={() => props.navigation.navigate("LinksItems")}
-//         >
-//             <Image
-//             source={require("../assets/images/job.png")}
-//             resizeMode="center"
-//             style={styles.ImageIcon}  
-//          />
-//           <Text style={styles.mobilePhones2}>Jobs</Text>
-         
-
-//         </TouchableOpacity>
-//         </View>
-
-
-         
-
-
-//       </View>
-
-//       </ScrollView>
-//     </View>
-//   );
-// }
-
-// export default Timeline;
-
 
 
 import React , {useState, useEffect} from 'react';
-import { Container, Content, Button, Header, List, ListItem, Text, Icon, Left, Body, Right, Switch, View, Title  } from 'native-base';
+import { Left, Body, Right, Switch, Title  } from 'native-base';
 import axios from 'axios'
-import {TouchableOpacity, StyleSheet, Image, ActivityIndicator} from 'react-native'
+import {TouchableOpacity, StyleSheet, View, Image, ScrollView, Text, ActivityIndicator} from 'react-native'
 import { Ionicons,  } from '@expo/vector-icons'
+import { Button, Card, Layout,  } from '@ui-kitten/components';
+import { Icon, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
+
+
 
 export default function Timeline(props) {
     const [data, setData] = useState({ cats: [] });
@@ -209,55 +27,63 @@ export default function Timeline(props) {
       
     
       }, []);
+
+
+      const BackIcon = (props) => (
+        <Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#555" style={{marginRight: 6,}} />
+      );
+      
+      const BackAction = () => (
+        <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
+      );
       
     return (
-      <Container styles={{backgroundColor: '#f2f2f2'}}>
+      <Layout styles={{backgroundColor: '#f2f2f2'}}>
       <View style={{height: 50,  marginTop: 25, lineHeight: 50, flexDirection: 'row', borderBottomColor: '#f2f2f2', borderBottomWidth: 1, borderStyle: 'solid'}}
       >
+<TopNavigation
+    accessoryLeft={BackAction}
+    title='What are you offering'
+  />
 
-<TouchableOpacity style={{ padding: 11,
-    marginLeft: 5,}}
-       onPress={() => props.navigation.goBack()}>
-<Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={20} color="#555" style={{marginRight: 6,}} />
+ </View>
      
-       </TouchableOpacity>
-
-          <Text style={{fontWeight: '600', marginTop: 6,  fontFamily: 'Montserrat-Medium', fontSize: 20}}>What are you offering</Text>
-      </View>
-     
-        <Content>
+    
         {activity && <ActivityIndicator size='large'/>}
-        <View style={{flexDirection: 'row', width: '96%', paddingLeft: 17, paddingRight:8, justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        {data.cats.map((item, index) => (
-      <>
-          <TouchableOpacity icon style={styles.button2} onPress={() => {
-      props.navigation.push('LinksItems', {
-        name: item.title,
-        itemId: item.id
-      })}} >
-            <Left>
-              
-<Image
-   source={{uri: 'https://www.kogakam.com/storage/app/cat_images/'  + `${item.image}` }} 
-   resizeMode="cover"
-   style={{width: 40, height: 40}}
- ></Image> 
-
-           
-       
-            </Left>
-            <Body style={{paddingBottom: 8, paddingTop: 8}}>
-              <Text style={styles.mobilePhones2}>{item.title}</Text>
-            </Body>
-            <Right>
+        <ScrollView>
+        <View style={{flexDirection: 'row', width: '96%', paddingLeft: 17, paddingBottom: 160, paddingRight:8, justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        
+      {data.cats.map((item, index) => (
+     
+     <Card key={index} style={{width: '48%', marginBottom: 6}}>
+        <TouchableOpacity icon  onPress={() => {
+    props.navigation.push('LinksItems', {
+      name: item.title,
+      itemId: item.id
+    })}} >
           
-            </Right>
-          </TouchableOpacity>
-          </>
-          ))}
+            
+<Image
+ source={{uri: 'https://www.kogakam.com/storage/app/cat_images/'  + `${item.image}` }} 
+ resizeMode="cover"
+ style={{width: 40, height: 40, alignSelf: 'center'}}
+></Image> 
+
+         
+          <View style={{paddingBottom: 8, paddingTop: 8}}>
+            <Text style={styles.mobilePhones2}>{item.title}</Text>
           </View>
-         </Content>
-      </Container>
+         
+        </TouchableOpacity>
+        </Card>
+  
+        ))}
+  
+   
+          </View>
+          </ScrollView>
+
+      </Layout>
     );
   }
 

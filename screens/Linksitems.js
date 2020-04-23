@@ -45,10 +45,10 @@ export default function LinksItems(props) {
         {activity && <ActivityIndicator size='large'/>}
         
         <List>
+          
   {data.subcats.map((item, index) => (
-          <>
-    
-            <ListItem  onPress={() => {
+       
+            <ListItem key={index} onPress={() => {
               props.navigation.push('AddProducts', {
                 catId: props.navigation.getParam('itemId'),
                 subCatid: item.id,
@@ -56,11 +56,8 @@ export default function LinksItems(props) {
               })}}>
               <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 15,}}>{item.title}</Text>
             </ListItem>
-          </>
-          ))} 
-      
         
-          
+          ))} 
           </List>
          
           </View>

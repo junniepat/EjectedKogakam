@@ -8,24 +8,17 @@ import { Platform, StatusBar, StyleSheet, View, AsyncStorage} from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { MenuProvider } from 'react-native-popup-menu';
 import axios from 'axios'
-
-
-let  token = AsyncStorage.getItem("token")
-.then((result)=> {
-setToks(result.replace(/"/g, ""))
-
-setTimeout(() => {
-
-}, 1500);
-
-})
-
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 axios.defaults.headers.common['app_key'] = 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=';
 axios.defaults.baseURL = 'https://kogakam.com/api/v1/';
 
 
 import AppNavigator from './navigation/AppNavigator';
+
+
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -40,12 +33,18 @@ export default function App(props) {
     );
   } else {
     return (
-      <MenuProvider>
-      <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <AppNavigator />
-      </View>
-      </MenuProvider>
+    
+      <ApplicationProvider {...eva} theme={eva.light}>
+         <PaperProvider>
+        <MenuProvider>
+        <View style={styles.container}>
+          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          <AppNavigator />
+        </View>
+        </MenuProvider>
+       </PaperProvider>
+      </ApplicationProvider>
+   
     );
   }
 }

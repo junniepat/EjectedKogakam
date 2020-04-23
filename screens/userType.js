@@ -1,21 +1,24 @@
 
 import React, {useEffect, useState, Fragment} from 'react'
 import  {View, TouchableOpacity, StyleSheet, Text, Image } from 'react-native'
+import axios from 'axios'
 
 export default function userType(props) {
-    
- 
+  useEffect(() => {
+      axios.defaults.headers.common['session_token'] = props.navigation.getParam('token')
+console.warn(`'ok', ${props.navigation.getParam('token')}`)
+  }, [])
+
         async function UserTypeAction(item) {
             console.warn(item)
-            setUserType(item)
-         
+            
              const formData = new FormData();
              formData.append('type', item);
          
            await axios.post('select_user_type', formData)
            .then(res => {
              console.warn(res, 'select_user_type')   
-             
+             props.navigation.navigate('Home');
            })
            .catch(error => {
              console.warn(error, 'select_user_type')}
@@ -26,7 +29,7 @@ export default function userType(props) {
 
     return (
         <Fragment style={styles.container}>
-
+<Text>{props.navigation.getParam('session_token')}</Text>
         <TouchableOpacity style={styles.userType} onPress={()=> UserTypeAction('shop')}>
           <View>
               <Image 

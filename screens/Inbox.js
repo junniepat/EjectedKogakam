@@ -1,20 +1,16 @@
 import * as WebBrowser from 'expo-web-browser';
-import React , {useState, useEffect} from 'react';
+import React , {useState, useEffect, Fragment} from 'react';
 import {
   Image,
   Platform,
   ScrollView,
   StyleSheet,
-  
   TouchableOpacity,
   View, AsyncStorage, ListView, ActivityIndicator } from 'react-native';
 import { Container, Header, SwipeRow, Icon, Button, Badge, Tab, Tabs, TabHeading,  Left, Thumbnail, Body, Right,  List, ListItem, Text } from 'native-base';
 
 
 import MaterialSearchBar from "../components/MaterialSearchBar";
-import Services from "../components/services"
-import { MonoText } from '../components/StyledText';
-import MaterialCardWithImageAndTitle from "../components/MaterialCardWithImageAndTitle";
 
 import moment from 'moment'
 import axios from 'axios'
@@ -88,27 +84,13 @@ export default function InboxScreen(props) {
              
           {activity && <ActivityIndicator size='large'/>}
 
-             <View style={{flexDirection: 'row', marginTop: 4,
-             flexWrap: 'wrap', justifyContent: 'space-between',}}>
-              
-                <View  style={{flexDirection: 'row',
-             flexWrap: 'wrap', justifyContent: 'space-between',}}>
-               
-         
-                    <TouchableOpacity style={styles.button}>
-                     <Text>+ New</Text>
-                   </TouchableOpacity>
-
-         
-                </View>
-               </View>
          
                 <ScrollView>
                 <View style={styles.materialCardWithImageAndTitle1Stack}>
                   
                 <List>
                 {data.chats.map((item, index) => (
-                <>
+                <Fragment key={index}>
                 <ListItem avatar  onPress={()=>{props.navigation.navigate('inboxView', {
          itemId: item.id,
          receiver_id: item.receiver_id
@@ -125,7 +107,7 @@ export default function InboxScreen(props) {
                      </Right>
                    </ListItem>
                   
-             </>
+             </Fragment>
               ))}
               </List>
        

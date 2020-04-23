@@ -30,6 +30,19 @@
       "package": "com.kogakam.kogakam",
       "versionCode": 1
     },
-    "description": "an iraq market place app"
+    "description": "an iraq market place app",
+    "facebookAppId": "416655789000715",
+    "facebookDisplayName": "Kogakam" ,
+    
+      "androidStatusBar": {
+        "barStyle": "light-content" ,
+        "backgroundColor": "dodgerblue",
+        "hidden": false,
+        "translucent": false
+      },
+      "googleMaps": {
+        "apiKey": "701419575524-9var9ocpadoblmrf4vec8cg2d3jlmdaf.apps.googleusercontent.com"
+      }
+   
   }
 }

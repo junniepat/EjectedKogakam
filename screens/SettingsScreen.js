@@ -10,10 +10,11 @@ import {
   Text, TextInput,
   TouchableOpacity,
   View, AsyncStorage,
- Switch } from "react-native";
+ Switch, Picker,
+ Alert} from "react-native";
 
-import { Tab, Tabs, List, ListItem } from 'native-base';
-
+import {  List, ListItem, Row } from 'native-base';
+import { Tab, TabView, Input, Button, Card, Layout, Select, SelectItem, Modal, IndexPath } from '@ui-kitten/components';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
@@ -22,18 +23,17 @@ import * as Permissions from 'expo-permissions';
 import MaterialSearchBar from "../components/MaterialSearchBar";
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Overlay } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment';
 import axios from 'axios'
-
+import ShopSettings from '../components/shopSettings'
 
 export default function SettingsScreen(props) {
 
   const [profile, setUser] = useState({user: []}); 
-
-  const [isVisible, setVisible] = useState(false)
+   const [shop, setShop] = useState()
+   const [visible, setVisible] = useState(false);
   const [toks, setToks] = useState('');
 
   const [name, setName] = useState("")
@@ -50,40 +50,88 @@ export default function SettingsScreen(props) {
   const [password, setPassword] = useState("")
   const [phone, setPhone] = useState("")
   const [address, setAddress] = useState("")
-  const [lat, setLat] = useState("")
-  const [lng, setLng] = useState("")
-  const [city, setCity] = useState("")
-  const [state, setStatet] = useState("")
-  const [country, setCountry] = useState("")
+const [username, setusername] = useState("")
+  const [state, setState] = useState(null)
+  const [city, setCity] = useState(null)
+  const [country, setCountry] = useState(null)
+ const [latitude, setlatitude] = useState(null)
+ const [longitude, setlongitude] = useState(null)
 
   const [btnText, setbtnText] = useState("Update")
   const [disableBtn, setDisableBtn] = useState(false)
-
+  const [Message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
   const [image, setImage] = useState(null);
+  const [certImage, setcertImage] = useState(null)
 
   const [emailStatus, setemailStatus] = useState(false);
   const [userType, setUserType] = useState('');
   const [userProfile, setuserProfile] = useState(false);
-
   const [data, setData] = useState({ user: [] });
 
-  const [latitude, setlatitude] = useState(null)
-  const [longitude, setlongitude] = useState(null)
+  const [shop_title, setShopTitle] = useState("")
+  const [shop_description, setShopDescription] = useState("")
+  const [shop_location, setShopLocation] = useState("")
+  const [categories, setCats] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
+
+
  
-   useEffect(() => {
-     navigator.geolocation.getCurrentPosition(
-       position => {
-         const latitude = JSON.stringify(position.coords.latitude);
-         const longitude = JSON.stringify(position.coords.longitude);
-      
-         setlatitude(latitude);
-         setlongitude(longitude);
-       },
-       error => Alert.alert(error.message),
-       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-     );
-   }, [])
+  const shouldLoadComponent = (index) => index === selectedIndex;
+ 
+
+  
+  const [selectedOptions, setselectedOptions] = React.useState([])
+
+
+const addselectedOptions = (itemValue) => {
+    if(selectedOptions.indexOf(itemValue) !== -1){
+        console.warn("Value exists!")
+    } else{
+       setselectedOptions(selectedOptions.concat(itemValue))
+    }
+}
+
+
+const remove = (itemValue) => {
+const valueToRemove = itemValue
+const filteredItems = selectedOptions.filter(function(item) {
+  return item !== valueToRemove
+})
+
+setselectedOptions(filteredItems)
+}
+
+
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+			position => {
+        const latitude = JSON.stringify(position.coords.latitude);
+        const longitude = JSON.stringify(position.coords.longitude);
+
+        
+        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
+        .then((response) => response.json())
+        .then((responseJson) => { 
+           setLocation(responseJson.results[1].formatted_address)
+           setShopLocation(responseJson.results[1].formatted_address)
+        setAddress(responseJson.results[1].formatted_address)
+        setCity(responseJson.results[1].address_components[1].long_name)
+        setState(responseJson.results[1].address_components[3].long_name)
+        setCountry(responseJson.results[1].address_components[6].long_name)
+        
+        })
+
+        setlatitude(latitude);
+        setlongitude(longitude);
+			},
+			error => Alert.alert(error.message),
+			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+		);
+  }, [])
+  
 
    
   useEffect(() => {
@@ -91,14 +139,34 @@ export default function SettingsScreen(props) {
       const result = await axios.get(
         `get_user`
       );  
-      console.warn(result.data.successData)
       setUser(result.data.successData);
+      
+      setName(result.data.successData.user.name)
+      setEmail(result.data.successData.user.email)
+      setPhone(result.data.successData.user.phone)
+      setusername(result.data.successData.user.username)
     }; 
 
+    const fetchShopData = async () => {
+      const result = await axios.get(
+        `get_shop_data`
+      );  
+      setShop(result.data.successData);
+    }
+
+
+
+    const fetchCats = async () => {
+      const result = await axios.get(
+        'shop_cat'
+      );  
+      setCats(result.data.successData.cats);
+    };
+
+
+    fetchCats();
     fetchData();
-
-
-
+    fetchShopData();
   }, []);
 
   const fetchData = async () => {
@@ -157,7 +225,7 @@ export default function SettingsScreen(props) {
   }
 
 
-  _pickImage = async () => {
+  const _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -185,15 +253,32 @@ export default function SettingsScreen(props) {
         .then(res => {
           fetchData();
         })
-      
         .catch(error => {
           console.warn(error, 'image')}
           )
-  
     
   }
 
- 
+ const selectCert = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,    
+    });
+
+    if (!result.cancelled) {
+      setcertImage(result.uri);
+    }
+      let uri = result.uri
+      let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+      let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+
+      setCertificate({type: 'image/jpg', uri, name: `uploaded.${fileType}` });
+  
+     
+    
+  }
 
 
  async function onsubmit() {
@@ -202,19 +287,17 @@ export default function SettingsScreen(props) {
   setDisableBtn(true)
   setbtnText('Updating ....')
 
-  if (email == null) {
-    console.warn('exploded')
-  }
 
   console.warn('ok')
   const formData = new FormData();
   formData.append('name', name);
   formData.append('email', email);
+  formData.append('username', username);
   formData.append('password', password);
   formData.append('phone', phone);
   formData.append('address', address);
-  formData.append('lat', lat);
-  formData.append('lng', lng);
+  formData.append('lat', latitude);
+  formData.append('lng', longitude);
   formData.append('city', city);
   formData.append('state', state);
   formData.append('country', country);
@@ -223,19 +306,59 @@ export default function SettingsScreen(props) {
 
   await axios.post('change_profile', formData)
   .then(res => {
-    setbtnText('Login')
-    setDisableBtn(false)
-    console.warn(error, 'settings')})
+    console.warn(res)
+    setError('')
+    setMessage('Update successful, changes would be effected in your next sign in')
+    fetchData();
+  })
 
   .catch(error => {
-    setbtnText('Login')
-    setDisableBtn(false)
+    setError('Unable to Update')
+    setMessage('')
+    
     console.warn(error, 'settings')}
     )
     
   }
 
+  async function onshopsubmit() {
+    setDisableBtn(true)
+    setbtnText('Updating ....')
   
+    if (email == null) {
+      console.warn('exploded')
+    }
+  
+    console.warn('ok')
+    const formData = new FormData();
+    formData.append('shop_title', shop_title);
+    formData.append('shop_description', shop_description);
+    formData.append('shop_location', shop_location);
+    formData.append('cats', selectedOption);
+    formData.append('shop_lat', latitude);
+    formData.append('shop_lng', longitude);
+    formData.append('city', city);
+    formData.append('state', state);
+    formData.append('country', country);
+  
+    console.warn(formData)
+  
+    await axios.post('change_shop', formData)
+    .then(res => {
+      console.warn(res)
+      setError('')
+      setMessage('Update successful, changes would be effected in your next sign in')
+      fetchData();
+    })
+  
+    .catch(error => {
+      setError('Unable to Update')
+      setMessage('')
+      
+      console.warn(error, 'settings')}
+      )
+      
+    }
 
   useEffect(() => {
    
@@ -250,12 +373,13 @@ export default function SettingsScreen(props) {
 
 
   
-  async function addReport() {
+  async function requestBadge() {
 
     const formData = new FormData();
     formData.append('shop_name', name);
     formData.append('location', location);
     formData.append('description', description);
+    formData.append('certificate', certificate)
     
 
         await axios.post(
@@ -264,12 +388,12 @@ export default function SettingsScreen(props) {
         .then(response => 
           { 
             console.warn(response)
-            // onSuccess(response);
+            Alert.alert('Request has been received, Await response for our team.')
+            setVisible(false)
           })
       .catch(error => {
         console.warn(response)
-        // setLoading(false)
-        // setError(error.message)
+        Alert.alert('Request Failed')
       })
       
     }
@@ -286,6 +410,12 @@ export default function SettingsScreen(props) {
   }
 
 
+
+  function Logout() {
+      AsyncStorage.removeItem('token')
+      props.navigation.push('Login')
+  }
+
   return (
     <>
     <View style={styles.container}>
@@ -298,40 +428,33 @@ export default function SettingsScreen(props) {
         style={styles.materialSearchBar1}
       ></MaterialSearchBar>
 
-
 <>
-   
-
-  
       <Fragment >
           
          
           
   <View style={styles.roundedCover}>
-            <View style={styles.rounded}>
-            <Image
-        source={{uri: `${profile.user && profile.user['image']}`}}
-        resizeMode="cover"
-        style={styles.profileIm}
-      ></Image>
-    
-            </View>
+           
+           <View style={{width: '83%', flexDirection: 'row'}}>
+                <View style={styles.rounded}>
+                  <Image
+                    source={{uri: `${profile.user && profile.user['image']}`}}
+                    resizeMode="cover"
+                    style={styles.profileIm}
+                  ></Image>
+                </View>
 
-            <View style={styles.johnDoeColumn}>
-              <View>
-              <Text style={styles.johnDoe}>{profile.user && profile.user['name']}</Text>
-              {profile.user && profile.user['email_public'] === true ? 'Email Hidden' :  <Text style={styles.johnGmailCom}>{profile.user && profile.user['email']}</Text>}
-             
-              </View>
-
+                <View style={styles.johnDoeColumn}>
+                  <Text style={styles.johnDoe}>{profile.user && profile.user['name']}</Text>
+                  {profile.user && profile.user['email_public'] === true ? 'Email Hidden' :  <Text style={styles.johnGmailCom}>{profile.user && profile.user['email']}</Text>}
+                </View>
+           </View>
               
-        <TouchableOpacity onPress={()=> setVisible(true)}> 
-          <Text> 
-            <Ionicons name={Platform.OS === 'ios' ? 'ios-compass' : 'md-compass'} size={18} color="#fff" style={{alignSelf: 'flex-end'}} /></Text>
-        </TouchableOpacity>
+            <TouchableOpacity onPress={() => setVisible(true)} style={{alignSelf: 'flex-end', height: 70, paddingTop: 10}} > 
+              <Text> 
+                <Ionicons name={Platform.OS === 'ios' ? 'ios-trophy' : 'md-trophy'} size={28} color="#fff" style={{marginTop: '-20%'}} /></Text>
+            </TouchableOpacity>
 
-            </View>
-          
           </View>
 
      
@@ -355,40 +478,24 @@ export default function SettingsScreen(props) {
 
         
           </View>
-
-    
-
       </View>
-
-    
       </Fragment>
-
 </>
-
     </LinearGradient>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <ScrollView>
-  
-        <View>
-              <Tabs>
-          <Tab heading="Settings" style={{padding: 15}}>
 
-        {viewProfile  &&   <List>
+
+<TabView
+      selectedIndex={selectedIndex}
+      shouldLoadComponent={shouldLoadComponent}
+      onSelect={index => setSelectedIndex(index)}>
+      <Tab title='Profile'>
+        <Layout style={styles.tabContainer}>
+        {viewProfile  &&   <>
+          <List>
             <ListItem itemDivider style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text>My Profile</Text>
               <Button onPress={() => editProfileo()} title='Edit'>Edit</Button>
@@ -402,33 +509,43 @@ export default function SettingsScreen(props) {
             <ListItem>
               <Text>BlockList: {profile.user && profile.user['blocked_count']}</Text>
             </ListItem>
-          </List>}
+          </List>
 
-            
+          <Button onClick={() => Logout()}>Log Out</Button>
+        </>
+        }
 
 
-{editProfile && 
+{  editProfile && <>
 
 
-<>
 
-<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Button
-          title="Select Profile Picture"
-          onPress={() => _pickImage()}
-        />
+<Text style={styles.text}>Update Profile </Text>
+
+
+
+<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+        <Button onPress={() => _pickImage()}>
+        Select Profile Picture
+        </Button>
+         
         {image &&
           <Image source={{ uri: image }} style={{ width: 170, height: 170, marginTop: 8 }} />} 
       
       </View>
 
 
+{Message !== '' ? <View style={{backgroundColor: '#9bffad', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: 'green'}}>{Message}</Text>
+  </View> : null}
 
-      <Text style={styles.text}>Update Profile </Text>
+ {error !== '' ? <View style={{backgroundColor: '#ff475c', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: '#fff'}}>{error}</Text>
+  </View> : null}
 
       
 <View style={{flexDirection: 'row', justifyContent: 'space-between',
-                      backgroundColor: '#f2f2f2', marginTop: 5, marginBottom: 5, padding: 9, borderRadius: 4}}>
+                      backgroundColor: '#f2f2f2', marginTop: 5, marginBottom: 5, paddingBottom:5, padding: 9, borderRadius: 4}}>
               <Text style={{fontFamily: 'Montserrat-Medium',}}>Change email status</Text>
             
               
@@ -442,110 +559,163 @@ export default function SettingsScreen(props) {
 
 <View
   style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={profile.user && profile.user['name']}
-    selectionColor={'#428AF8'}
-    style={styles.inputStyle}
-    defaultValue={profile.user && profile.user['name']}
+      <Input
+      label="Full Name"
+        style={styles.input}
+        placeholder={'name'}
+        value={name}
     onChangeText={text => setName(text)}
-    value={name}
-  ></TextInput>
+      />
 </View>
 
 <View
   style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={profile.user && profile.user['email']}
-    style={styles.inputStyle}
-    onChangeText={text => setEmail(text)}
-    value={email}
-  ></TextInput>
+     <Input
+     disabled={true}
+     label="Email"
+     placeholder={'email'}
+        style={styles.input}
+        value={email}
+        onChangeText={text => setEmail(text)}
+      />
 </View>
+
 
 <View
   style={styles.materialUnderlineTextbox}>
+     <Input
+     label="Username"
+     placeholder={'Username'}
+        style={styles.input}
+        value={username}
+        onChangeText={text => setusername(text)}
+      />
+</View>
 
-<TextInput
-    placeholder={"Password"}
-    style={styles.inputStyle}
-    onChangeText={text => setPassword(text)}
-    value={password}
+
+<View
+  style={styles.materialUnderlineTextbox}>
+  <Input
+  label="Password"
+   placeholder={'Password'}
+        style={styles.input}
+        value={password}
     secureTextEntry={true}
-  ></TextInput>
+        onChangeText={text => setPassword(text)}
+      />
+
 </View>
 
 <View
   style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={profile.user && profile.user['phone']}
-    style={styles.inputStyle}
+    <Input
+    type='number'
+    label="Phone"
+        placeholder={'Phone'}
+        style={styles.input}
     onChangeText={text => setPhone(text)}
     value={phone}
-  ></TextInput>
+      />
+
 </View>
 
 <View
   style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={profile.user && profile.user['address']}
+
+<Input
+label="Address"
+    placeholder={'address'}
     style={styles.inputStyle}
     onChangeText={text => setAddress(text)}
     value={address}
-  ></TextInput>
+      />
 </View>
 
-<View
-  style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={"City"}
-    style={styles.inputStyle}
-    onChangeText={text => setCity(text)}
-    value={city}
-  ></TextInput>
-</View>
 
-<View
-  style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={"State"}
-    style={styles.inputStyle}
-    onChangeText={text => setStatet(text)}
-    value={state}
-  ></TextInput>
-</View>
-
-<View
-  style={styles.materialUnderlineTextbox}>
-<TextInput
-    placeholder={"Country"}
-    style={styles.inputStyle}
-    onChangeText={text => setCountry(text)}
-    value={country}
-  ></TextInput>
-</View>
-
-<View style={{marginLeft: 5, marginRight: 9}}>
-      <Button
-        title={btnText}
-        style={styles.materialButtonViolet}
-        disabled={disableBtn}
-        onPress={()=> onsubmit()}> 
-      >
+<View style={{marginLeft: 5, marginTop: 30, marginRight: 9}}>
+      <Button onPress={()=> onsubmit()} >
+        Update
       </Button>
 </View>
 
-</>
 
+  </>
 }
-          </Tab>
-          <Tab heading="Shop settings">
+
+        </Layout>
+      </Tab>
+
+
+      {profile.user['type'] === 'shop' ? 
+      <Tab title='Shop Settings'>
+        <Layout style={styles.tabContainer}>
+          
+          
+        <Text style={styles.text}>Update Shop Details </Text>
+
+
+{Message !== '' ? <View style={{backgroundColor: '#9bffad', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: 'green'}}>{Message}</Text>
+  </View> : null}
+
+ {error !== '' ? <View style={{backgroundColor: '#ff475c', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: '#fff'}}>{error}</Text>
+  </View> : null}
+
+
+  <View
+  style={styles.materialUnderlineTextbox}>
+    <Input
+    label="Shop Title"
+        placeholder={'Shop Title'}
+        style={styles.input}
+    onChangeText={text => setShopTitle(text)}
+    value={shop_title}
+      />
+
+</View>
+
+ <View
+  style={styles.materialUnderlineTextbox}>
+    <Input
+    label="Shop Description"
+        placeholder={'Shop Description'}
+        style={styles.input}
+    onChangeText={text => setShopDescription(text)}
+    value={shop_description}
+      />
+
+</View>
+
+
+<View
+  style={styles.materialUnderlineTextbox}>
+    <Input
+    label="Shop Location"
+        placeholder={'Shop Location'}
+        style={styles.input}
+    onChangeText={text => setShopLocation(text)}
+    value={shop_location}
+      />
+
+</View>
+
+{/* 
+  <ShopSettings/>
+ */}
+
+<View style={{marginLeft: 5, marginTop: 30, marginRight: 9}}>
+      <Button onPress={()=> onshopsubmit()} >
+        Update
+      </Button>
+</View> 
+
+        </Layout>
+      </Tab> : null}
     
-          </Tab>
-        
-        </Tabs>
-
-
-        </View>
+ 
+    </TabView>
+  
   </ScrollView>
 
 
@@ -558,72 +728,66 @@ export default function SettingsScreen(props) {
 
 
 
+  <Modal
+  style={{width: '80%',}}
+        visible={visible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setVisible(false)}>
+        <Card disabled={true}>
+        <Text style={styles.report}>Request Badge</Text>
+
+
+<Input
+  label='Name'
+  placeholder={"Name"}
+  onChangeText={text => setName(text)}
+  value={name}
+/>
+
+  <Input
+  label='Location'
+  placeholder={"Location"}
+  onChangeText={text => setLocation(text)}
+  value={location}
+/>
 
 
 
+<View
+style={styles.materialUnderlineTextbox2}>
+    <Input
+    label='Please briefly explain why your account should be verifed?'
+   placeholder={"Please briefly explain why your account should be verified?"}
+   style={{height: 100}}
+   onChangeText={text => setDescription(text)}
+   value={description}
+/>
 
+</View>
 
+<View
+style={styles.materialUnderlineTextbox2}>
+ <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+        <Button onPress={() => selectCert()} size='tiny'>
+        Select Certificate
+        </Button>
+         
+        {certImage &&
+          <Image source={{ uri: certImage }} style={{ width: 60, height: 60, marginTop: 8, marginLeft: 10 }} />} 
+      
+      </View>
+</View>
 
+<View style={{marginLeft: 0, marginRight: 0}}>
+    <Button onPress={()=> requestBadge()}> 
+      Request Badge
+    </Button>
+</View>
 
-
-
-
+        </Card>
+      </Modal>
 
   
-
-
-<Overlay  isVisible={isVisible}  onBackdropPress={() => setVisible(false)}>
-    <Text style={styles.report}>Request Badge</Text>
-
-    <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"Shop Name"}
-      style={styles.inputStyle2}
-      onChangeText={text => setName(text)}
-      value={name}
-    ></TextInput>
-  </View>
-
-  <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"Location"}
-      style={styles.inputStyle2}
-      onChangeText={text => setLocation(text)}
-      value={location}
-    ></TextInput>
-  </View>
-
-  <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"Description"}
-      style={styles.inputStyle2}
-      onChangeText={text => setDescription(text)}
-      value={description}
-    ></TextInput>
-  </View>
-
-  <View
-    style={styles.materialUnderlineTextbox2}>
-  <TextInput
-      placeholder={"certificate Img"}
-      style={styles.inputStyle2}
-      onChangeText={text => setCertificate(text)}
-      value={certificate}
-    ></TextInput>
-  </View>
-
-  <View style={{marginLeft: 9, marginRight: 9}}>
-        <Button
-          title={'Request Badge'}
-          style={styles.materialButtonViolet}
-          onPress={()=> addReport()}> 
-        >
-        </Button>
-</View>
-</Overlay>
 
 
     </View>
@@ -645,16 +809,16 @@ const styles = StyleSheet.create({
   bgGradient: {
     backgroundColor: '#0F52BA',
   },
- 
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   materialUnderlineTextbox2: {
     width: "95%",
-    height: 50,
-    marginLeft: 10,
+    height: 70,
+    marginLeft: 2,
     marginTop: 10,
 
-    borderColor: '#ccc',
-    borderStyle: 'solid',
-    borderWidth: 1,
+
     borderRadius: 5,
     padding: 5,
     marginBottom: 12
@@ -664,7 +828,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 3,
     marginLeft: 9,
-    
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+    borderStyle: 'solid',
+    borderBottomWidth: 1,
+    marginBottom: 10,
     fontFamily: 'Montserrat-Medium',
   },
   inputStyle2: {
@@ -675,6 +843,7 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     paddingBottom: 8,
     fontSize: 16,
+    height: 100,
     lineHeight: 1,
     textAlign: "left"
   },
@@ -739,8 +908,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
   },
   johnDoeColumn: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginLeft: 15,
     marginBottom: 21,
     marginTop: 12 
@@ -913,12 +1080,9 @@ const styles = StyleSheet.create({
     width: "98%",
     height: 50,
     marginLeft: 5,
-    marginTop: 5,
+    marginTop: 15,
 
-    borderColor: '#ccc',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderRadius: 5,
+
     padding: 5,
     marginBottom: 12
   },
@@ -1029,6 +1193,9 @@ const styles = StyleSheet.create({
   },
  
 });
+
+
+
 
 
 

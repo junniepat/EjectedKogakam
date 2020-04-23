@@ -1,7 +1,7 @@
 
 
 import React , {useState, useEffect, Fragment} from 'react';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity, TextInput, Image, KeyboardAvoidingView} from "react-native";
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, TextInput, Image, KeyboardAvoidingView, Alert} from "react-native";
 import { Icon, MenuItem, OverflowMenu, TopNavigation, TopNavigationAction, Button, Card, Layout, Modal, Avatar } from '@ui-kitten/components';
 import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
@@ -22,29 +22,14 @@ export default function inboxView(props) {
 
   useEffect(() => { 
     fetchData();
-    // fetchMessage();
     getPermissionAsync();
   }, []);
 
 
   
-  // const fetchMessage = async () => { 
-  //   const result = await fetch(
-  //     `https://kogakam.com/api/v1/get_chat_by_user/${props.navigation.getParam('userID')}/${props.navigation.getParam('productId')}`, {
-  //       headers: {
-  //         app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=',
-  //         session_token: '$2y$10$plOODHqJcdTw6zlTzcS19OycVaaZwVXEHkOcrSNziwIWIynfKNj.q'
-  //       }
-  //     }
-  //   );  
-
-  //   let response = await result.json();
-  //   setData(response.successData);
-  // }; 
-
   const fetchData = async () => { 
     const result = await fetch(
-      `https://kogakam.com/api/v1/get_chat_message/${props.navigation.getParam('itemId')}`, {
+      `https://kogakam.com/api/v1/get_chat_by_user/${props.navigation.getParam('userID')}/${props.navigation.getParam('productId')}`, {
         headers: {
           app_key: 'TrQZYFHYM8+pezuWbY3GT+N3vpKxXHVsVT85WqbC4ag=',
           session_token: '$2y$10$plOODHqJcdTw6zlTzcS19OycVaaZwVXEHkOcrSNziwIWIynfKNj.q'
@@ -53,8 +38,9 @@ export default function inboxView(props) {
     );  
 
     let response = await result.json();
-    console.log('data', response.successData)
     setData(response.successData);
+
+    console.warn(response.successData)
   }; 
 
 
@@ -68,6 +54,10 @@ export default function inboxView(props) {
   
   
  const onsubmit = () => {
+   if (!chatMessage) {
+     Alert.alert('no way')
+   }
+   else {
   const formData = new FormData(); 
   formData.append('receiver_id', props.navigation.getParam('userID'));
   formData.append('product_id', props.navigation.getParam('productId'));
@@ -88,7 +78,7 @@ export default function inboxView(props) {
     { 
       console.warn(response)
       fetchData();
-      setmessage('')
+      setchatMessage('')
       setMessageIcon(false)
       setMicIcon(true)
     })
@@ -96,7 +86,7 @@ export default function inboxView(props) {
   // setLoading(false)
   // setError(error.message)
 })
-
+}
     
   }
 
@@ -274,13 +264,13 @@ const LogoutIcon = (props) => (
           anchor={renderMenuAction}
           visible={menuVisible}
           onBackdropPress={toggleMenu}>
-            {data.user['is_blocked'] === false ? <MenuItem accessoryLeft={InfoIcon} title='Block' onPress={() =>  block()} text='Block'/> : <MenuItem accessoryLeft={InfoIcon} title='Unblock' onPress={() =>  unblock()} text='Unblock'/>}
+            {data.user && data.user['is_blocked'] === false ? <MenuItem accessoryLeft={InfoIcon} title='Block' onPress={() =>  block()} text='Block'/> : <MenuItem accessoryLeft={InfoIcon} title='Unblock' onPress={() =>  unblock()} text='Unblock'/>}
           
           <MenuItem accessoryLeft={LogoutIcon} title='Report' onPress={() => setVisible(true)} text='Report'/>
         </OverflowMenu>
       </React.Fragment>
     );
-    {console.warn(!data.user['is_blocked'], 'ok')}
+ 
   
     const renderBackAction = () => (
       <TopNavigationAction icon={BackIcon} onPress={() => props.navigation.goBack()}/>
@@ -293,7 +283,7 @@ const LogoutIcon = (props) => (
           style={styles.logo}
           source={{uri: `${data.user['avatar']}`}} 
         /> */}
-        <Text {...props}>{data.user['name']}</Text>
+        <Text {...props}>{data.user && data.user['name']}</Text>
       </View>
     );
 
@@ -396,16 +386,16 @@ const LogoutIcon = (props) => (
           <TextInput placeholder={"Enter Message"} style={styles.TextInputb} onChangeText={text => setchatMessage(text)} value={chatMessage}></TextInput>
       </View>
 
+      <TouchableOpacity onPress={() => onsubmit()}>
+      <View  style={{paddingLeft: 15, paddingRight: 10, }}>
     
-        <TouchableOpacity onPress={() => onsubmit()}>
-        <View  style={{paddingLeft: 15, paddingRight: 10, }}>
         <Text  style={styles.icon2}>
           <Ionicons name={Platform.OS === 'ios' ? 'ios-paper-plane' : 'md-paper-plane'} size={25}  style={{marginRight: 6,marginLeft: 6, paddingLeft: 6,}} />
           </Text>
           </View>
         </TouchableOpacity>
          
-    
+     
 </View>
 
    

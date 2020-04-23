@@ -2,12 +2,8 @@ import React, { Component, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ToastAndroid,  TouchableOpacity, TextInput, AsyncStorage } from "react-native";
 
 import Toast from 'native-base';
+import { Input, Layout, Button } from '@ui-kitten/components';
 
-
-import * as api from "../services/service";
-import { useAuth } from "../provider";
-
-import { Button, SocialIcon } from 'react-native-elements';
 import axios from 'axios'
 
 // CONTEXT ===================================
@@ -32,131 +28,82 @@ function ForgotPassword(props) {
   const [user, setUser] = useState(null); 
 
   const [Message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
-
-  // useEffect(() => {
-  //   AsyncStorage.getItem("token")
-  //   .then((result)=>
-   
-  //   {
-     
-  //     if(result !== null){
-  //       props.navigation.navigate('Home', {
-  //         token: result
-  //       })
-  //     }
-  //   })
-   
-
-   
-  // }, [])
-  
 
   
  async function onsubmit() {
-
-  setDisableBtn(true)
-  setbtnText('...logging you in')
-
-  if (email == null) {
-    console.warn('exploded')
-  }
-
+setDisableBtn(true)
+  if(!email) {
+    setError('Your Email cannot be left empty')
+    setbtnText('Login')
+    setDisableBtn(false);
+  } 
+else {
   const formData = new FormData();
   formData.append('email', email);
-  formData.append('password', password);
 
-
-      await api.login(formData)
-      .then(response => 
-        { 
-          setMessage('success')
-          console.warn(response)
-          // onSuccess(response);
-          setbtnText('Success')
-          setDisableBtn(false);
-
-
-          setUser(response.user)
-          setToken(response.session.session_key)
-          console.warn('res', response.user)
-          axios.defaults.headers.common['session_token'] = response.session.session_key;
-
-          AsyncStorage.setItem("token", JSON.stringify(response.session.session_key)).then(
-            () => AsyncStorage.getItem("token")
-                  .then((result)=> {
-                    console.warn("token", result)
-                    
-                    setTimeout(() => {
-                      props.navigation.navigate('Settings', {
-                        token: response.session.session_key,
-                      })
-                    }, 1500);
-                  
-                  })
-         )
-       
-
-         AsyncStorage.setItem("email_status", JSON.stringify(response.user.email_status)).then(
-          () => AsyncStorage.getItem("email_status")
-                .then((result)=>console.warn(result))
-        )
-        
-         AsyncStorage.setItem("user", JSON.stringify([response.user])).then(
-          () => AsyncStorage.getItem("user")
-                .then((result)=>console.warn(result))
-        )
-         
-
-        })
-    .catch(error => {
-
-      console.warn(error)
-
-      setMessage(error)
-
-      setbtnText('Login')
-      setDisableBtn(false)
-      setToken(null)
+   axios.post('/forget_email',  formData )
+     
+  .then(response => 
+    { 
+      setMessage(response.data.successMessage)
+     setError('')
+     setDisableBtn(true)
+     setEmail('')
+      console.warn(response.data.successMessage)
     })
+.catch(error => {
+  console.warn(error)
+  setMessage(error)
+setDisableBtn(false)
+})
+}
+   
     
   }
 
 
-// AsyncStorage.removeItem("token")
-
-
- 
- 
   
   return (
     <View style={styles.container}>
 
+
 <Text style={styles.text}>Forgot Password </Text>
+{Message !== '' ? <View style={{backgroundColor: '#9bffad', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: 'green'}}>{Message}</Text>
+  </View> : null}
+
+ {error !== '' ? <View style={{backgroundColor: '#ff475c', margin: 10, padding: 5, borderRadius: 3}}>
+    <Text style={{color: '#fff'}}>{error}</Text>
+  </View> : null}
+  
 
 
-
-<Text>{Message}</Text>
 
     <View
       style={styles.materialUnderlineTextbox}>
-    <TextInput
-        placeholder={"Email Address"}
-        style={styles.inputStyle}
-        onChangeText={text => setEmail(text)}
+ 
+
+<Input
+label='Email Address'
+        style={styles.input}
         value={email}
-      ></TextInput>
+        placeholder={"Email Address"}
+        onChangeText={text => setEmail(text)}
+      />
+
     </View>
  
 
 
   <View style={{marginLeft: 4, marginRight: 9}}>
-          <TouchableOpacity
+          <Button
             style={styles.materialButtonViolet}
             disabled={disableBtn}
             onPress={()=> onsubmit()}> 
-          <Text style={styles.captionBtn}> Reset Password </Text>
-          </TouchableOpacity>
+         Reset Password 
+          </Button>
   </View>
 
 
@@ -232,17 +179,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100
   },
-  inputStyle: {
-    flex: 1,
-    color: "#000",
-    alignSelf: "stretch",
-    paddingTop: 8,
-    paddingRight: 0,
-    paddingBottom: 8,
-    fontSize: 16,
-    lineHeight: 16,
-    textAlign: "left"
-  },
+
   buttonAll: {
     flexDirection: 'row', 
     marginTop: 4,
@@ -286,9 +223,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 10,
 
-    borderColor: '#ccc',
-    borderStyle: 'solid',
-    borderWidth: 1,
+ 
     borderRadius: 5,
     padding: 5,
     marginBottom: 22

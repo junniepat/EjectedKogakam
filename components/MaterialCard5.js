@@ -1,5 +1,5 @@
-import React, { Component, useState, useEffect } from "react";
-import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
+import React, { Component, useState, useEffect, Fragment } from "react";
+import { StyleSheet, View, Image, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment'
@@ -42,21 +42,23 @@ function MaterialCard5(props) {
     fetchData();
   }, []);
  
-  console.warn('img', data.products.main_image);
 
   return (
     <>
     {data.products.map((item, index) => (
-      <>
+      <Fragment  key={index}>
+
+
         
 <TouchableOpacity  key={index} style={[styles.container, props.style]}  onPress={()=>{props.navigation.navigate('ProductView', {
   itemId: item.id,
 })}}>
+  
 <View>
 
  
       <Image
-      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
+      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].thumb}`}} 
       resizeMode="cover"
       style={styles.cardItemImagePlace}
     ></Image>
@@ -70,9 +72,10 @@ function MaterialCard5(props) {
   </View>
   <View style={styles.locationRow}>
    
-    <Text style={styles.location}>  
-    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-{item.location.substring(0,17)}</Text>
+    <Text style={styles.location} numberOfLines={1}  ellipsizeMode="tail">  
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 12,}} />
+    &nbsp;
+{item.state}</Text>
     
 
     <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format("YYYY-MM-DD")}</Text>
@@ -80,7 +83,7 @@ function MaterialCard5(props) {
 </View>
 </TouchableOpacity>
 
-</>
+</Fragment>
 
       ))}
 
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
   cardItemImagePlace: {
     height: 75,
     flex: 1,
-    backgroundColor: "#333",
+    backgroundColor: "#f2f2f2",
     width: undefined,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5

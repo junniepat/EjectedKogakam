@@ -60,13 +60,11 @@ function ProductsPage(props) {
       <>
           
 <TouchableOpacity  key={item.id} style={styles.materialCard5}  onPress={()=>{props.navigation.push('ProductView', 
-{
-  itemId: item.id,
-})}}>
+{ itemId: item.id, })}}>
 <View>
   
 
-<Image
+    <Image
       source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
       resizeMode="cover"
       style={styles.cardItemImagePlace}
@@ -82,10 +80,9 @@ function ProductsPage(props) {
    
     <Text style={styles.location}>  
     <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-{item.location.substring(0,17)}</Text>
+    {item.state}</Text>
     
-
-<Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
+  <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
   </View>
 </View>
 </TouchableOpacity>

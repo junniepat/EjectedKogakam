@@ -1,14 +1,23 @@
-import React, { Component, useState, useEffect } from "react";
-import { StyleSheet, View, Image, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { Component, useState, useEffect, Fragment } from "react";
+import { StyleSheet, View, Image, Text, TouchableOpacity, ActivityIndicator, RefreshControl, ScrollView, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-
+import moment from 'moment';
+import { Button, ButtonGroup } from '@ui-kitten/components';
 
 import axios from 'axios'
 
-function UserProducts(props) {
 
+function wait(timeout) {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+}
+
+function UserProducts(props) {
+  const [activity, setactivity] = useState(true)
   const [data, setData] = useState({ products: [] });
   const [dataImg, setDataImg] = useState({ images: [] });
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const [image, setImage] = useState('');
   useEffect(() => {
@@ -21,8 +30,7 @@ function UserProducts(props) {
         }
       ); 
       setData(result.data.successData.user);
-     console.warn( 'imae', result.data.successData.user.products)
-     console.warn(data.products, 'prod')
+      setactivity(false)
     };
 
 
@@ -36,35 +44,103 @@ function UserProducts(props) {
         }
       );
       setDataImg([result.data.successData.products]);
-     
     };
 
     fetchImg();
     fetchData();
   }, []);
+
+
+  const fetchData = async () => {
+    const result = await axios.get(
+      'get_user'
+    ); 
+    setData(result.data.successData.user);
+    setactivity(false)
+    
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+    wait(2000).then(() => setRefreshing(false));
+  }, [refreshing]);
+
  
-  console.warn('img', data.products['id']);
+  const StarIcon = (props) => (
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-create' : 'md-create'} size={12} color="#fff" style={{marginRight: 6,}} />
+  );
+
+  const DeleteIcon = (props) => (
+    <Ionicons name={Platform.OS === 'ios' ? 'ios-trash' : 'md-trash'} size={12} color="#fff" style={{marginRight: 6,}} />
+  );
+
+
+  
+  async function productStatus(id, status) {
+    const formData = new FormData();
+    formData.append('product_id', id);
+    formData.append('status', status);
+    
+        await axios.post(
+          `change_product_status`, formData
+        )
+        .then(response => 
+          { 
+            fetchData();
+            // onSuccess(response);
+          })
+      .catch(error => {
+        // setLoading(false)
+        // setError(error.message)
+      })
+      
+    }
+
+
+    async function productDelete(id) {
+
+          const formData = new FormData();
+          formData.append('product_id', id);
+          
+              await axios.post(
+                `delete_product`, formData
+              )
+              .then(response => 
+                { 
+                  fetchData();
+                  // onSuccess(response);
+                })
+            .catch(error => {
+           
+              // setLoading(false)
+              // setError(error.message)
+            })
+            
+          }
+
 
   return (
     <>
+    <ScrollView  refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
       <View style={styles.scrollAreaStack}>
     <View style={styles.scrollArea_contentContainerStyle}>
-    <ActivityIndicator size="large"/>
+    {activity && <ActivityIndicator size='large'/>}
     {data.products.map((item, index) => (
-      <>
+      <Fragment key={index}>
     
            <View style={styles.materialCard}>
-<TouchableOpacity  key={index} style={styles.materialCard1} onPress={()=>{props.navigation.push('ProductView', {
-  itemId: item.id,
-})}}>
+<TouchableOpacity   style={styles.materialCard1}>
 <View>
 
  
-  <Image
-    source={{uri: `${'https://kogakam.com/storage/app/products/'+ item.images[0].path}` }} 
-    resizeMode="cover"
-    style={styles.cardItemImagePlace}
-  ></Image> 
+<Image
+      source={{uri: `https://kogakam.com/storage/app/products/${item.images[0] && item.images[0].path}`}} 
+      resizeMode="cover"
+      style={styles.cardItemImagePlace}
+    ></Image>
 
 
 
@@ -76,23 +152,33 @@ function UserProducts(props) {
    
     <Text style={styles.location}>  
     <Ionicons name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} size={12} color="#555" style={{marginRight: 6,}} />
-{item.location.substring(0,17)}</Text>
+&nbsp; {item.state || "No location"}</Text>
     
 
-    <Text style={styles.loremIpsum}>23 Hrs</Text>
+    <Text style={styles.loremIpsum}>{moment.utc(item.created_at).local().format('LL')}</Text>
   </View>
 </View>
+
+    <ButtonGroup style={{alignSelf: 'center', marginTop:5}}>
+      <Button accessoryLeft={StarIcon}/>
+      <Button onPress={() => productDelete(item.id)} status='danger' accessoryLeft={DeleteIcon}/>
+      {item.status === 'pending' ? ( 
+            <Button onPress={() => productStatus(item.id, 'sold')}>{item.status}</Button>) : (
+              <Button onPress={() => productStatus(item.id, 'pending')}>{item.status}</Button>
+          )}
+      
+    </ButtonGroup>
 </TouchableOpacity>
 </View>
 
 
 
-</>
+</Fragment>
 
       ))}
       </View>
       </View>
-
+      </ScrollView>
     </>
    );
 }
@@ -133,7 +219,7 @@ const styles = StyleSheet.create({
     left: 3,
     right: 10,
     width: "49%",
-    height: 205,
+    height: 260,
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
     
@@ -155,13 +241,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     
     width: '100%',
-    flex: 1
   },
 
   cardItemImagePlace: {
-    borderRadius: 2,
-    height: 135,
-    backgroundColor: "#333",
+    height: 115,
+    backgroundColor: "#f2f2f2",
     width: undefined,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5

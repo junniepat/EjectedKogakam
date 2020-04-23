@@ -1,7 +1,7 @@
 import React , {useState, useEffect} from 'react';
 import { Container, Content, Button, Header, List, ListItem, Text, Icon, Left, Body, Right, Switch, View, Title  } from 'native-base';
 import axios from 'axios'
-import {TouchableOpacity} from 'react-native'
+import {TouchableOpacity, Image, Fragment} from 'react-native'
 import { Ionicons, StyleSheet } from '@expo/vector-icons'
 
 export default function SeeAll(props) {
@@ -40,16 +40,18 @@ export default function SeeAll(props) {
         <Content>
         <List>
         {data.cats.map((item, index) => (
-      <>
+      <Fragment key={index}>
           <ListItem icon style={{paddingTop: 10}} onPress={() => {
       props.navigation.push('ProductsPage', {
         name: item.title,
         id: item.id
       })}} >
             <Left>
-              <Button style={{ backgroundColor: `${item.color}` }}>
-                <Icon active name="airplane" />
-              </Button>
+              <Image
+                source={{uri: 'https://www.kogakam.com/storage/app/cat_images/'  + `${item.image}` }} 
+                resizeMode="cover"
+                style={{width: 31, height: 31}} 
+              ></Image> 
             </Left>
             <Body style={{paddingBottom: 8, paddingTop: 8}}>
               <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 15}}>{item.title}</Text>
@@ -58,7 +60,7 @@ export default function SeeAll(props) {
             <Icon name="arrow-forward" />
             </Right>
           </ListItem>
-          </>
+          </Fragment>
           ))}
           </List>
          </Content>

@@ -2,11 +2,12 @@ import React, { Component, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ToastAndroid,  TouchableOpacity, TextInput, AsyncStorage } from "react-native";
 
 import {Toast, } from 'native-base';
-
+import { Input, Layout } from '@ui-kitten/components';
 
 import * as api from "../services/service";
 import { useAuth } from "../provider";
 
+import * as Facebook from 'expo-facebook';
 import { Button, SocialIcon } from 'react-native-elements';
 import axios from 'axios'
 
@@ -53,6 +54,29 @@ function Login(props) {
   // }, [])
   
 
+  async function FacebookLogin() {
+    try {
+      await Facebook.initializeAsync('416655789000715');
+      const {
+        type,
+        token,
+        expires,
+        permissions,
+        declinedPermissions,
+      } = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile'],
+      });
+      if (type === 'success') {
+        // Get the user's name using Facebook's Graph API
+        const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+        Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+      } else {
+        // type === 'cancel'
+      }
+    } catch ({ message }) {
+      alert(`Facebook Login Error: ${message}`);
+    }
+  }
   
  async function onsubmit() {
 
@@ -137,32 +161,39 @@ else {
     <Text style={{color: 'green'}}>{Message}</Text>
   </View> : null}
 
- {error !== '' ? <View style={{backgroundColor: 'ff475c', margin: 10, padding: 5, borderRadius: 3}}>
+ {error !== '' ? <View style={{backgroundColor: '#ff475c', margin: 10, padding: 5, borderRadius: 3}}>
     <Text style={{color: '#fff'}}>{error}</Text>
   </View> : null}
   
 
     <View
       style={styles.materialUnderlineTextbox}>
-    <TextInput
-        placeholder={"Email Address"}
-        style={styles.inputStyle}
-        onChangeText={text => setEmail(text)}
+
+<Input
+label='Email Address'
+        style={styles.input}
         value={email}
-      ></TextInput>
+        placeholder={"Email Address"}
+        onChangeText={text => setEmail(text)}
+      />
+
+
     </View>
  
 
     <View
       style={styles.materialUnderlineTextbox}>
- 
-<TextInput
-        placeholder={"Password"}
-        style={styles.inputStyle}
-        onChangeText={text => setPassword(text)}
+ <Input
+ label='Password'
+        style={styles.input}
         value={password}
         secureTextEntry={true}
-      ></TextInput>
+        placeholder={"Password"}
+        onChangeText={text => setPassword(text)}
+      />
+
+
+
     </View>
 
 <TouchableOpacity  onPress={()=>{props.navigation.navigate('ForgotPassword')}}>
@@ -186,7 +217,7 @@ else {
 
 
  
-      <SocialIcon
+      <SocialIcon onPress={() => FacebookLogin()}
       style={{width: '96%'}}
   title='Sign In With Facebook'
   button
@@ -328,9 +359,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 10,
 
-    borderColor: '#ccc',
-    borderStyle: 'solid',
-    borderWidth: 1,
+ 
     borderRadius: 5,
     padding: 5,
     marginBottom: 22
