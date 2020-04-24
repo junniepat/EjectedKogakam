@@ -4,6 +4,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 import TabBarIcon from '../components/TabBarIcon';
+import TabBarIcon2 from '../components/TabBarIcon2';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -49,15 +50,11 @@ const HomeStack = createStackNavigator(
 );
 
 HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
+  tabBarLabel: 'HOME',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={
-        Platform.OS === 'ios'
-          ? `ios-home${focused ? '' : '-outline'}`
-          : 'md-home'
-      }
+      name="home-variant-outline"
     />
   ),
 };
@@ -79,11 +76,11 @@ const LinksStack = createStackNavigator(
 );
 
 LinksStack.navigationOptions = {
-  tabBarLabel: 'Sell',
+  tabBarLabel: 'SELL',
   tarBarColor: '#333',
   tabBarIcon: ({ focused }) => (
     <View style={{background: '#333'}}>
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-camera' : 'md-camera'} />
+    <TabBarIcon focused={focused} name="camera-outline" />
     </View>
   ),
 };
@@ -105,9 +102,12 @@ const InboxStack = createStackNavigator(
 );
 
 InboxStack.navigationOptions = {
-  tabBarLabel: 'Inbox',
+  tabBarLabel: 'ALL CHATS',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-mail' : 'md-mail'} />
+    <TabBarIcon2
+      focused={focused}
+      name="chat-bubble-outline"
+    />
   ),
 };
 
@@ -127,9 +127,9 @@ const AdsStack = createStackNavigator(
 );
 
 AdsStack.navigationOptions = {
-  tabBarLabel: 'My Ads',
+  tabBarLabel: 'MY ADS',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-paper' : 'md-paper'} />
+    <TabBarIcon focused={focused} name="newspaper" />
   ),
 };
 
@@ -165,9 +165,9 @@ const SettingsStack = createStackNavigator(
 );
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: 'Profile',
+  tabBarLabel: 'PROFILE',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-person' : 'md-person'} />
+    <TabBarIcon2 focused={focused} name='person-outline' />
   ),
 };
 

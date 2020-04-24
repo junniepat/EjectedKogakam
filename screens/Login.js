@@ -64,18 +64,53 @@ function Login(props) {
         permissions,
         declinedPermissions,
       } = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ['public_profile'],
+        permissions: ['public_profile', 'email'],
       });
+      console.log('type', type)
       if (type === 'success') {
-        // Get the user's name using Facebook's Graph API
-        const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-        Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+        fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email,picture.height(500)`)
+        .then(response => response.json())
+        .then(data => {
+          const facebook = {
+            email: data.email,
+            password: data.id,
+            name: data.name,
+            fb_id: data.id,
+            image: data.picture.data.url
+          }
+          console.log('facebook', facebook)
+          axios.post('https://kogakam.com/api/v1/social_login', facebook)
+          .then(response => 
+            {
+          
+      console.warn('res', response.data.successData.session.session_key)
+      axios.defaults.headers.common['session_token'] = response.data.successData.session.session_key;
+
+      AsyncStorage.setItem("token", JSON.stringify(response.data.successData.session.session_key)).then(
+        () => AsyncStorage.getItem("token")
+              .then((result)=> {
+                console.warn("token", result)
+                
+                setTimeout(() => {
+                  props.navigation.navigate('Home', {
+                    token: response.data.successData.session.session_key,
+                  })
+                }, 1500);
+              
+              })
+     )
+            })
+          .catch(error =>  console.log(error))
+        })
+        .catch(e => console.log(e))
+
       } else {
         // type === 'cancel'
       }
     } catch ({ message }) {
       alert(`Facebook Login Error: ${message}`);
     }
+
   }
   
  async function onsubmit() {

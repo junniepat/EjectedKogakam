@@ -1,11 +1,11 @@
 import React from 'react';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
 
-export default function TabBarIcon(props) {
+export default function TabBarIcon2(props) {
   return ( 
-    <MaterialCommunityIcons
+    <MaterialIcons
       name={props.name}
       size={24}
       style={{ marginBottom: -3 }}

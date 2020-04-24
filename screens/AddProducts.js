@@ -273,10 +273,13 @@ export default function AddProducts(props) {
              value={price} />
       
 
-
-            <Textarea onChangeText={text => setDescription(text)}
-            value={description} rowSpan={5} bordered placeholder="Description" />
-
+ <Input
+        multiline={true}
+        textStyle={{ minHeight: 64 }}
+        onChangeText={text => setDescription(text)}
+        placeholder="Description" 
+        value={description} 
+      />
      
            <Input 
              label='Manufacturer'

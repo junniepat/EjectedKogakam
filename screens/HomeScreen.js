@@ -79,7 +79,7 @@ export default function HomeScreen(props) {
     <View style={styles.container}>
 
 <View style={{flexDirection: 'row', justifyContent: 'space-between', 
-    marginTop: 32, marginBottom: 5, width: '98%' }}>
+    marginTop: 12, marginBottom: 5, width: '98%' }}>
     <View>
           <Picker
         style={styles.picker}>

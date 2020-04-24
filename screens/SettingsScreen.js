@@ -27,7 +27,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment';
 import axios from 'axios'
-import ShopSettings from '../components/shopSettings'
+import { Checkbox } from 'react-native-paper';
+
 
 export default function SettingsScreen(props) {
 
@@ -75,7 +76,6 @@ const [username, setusername] = useState("")
   const [shop_location, setShopLocation] = useState("")
   const [categories, setCats] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
-
 
  
   const shouldLoadComponent = (index) => index === selectedIndex;
@@ -511,7 +511,7 @@ setselectedOptions(filteredItems)
             </ListItem>
           </List>
 
-          <Button onClick={() => Logout()}>Log Out</Button>
+          <Button style={{marginTop: '55%', marginLeft: 20, marginRight:20}} onClick={() => Logout()} appearance='outline'>Log Out</Button>
         </>
         }
 
@@ -850,7 +850,7 @@ const styles = StyleSheet.create({
   materialSearchBar1: {
     width: "97%",
     height: 46,
-    marginTop: 32,
+    marginTop: 10,
     marginLeft: 6,
 
     marginBottom: 5,
