@@ -9,7 +9,8 @@ import { useAuth } from "../provider";
 
 import * as Facebook from 'expo-facebook';
 import { Button, SocialIcon } from 'react-native-elements';
-import axios from 'axios'
+import axios from 'axios';
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 // CONTEXT ===================================
 const AuthContext = React.createContext();
@@ -36,7 +37,8 @@ function Login(props) {
   const [error, setError] = useState('')
 
 
-  // useEffect(() => {
+  useEffect(() => {
+    initAsync();
   //   AsyncStorage.getItem("token")
   //   .then((result)=>
    
@@ -51,7 +53,9 @@ function Login(props) {
    
 
    
-  // }, [])
+  }, [])
+
+
   
 
   async function FacebookLogin() {
@@ -113,6 +117,35 @@ function Login(props) {
 
   }
   
+  const initAsync = async () => {
+    await GoogleSignIn.initAsync({
+      // You may ommit the clientId when the firebase `googleServicesFile` is configured
+      clientId: '<YOUR_IOS_CLIENT_ID>',
+    });
+    _syncUserWithStateAsync();
+  };
+
+  const _syncUserWithStateAsync = async () => {
+    const user = await GoogleSignIn.signInSilentlyAsync();
+    setGoogleUser({ user });
+  };
+
+  async function GoogleLogin(){
+    alert('clicked')
+  
+      try {
+        await GoogleSignIn.askForPlayServicesAsync();
+        const { type, user } = await GoogleSignIn.signInAsync();
+        if (type === 'success') {
+          this._syncUserWithStateAsync();
+        }
+      } catch ({ message }) {
+        alert('login: Error:' + message);
+      }
+  
+  }
+
+
  async function onsubmit() {
 
   setDisableBtn(true)
@@ -259,7 +292,7 @@ label='Email Address'
   type='facebook'
 />
 
-<SocialIcon
+<SocialIcon onPress={() => GoogleLogin()}
 style={{width: '96%'}}
   title='Sign In With Google'
   button

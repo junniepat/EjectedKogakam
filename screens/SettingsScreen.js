@@ -19,17 +19,13 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 
-
-import MaterialSearchBar from "../components/MaterialSearchBar";
-
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment';
 import axios from 'axios'
 import { Checkbox } from 'react-native-paper';
-
-
+import ProfileData from '../components/ProfileData';
 export default function SettingsScreen(props) {
 
   const [profile, setUser] = useState({user: []}); 
@@ -106,30 +102,30 @@ setselectedOptions(filteredItems)
 
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-			position => {
-        const latitude = JSON.stringify(position.coords.latitude);
-        const longitude = JSON.stringify(position.coords.longitude);
+    // navigator.geolocation.getCurrentPosition(
+		// 	position => {
+    //     const latitude = JSON.stringify(position.coords.latitude);
+    //     const longitude = JSON.stringify(position.coords.longitude);
 
         
-        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
-        .then((response) => response.json())
-        .then((responseJson) => { 
-           setLocation(responseJson.results[1].formatted_address)
-           setShopLocation(responseJson.results[1].formatted_address)
-        setAddress(responseJson.results[1].formatted_address)
-        setCity(responseJson.results[1].address_components[1].long_name)
-        setState(responseJson.results[1].address_components[3].long_name)
-        setCountry(responseJson.results[1].address_components[6].long_name)
+    //     fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
+    //     .then((response) => response.json())
+    //     .then((responseJson) => { 
+    //        setLocation(responseJson.results[1].formatted_address)
+    //        setShopLocation(responseJson.results[1].formatted_address)
+    //     setAddress(responseJson.results[1].formatted_address)
+    //     setCity(responseJson.results[1].address_components[1].long_name)
+    //     setState(responseJson.results[1].address_components[3].long_name)
+    //     setCountry(responseJson.results[1].address_components[6].long_name)
         
-        })
+    //     })
 
-        setlatitude(latitude);
-        setlongitude(longitude);
-			},
-			error => Alert.alert(error.message),
-			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-		);
+    //     setlatitude(latitude);
+    //     setlongitude(longitude);
+		// 	},
+		// 	error => Alert.alert(error.message),
+		// 	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+		// );
   }, [])
   
 
@@ -156,15 +152,15 @@ setselectedOptions(filteredItems)
 
 
 
-    const fetchCats = async () => {
-      const result = await axios.get(
-        'shop_cat'
-      );  
-      setCats(result.data.successData.cats);
-    };
+    // const fetchCats = async () => {
+    //   const result = await axios.get(
+    //     'shop_cat'
+    //   );  
+    //   setCats(result.data.successData.cats);
+    // };
 
 
-    fetchCats();
+    // fetchCats();
     fetchData();
     fetchShopData();
   }, []);
@@ -228,7 +224,7 @@ setselectedOptions(filteredItems)
   const _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,    
     });
@@ -262,7 +258,7 @@ setselectedOptions(filteredItems)
  const selectCert = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,    
     });
@@ -320,45 +316,6 @@ setselectedOptions(filteredItems)
     )
     
   }
-
-  async function onshopsubmit() {
-    setDisableBtn(true)
-    setbtnText('Updating ....')
-  
-    if (email == null) {
-      console.warn('exploded')
-    }
-  
-    console.warn('ok')
-    const formData = new FormData();
-    formData.append('shop_title', shop_title);
-    formData.append('shop_description', shop_description);
-    formData.append('shop_location', shop_location);
-    formData.append('cats', selectedOption);
-    formData.append('shop_lat', latitude);
-    formData.append('shop_lng', longitude);
-    formData.append('city', city);
-    formData.append('state', state);
-    formData.append('country', country);
-  
-    console.warn(formData)
-  
-    await axios.post('change_shop', formData)
-    .then(res => {
-      console.warn(res)
-      setError('')
-      setMessage('Update successful, changes would be effected in your next sign in')
-      fetchData();
-    })
-  
-    .catch(error => {
-      setError('Unable to Update')
-      setMessage('')
-      
-      console.warn(error, 'settings')}
-      )
-      
-    }
 
   useEffect(() => {
    
@@ -423,11 +380,6 @@ setselectedOptions(filteredItems)
           colors={['rgb(28, 69, 158)', 'rgb(28, 69, 158)', 'rgb(22, 70, 173)']}
           style={{paddingTop: 10, paddingBottom: 10}}>
          
-    
-<MaterialSearchBar
-        style={styles.materialSearchBar1}
-      ></MaterialSearchBar>
-
 <>
       <Fragment >
           
@@ -649,67 +601,8 @@ label="Address"
       {profile.user['type'] === 'shop' ? 
       <Tab title='Shop Settings'>
         <Layout style={styles.tabContainer}>
-          
-          
         <Text style={styles.text}>Update Shop Details </Text>
-
-
-{Message !== '' ? <View style={{backgroundColor: '#9bffad', margin: 10, padding: 5, borderRadius: 3}}>
-    <Text style={{color: 'green'}}>{Message}</Text>
-  </View> : null}
-
- {error !== '' ? <View style={{backgroundColor: '#ff475c', margin: 10, padding: 5, borderRadius: 3}}>
-    <Text style={{color: '#fff'}}>{error}</Text>
-  </View> : null}
-
-
-  <View
-  style={styles.materialUnderlineTextbox}>
-    <Input
-    label="Shop Title"
-        placeholder={'Shop Title'}
-        style={styles.input}
-    onChangeText={text => setShopTitle(text)}
-    value={shop_title}
-      />
-
-</View>
-
- <View
-  style={styles.materialUnderlineTextbox}>
-    <Input
-    label="Shop Description"
-        placeholder={'Shop Description'}
-        style={styles.input}
-    onChangeText={text => setShopDescription(text)}
-    value={shop_description}
-      />
-
-</View>
-
-
-<View
-  style={styles.materialUnderlineTextbox}>
-    <Input
-    label="Shop Location"
-        placeholder={'Shop Location'}
-        style={styles.input}
-    onChangeText={text => setShopLocation(text)}
-    value={shop_location}
-      />
-
-</View>
-
-{/* 
-  <ShopSettings/>
- */}
-
-<View style={{marginLeft: 5, marginTop: 30, marginRight: 9}}>
-      <Button onPress={()=> onshopsubmit()} >
-        Update
-      </Button>
-</View> 
-
+        <ProfileData/>
         </Layout>
       </Tab> : null}
     
@@ -823,6 +716,18 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 12
   },
+  text: {
+    color: "rgba(0,0,0,1)",
+    fontSize: 18,
+    marginTop: 3,
+    marginLeft: 9,
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+    borderStyle: 'solid',
+    borderBottomWidth: 1,
+    marginTop: 10,
+    fontFamily: 'Montserrat-Medium',
+  },
   report: {
     color: "rgba(0,0,0,1)",
     fontSize: 18,
@@ -834,27 +739,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 10,
     fontFamily: 'Montserrat-Medium',
-  },
-  inputStyle2: {
-    flex: 1,
-    color: "#000",
-    alignSelf: "stretch",
-    paddingTop: 2,
-    paddingRight: 0,
-    paddingBottom: 8,
-    fontSize: 16,
-    height: 100,
-    lineHeight: 1,
-    textAlign: "left"
-  },
-  materialSearchBar1: {
-    width: "97%",
-    height: 46,
-    marginTop: 10,
-    marginLeft: 6,
-
-    marginBottom: 5,
-
   },
   
   profileIm: {
@@ -912,17 +796,7 @@ const styles = StyleSheet.create({
     marginBottom: 21,
     marginTop: 12 
   },
-  memberSince: {
-    color: "#86A8DC",
-    fontSize: 11,
-    width: '33%',
-    marginRight: 8,
-    textAlign: 'center',
-    alignContent: 'center',
-    alignSelf: 'center',
-    alignItems: 'center',
-    fontFamily: 'Montserrat-Medium',
-  },
+
   products: {
     color: "#86A8DC",
     fontSize: 11,
@@ -973,12 +847,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     width: '98%'
   },
-  path: {
-    width: 323,
-    height: 2,
-    marginTop: 27,
-    marginLeft: 23
-  },
+
   loremIpsum3Row: {
     height: 25,
     flexDirection: "row",
@@ -1008,74 +877,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     fontFamily: 'Montserrat-Medium',
   },
-
-  blueBack: {
-    backgroundColor: '#4630EB',
-    marginTop: 20,
-    paddingTop: 40,
-    paddingBottom: 40,
-    height: '55%'
-  },
-  lottie: {
-    width: 100,
-    height: 100
-  },
-  inputStyle: {
-    flex: 1,
-    color: "#000",
-    alignSelf: "stretch",
-    paddingTop: 8,
-    paddingRight: 0,
-    paddingBottom: 8,
-    fontSize: 16,
-    lineHeight: 16,
-    textAlign: "left",
-    
-    fontFamily: 'Montserrat-Medium',
-  },
-  buttonAll: {
-    flexDirection: 'row', 
-    marginTop: 4,
-    flexWrap: 'wrap', 
-    justifyContent: 'space-between',
-  },
-  materialButtonViolet: {
-    width: "95%",
-    height: 51,
-    marginTop: 32,
-    marginLeft: 10,
-    marginBottom: 25,
-
-
-    backgroundColor: "#3F51B5",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingRight: 16,
-    paddingLeft: 16,
-    elevation: 2,
-    minWidth: 88,
-    borderRadius: 2,
-    shadowOffset: {
-      height: 1,
-      width: 0
-    },
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
-    shadowRadius: 5
-  },
-
-  caption: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  materialRightIconTextbox: {
-    width: "95%",
-    height: 43,
-    marginTop: 30,
-
-    marginLeft: 10
-  },
   materialUnderlineTextbox: {
     width: "98%",
     height: 50,
@@ -1086,118 +887,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 12
   },
-  materialButtonViolet1: {
-    top: 0,
-    left: 0,
-    width: "95%",
-    height: 51,
-  },
-  icon: {
-    top: 9,
-    left: 86,
-    position: "absolute",
-    color: "rgba(255,255,255,1)",
-    fontSize: 30
-  },
-  materialButtonViolet1Stack: {
-    width: "98.5%",
-    height: 51,
-    marginLeft: 10
-  },
-  materialButtonWithShadow: {
-    width: "94%",
-    height: 51,
-    marginTop: 10,
-    alignSelf: 'center'
-  },
-  we: {
-    color: "#fff",
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: 32,
-    marginLeft: 30
-  },
-  cupertinoButtonBlueTextColor: {
-    width: 110,
-    height: 44,
-    marginTop: 3
-},
-  and: {
-    color: "#fff",
-    fontSize: 11,
-    marginLeft: 10,
-    marginTop: 18
-  },
-  cupertinoButtonBlueTextColor1: {
-    width: 100,
-    height: 44,
-    marginLeft: 6,
-    marginTop: 3
-  },
-  cupertinoButtonBlueTextColorRow: {
-    height: 46,
-    flexDirection: "row",
-    marginTop: 1,
-    marginLeft: 48,
-    marginRight: 44
-  },
-  text: {
-    color: "rgba(0,0,0,1)",
-    fontSize: 19,
-    
-    marginTop: 20,
-    textAlign: 'center',
-    marginBottom: 1,
-    fontFamily: 'Montserrat-Medium',
-  },
-  materialButtonPink1: {
-    top: 0,
-    left: 0,
-    width: "98.5%",
-    height: 57,
-    position: "absolute"
-  },
-  icon2: {
-    top: 12,
-    left: 89,
-    position: "absolute",
-    color: "rgba(255,255,255,1)",
-    fontSize: 30
-  },
-  materialButtonPink1Stack: {
-    width: "95%",
-    height: 57,
-    marginTop: 9,
-    marginLeft: 10
-  },
-  loremIpsum3StackStack: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: "70%",
-    height: 49,
-    alignItems: 'center',
-    alignSelf: 'center',
-    alignContent: 'center',
-    textAlign: 'center',
-  },
-  caption: {
-    fontSize: 12,
-    color: '#fff',
-    textAlign: 'center',
-  },
-  and1: {
-    fontSize: 12,
-    color: '#fff',
-    marginLeft: 5,
-    marginRight:5
-  },
  
 });
-
-
-
-
-
-
 
 

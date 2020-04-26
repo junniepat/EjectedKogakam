@@ -1,6 +1,6 @@
 
 
-import { AppLoading } from 'expo';
+// import { AppLoading } from 'expo';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import React, { useState } from 'react';
@@ -23,15 +23,15 @@ import AppNavigator from './navigation/AppNavigator';
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
 
-  if (!isLoadingComplete && !props.skipLoadingScreen) {
-    return (
-      <AppLoading
-        startAsync={loadResourcesAsync}
-        onError={handleLoadingError}
-        onFinish={() => handleFinishLoading(setLoadingComplete)}
-      />
-    );
-  } else {
+  // if (!isLoadingComplete && !props.skipLoadingScreen) {
+  //   return (
+  //     <AppLoading
+  //       startAsync={loadResourcesAsync}
+  //       onError={handleLoadingError}
+  //       onFinish={() => handleFinishLoading(setLoadingComplete)}
+  //     />
+  //   );
+  // } else {
     return (
     
       <ApplicationProvider {...eva} theme={eva.light}>
@@ -46,7 +46,7 @@ export default function App(props) {
       </ApplicationProvider>
    
     );
-  }
+  // }
 }
 
 async function loadResourcesAsync() {

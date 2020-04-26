@@ -32,15 +32,15 @@
     },
     "description": "an iraq market place app",
     "facebookAppId": "416655789000715",
-    "facebookDisplayName": "Kogakam" ,
-
-
-      "androidStatusBar": {
-        "barStyle": "light-content" ,
-        "backgroundColor": "#4630EB",
-        "hidden": false,
-        "translucent": false
-      }
-   
-  }
+    "facebookDisplayName": "Kogakam",
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#4630EB",
+      "hidden": false,
+      "translucent": false
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
+  },
+  "displayName": "Kogakam",
+  "name": "kogakam"
 }

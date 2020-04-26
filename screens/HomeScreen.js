@@ -81,11 +81,11 @@ export default function HomeScreen(props) {
 <View style={{flexDirection: 'row', justifyContent: 'space-between', 
     marginTop: 12, marginBottom: 5, width: '98%' }}>
     <View>
-          <Picker
+          {/* <Picker
         style={styles.picker}>
         <Picker.Item label="English" value="English" />
         <Picker.Item label="Arabic" value="Arabic" />
-      </Picker>
+      </Picker> */}
     </View>
 
 
