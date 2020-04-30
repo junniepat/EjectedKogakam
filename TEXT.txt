@@ -1,0 +1,7 @@
+Google Sign in *
+Facebook Sign in *
+add products images  *
+Geolocation *
+multiple select 
+voice messaging 
+search products

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\user\\Desktop\\reactnative projects\\kogakam - Copy\\android\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v25\\values-v25.xml",
+            "outputFile": "/Users/jasper/PROJECTS/JAVASCRIPT/EjectedKogakam/android/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v25/values-v25.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\user\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-1.1.0.aar\\3a9be14556927988c5f287d5e7cd00e7\\res\\values-v25\\values-v25.xml",
+                    "source": "/Users/jasper/.gradle/caches/transforms-1/files-1.1/appcompat-1.1.0.aar/cb8d52d23021a45a4b3cb265fc6abaaa/res/values-v25/values-v25.xml",
                     "from": {
                         "startLines": "2,3,4,6",
                         "startColumns": "4,4,4,4",

@@ -120,24 +120,23 @@ function Login(props) {
   const initAsync = async () => {
     await GoogleSignIn.initAsync({
       // You may ommit the clientId when the firebase `googleServicesFile` is configured
-      clientId: '<YOUR_IOS_CLIENT_ID>',
+      clientId: '701419575524-7f85oqrr8b9cc4qto5uscdikf4rgk7tg.apps.googleusercontent.com',
     });
     _syncUserWithStateAsync();
   };
 
   const _syncUserWithStateAsync = async () => {
     const user = await GoogleSignIn.signInSilentlyAsync();
-    setGoogleUser({ user });
+    console.log(user);
+    //setGoogleUser({ user });
   };
 
-  async function GoogleLogin(){
-    alert('clicked')
-  
+  async function GoogleLogin(){  
       try {
         await GoogleSignIn.askForPlayServicesAsync();
         const { type, user } = await GoogleSignIn.signInAsync();
         if (type === 'success') {
-          this._syncUserWithStateAsync();
+          _syncUserWithStateAsync();
         }
       } catch ({ message }) {
         alert('login: Error:' + message);

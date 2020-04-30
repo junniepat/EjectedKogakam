@@ -1,10 +1,10 @@
-#Sun Apr 26 16:15:09 WAT 2020
+#Thu Apr 30 02:34:56 WAT 2020
 path.2=classes2.dex
 path.1=classes.dex
 path.0=classes.dex
 renamed.2=classes3.dex
 renamed.1=classes2.dex
 renamed.0=classes.dex
-base.2=C\:\\Users\\user\\Desktop\\reactnative projects\\kogakam - Copy\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
-base.1=C\:\\Users\\user\\Desktop\\reactnative projects\\kogakam - Copy\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\1
-base.0=C\:\\Users\\user\\Desktop\\reactnative projects\\kogakam - Copy\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
+base.2=/Users/jasper/PROJECTS/JAVASCRIPT/EjectedKogakam/android/app/build/intermediates/transforms/dexMerger/debug/0
+base.1=/Users/jasper/PROJECTS/JAVASCRIPT/EjectedKogakam/android/app/build/intermediates/transforms/dexMerger/debug/0
+base.0=/Users/jasper/PROJECTS/JAVASCRIPT/EjectedKogakam/android/app/build/intermediates/transforms/dexMerger/debug/1

@@ -5,6 +5,7 @@ import { StyleSheet, View, Text, TextInput, ScrollView,
 import { Button } from 'react-native-elements';
 import axios from 'axios'
 import * as api from "../services/service";
+import Geolocation from '@react-native-community/geolocation';
 
 import MaterialButtonWithVioletText1 from "../components/MaterialButtonWithVioletText1";
 
@@ -34,29 +35,39 @@ const RegisterScreen = (props) => {
 
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-			position => {
-        const latitude = JSON.stringify(position.coords.latitude);
-        const longitude = JSON.stringify(position.coords.longitude);
+    Geolocation.getCurrentPosition(info => console.log(info));
+    // navigator.geolocation.getCurrentPosition(
+    //   position => {
+    //     const location = JSON.stringify(position);
+    
+    //     //this.setState({ location });
+    //   },
+    //   error => Alert.alert(error.message),
+    //   { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    // );
+    // navigator.geolocation.getCurrentPosition(
+		// 	position => {
+    //     const latitude = JSON.stringify(position.coords.latitude);
+    //     const longitude = JSON.stringify(position.coords.longitude);
 
         
-        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
-        .then((response) => response.json())
-        .then((responseJson) => {
+    //     fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
+    //     .then((response) => response.json())
+    //     .then((responseJson) => {
            
-        setAddress(responseJson.results[1].formatted_address)
-        setCity(responseJson.results[1].address_components[1].long_name)
-        setState(responseJson.results[1].address_components[3].long_name)
-        setCountry(responseJson.results[1].address_components[6].long_name)
+    //     setAddress(responseJson.results[1].formatted_address)
+    //     setCity(responseJson.results[1].address_components[1].long_name)
+    //     setState(responseJson.results[1].address_components[3].long_name)
+    //     setCountry(responseJson.results[1].address_components[6].long_name)
         
-        })
+    //     })
 
-        setlatitude(latitude);
-        setlongitude(longitude);
-			},
-			error => Alert.alert(error.message),
-			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-		);
+    //     setlatitude(latitude);
+    //     setlongitude(longitude);
+		// 	},
+		// 	error => Alert.alert(error.message),
+		// 	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+		// );
   }, [])
   
 

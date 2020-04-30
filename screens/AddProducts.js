@@ -52,29 +52,29 @@ export default function AddProducts(props) {
 
    
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-			position => {
-        const latitude = JSON.stringify(position.coords.latitude);
-        const longitude = JSON.stringify(position.coords.longitude);
+    // navigator.geolocation.getCurrentPosition(
+		// 	position => {
+    //     const latitude = JSON.stringify(position.coords.latitude);
+    //     const longitude = JSON.stringify(position.coords.longitude);
 
         
-        fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
-        .then((response) => response.json())
-        .then((responseJson) => {
-            console.warn('ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson.results[1].formatted_address));
-        setAddress(responseJson.results[1].formatted_address)
-        setCity(responseJson.results[1].address_components[1].long_name)
-        setState(responseJson.results[1].address_components[3].long_name)
-        setCountry(responseJson.results[1].address_components[4].long_name)
+    //     fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + latitude + ',' + longitude + '&key=' + 'AIzaSyCqVdsEiP5jMfTWaiHaOO5CjRyCvylHtS4')
+    //     .then((response) => response.json())
+    //     .then((responseJson) => {
+    //         console.warn('ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson.results[1].formatted_address));
+    //     setAddress(responseJson.results[1].formatted_address)
+    //     setCity(responseJson.results[1].address_components[1].long_name)
+    //     setState(responseJson.results[1].address_components[3].long_name)
+    //     setCountry(responseJson.results[1].address_components[4].long_name)
         
-        })
+    //     })
 
-        setlatitude(latitude);
-        setlongitude(longitude);
-			},
-			error => Alert.alert(error.message),
-			{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    );
+    //     setlatitude(latitude);
+    //     setlongitude(longitude);
+		// 	},
+		// 	error => Alert.alert(error.message),
+		// 	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    // );
     
     askPermissionsAsync();
   }, [])
@@ -96,6 +96,17 @@ export default function AddProducts(props) {
         }
       }
     };
+
+
+    const generateFileName = (length) =>{
+      var result           = '';
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      for ( var i = 0; i < length; i++ ) {
+         result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+   }
 
      
       const submitForm = e => {
@@ -127,14 +138,12 @@ export default function AddProducts(props) {
 
           formData.append('cat_id',  props.navigation.getParam('catId'));
           formData.append('sub_cat_id',  props.navigation.getParam('subCatid'));
-          formData.append('images', images);
+          images.forEach(e=>formData.append('images[]', e));
+          
+         
 
           console.warn(formData)
-          axios.post('/add_product',  formData, {
-            headers: {
-              'content-type': 'multipart/form-data'
-            }
-          } )
+          axios.post('/add_product',  formData)
           .then(res => {
             console.warn(res)
             setDisableBtn(true)
@@ -166,8 +175,9 @@ export default function AddProducts(props) {
           let uri = result.uri
           let fileType = uri.substring(uri.lastIndexOf(".") + 1)
           let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          let fileName = generateFileName(5)+'.'+fileType;
           
-          setImages(images.concat({type: 'image/jpg', uri}))
+          setImages(images.concat({type: 'image/'+fileType, uri: uri,name:fileName}))
  
       }
 
@@ -183,14 +193,13 @@ export default function AddProducts(props) {
           setpreview1(result.uri);
       }
 
-      console.warn(result.uri)
       
           let uri = result.uri
           let fileType = uri.substring(uri.lastIndexOf(".") + 1)
           let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
-           
-          // 
-          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+          let fileName = generateFileName(5)+'.'+fileType;
+          
+          setImages(images.concat({type: 'image/'+fileType, uri: uri,name:fileName}))
       
       }
      
@@ -209,9 +218,9 @@ export default function AddProducts(props) {
           let uri = result.uri
           let fileType = uri.substring(uri.lastIndexOf(".") + 1)
           let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          let fileName = generateFileName(5)+'.'+fileType;
           
-          // setImageTwo( {type: 'image/jpg', uri, name: `uploaded.${fileType}` });
-          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+          setImages(images.concat({type: 'image/'+fileType, uri: uri,name:fileName}))
       }
 
 
@@ -229,12 +238,11 @@ export default function AddProducts(props) {
           let uri = result.uri
           let fileType = uri.substring(uri.lastIndexOf(".") + 1)
           let Imagefile = uri.substring(uri.lastIndexOf("/") + 1)
+          let fileName = generateFileName(5)+'.'+fileType;
           
-          // setImageThree( {type: 'image/jpg', uri, name: `uploaded.${fileType}` });
-          setImages(images.concat({type: 'image/jpg', uri, name: `uploaded.${fileType}`}))
+          setImages(images.concat({type: 'image/'+fileType, uri: uri,name:fileName}))
       
       }
-
 
       console.warn('images', images)
     

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\user\\Desktop\\reactnative projects\\kogakam - Copy\\android\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-es-rGT\\values-es-rGT.xml",
+            "outputFile": "/Users/jasper/PROJECTS/JAVASCRIPT/EjectedKogakam/android/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-es-rGT/values-es-rGT.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\user\\.gradle\\caches\\transforms-1\\files-1.1\\jetified-android-image-cropper-2.7.0.aar\\71b14dbe190802718794a76351f4a7e5\\res\\values-es-rGT\\values-es-rGT.xml",
+                    "source": "/Users/jasper/.gradle/caches/transforms-1/files-1.1/jetified-android-image-cropper-2.7.0.aar/f7eac60e00cae62424635b28408bfbd5/res/values-es-rGT/values-es-rGT.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
